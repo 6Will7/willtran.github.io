@@ -1,0 +1,105 @@
+HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>William Tran</title>
+    <style>
+        /* This section (CSS) controls the look and feel of the website */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #2c3e50; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 2rem 1.5rem; 
+            background-color: #f8f9fa; 
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 0.2rem; 
+            color: #1a1a1a; 
+            letter-spacing: -0.5px;
+        }
+        h2 { 
+            font-size: 1.2rem; 
+            font-weight: 400; 
+            color: #6c757d; 
+            margin-top: 0; 
+            margin-bottom: 2.5rem; 
+        }
+        .section { 
+            margin-bottom: 2rem; 
+            padding: 2rem; 
+            background: #ffffff; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); 
+            transition: transform 0.2s ease;
+        }
+        .section:hover {
+            transform: translateY(-2px);
+        }
+        h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 0.5rem;
+        }
+        a { 
+            color: #3182ce; 
+            text-decoration: none; 
+            font-weight: 500;
+        }
+        a:hover { 
+            text-decoration: underline; 
+            color: #2b6cb0;
+        }
+        .skills-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 0;
+            list-style: none;
+        }
+        .skills-list li {
+            background: #edf2f7;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This section (HTML) controls the actual text on the page -->
+    <header>
+        <h1>William Tran</h1>
+        <h2>Yes it's me</h2>
+    </header>
+    
+    <div class="section">
+        <h3>About me</h3>
+        <p>I am using this website to learn how to use the computer. My favorite sports team is FC Barcelona.</p>
+        
+        <ul class="skills-list">
+            <li>Alphabet</li>
+            <li>Counting</li>
+            <li>Cooking</li>
+            <li>Fill in the blank</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h3>Beyond the Desk</h3>
+        <p>Chicken or Egg?</p>
+    </div>
+
+    <div class="section">
+        <h3>Get in Touch</h3>
+        <p>Feel free to reach out directly at <a href="mailto:hello@willtran.org">hello@willtran.org</a>.</p>
+    </div>
+
+</body>
+</html>
