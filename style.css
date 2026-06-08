@@ -163,3 +163,40 @@ a:hover {
     white-space: nowrap;
     font-weight: 500;
 }
+/* --- Recipe Page Styling --- */
+
+/* The Wikipedia-style index box */
+.toc-box {
+    background: #0a0a2a; /* Slightly darker than your main cards */
+    padding-bottom: 1.5rem;
+}
+
+.toc-box ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}
+
+.toc-box li {
+    margin-bottom: 0.5rem;
+}
+
+/* Adds breathing room when jumping to a section */
+.recipe-section {
+    scroll-margin-top: 2rem; 
+}
+
+.recipe-section ul, .recipe-section ol {
+    color: #b0b0c8;
+}
+
+.recipe-section li {
+    margin-bottom: 0.5rem;
+}
+
+.back-to-top {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
