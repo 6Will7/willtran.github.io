@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videos | Will Tran</title>
+    
+    <link rel="stylesheet" href="style.css"> 
+    
+    <style>
+        /* Specific styling to keep the videos centered and spaced well */
+        .video-gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            margin: 50px auto;
+            max-width: 800px;
+        }
+        
+        .video-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="videos.html" class="active">Videos</a>
+    </nav>
+
+    <main class="video-gallery">
+        <h1>Video Archive</h1>
+        
+        <div class="video-wrapper">
+            <iframe width="560" height="315" src="https://www.youtube.com/watch?v=dp4YTkyZZXM&list=LL&index=9" title="Video 1" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div class="video-wrapper">
+            <iframe width="560" height="315" src="https://www.youtube.com/watch?v=5mLnuCORMrU" title="Video 2" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </main>
+
+</body>
+</html>
