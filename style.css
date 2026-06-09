@@ -163,6 +163,7 @@ a:hover {
     white-space: nowrap;
     font-weight: 500;
 }
+
 /* --- Recipe Page Styling --- */
 
 /* The Wikipedia-style index box */
@@ -199,4 +200,28 @@ a:hover {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* --- Disclaimer Box --- */
+.disclaimer-box {
+    background: #1a2332; /* Darker, alert-like background */
+    border-left: 4px solid #ff6b6b; /* Red accent on left */
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    border: 1px solid #2d3748;
+}
+
+.disclaimer-box h3 {
+    margin-top: 0;
+    color: #ff8787; /* Softer red */
+    font-size: 1.1rem;
+    text-transform: none;
+}
+
+.disclaimer-box p {
+    margin: 0.5rem 0 0 0;
+    color: #cbd5e0; /* Lighter text for readability */
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
