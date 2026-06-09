@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
     <title>Gallery | William Tran</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -58,7 +58,7 @@
             </div>
             <div class="lightbox-caption"></div>
             <div class="lightbox-controls-hint">
-                Use arrow keys or click buttons to navigate • Press ESC to close
+                Swipe to navigate • ESC to close
             </div>
         </div>
     </div>
@@ -142,6 +142,13 @@
         const totalPhotosSpan = document.querySelector('.total-photos');
         let currentIndex = 0;
 
+        // Touch gesture tracking
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+        const SWIPE_THRESHOLD = 50;
+
         // Update total photos count
         totalPhotosSpan.textContent = photos.length;
 
@@ -206,7 +213,35 @@
             e.stopPropagation();
         });
 
-        // Keyboard navigation
+        // ===== TOUCH SWIPE GESTURES =====
+        lightboxImage.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].clientX;
+            touchStartY = e.changedTouches[0].clientY;
+        }, { passive: true });
+
+        lightboxImage.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].clientX;
+            touchEndY = e.changedTouches[0].clientY;
+            
+            // Calculate if swipe is primarily horizontal
+            const horizontalDistance = Math.abs(touchEndX - touchStartX);
+            const verticalDistance = Math.abs(touchEndY - touchStartY);
+            
+            // Only trigger navigation if horizontal swipe is significant
+            if (horizontalDistance > SWIPE_THRESHOLD && horizontalDistance > verticalDistance) {
+                if (touchEndX < touchStartX) {
+                    // Swiped left - go to next image
+                    currentIndex++;
+                    showImage(currentIndex);
+                } else if (touchEndX > touchStartX) {
+                    // Swiped right - go to previous image
+                    currentIndex--;
+                    showImage(currentIndex);
+                }
+            }
+        }, { passive: true });
+
+        // ===== KEYBOARD NAVIGATION =====
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             
@@ -219,6 +254,20 @@
                 showImage(currentIndex);
             }
             if (e.key === 'Escape') closeLightbox();
+        });
+
+        // ===== PREVENT DOUBLE-TAP ZOOM ON BUTTONS =====
+        let lastTap = 0;
+        ['lightbox-nav', 'lightbox-close'].forEach(className => {
+            document.querySelectorAll('.' + className).forEach(button => {
+                button.addEventListener('touchstart', (e) => {
+                    const now = Date.now();
+                    if (now - lastTap < 300) {
+                        e.preventDefault();
+                    }
+                    lastTap = now;
+                }, { passive: false });
+            });
         });
     </script>
 
