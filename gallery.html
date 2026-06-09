@@ -29,45 +29,7 @@
             <p>A collection of photos that I have taken. You can click to expand!</p>
             
             <!-- Gallery Grid -->
-            <div class="gallery-grid">
-                
-                <!-- PHOTO 1 -->
-                <div class="gallery-item">
-                    <img src="githubphotos/WNT00410.JPEG" alt="Kamo River in Kyoto" class="gallery-image" data-full="githubphotos/WNT00410.JPEG">
-                    <div class="gallery-caption">Kamo River in Kyoto</div>
-                </div>
-
-                <!-- PHOTO 2 -->
-                <div class="gallery-item">
-                    <img src="githubphotos/WNT00456.JPEG" alt="Kinkaku-ji in Kyoto" class="gallery-image" data-full="githubphotos/WNT00456.JPEG">
-                    <div class="gallery-caption">Kinkaku-ji in Kyoto</div>
-                </div>
-
-                <!-- PHOTO 3 -->
-                <div class="gallery-item">
-                    <img src="githubphotos/WNT00649.JPEG" alt="Kiyomizu-dera Temple in Kyoto" class="gallery-image" data-full="githubphotos/WNT00649.JPEG">
-                    <div class="gallery-caption">Kiyomizu-dera Temple in Kyoto - founded in 780</div>
-                </div>
-
-                <!-- PHOTO 4 -->
-                <div class="gallery-item">
-                    <img src="githubphotos/WNT01240.JPEG" alt="Sea Turtles at Churaumi Aquarium" class="gallery-image" data-full="githubphotos/WNT01240.JPEG">
-                    <div class="gallery-caption">Sea Turtles at Churaumi Aquarium in Kyoto</div>
-                </div>
-
-<!-- PHOTO 5 -->
-                <div class="gallery-item">
-                    <img src="githubphotos/blackandwhiteresto.JPEG" alt="Sign" class="gallery-image" data-full="githubphotos/WNT01240.JPEG">
-                    <div class="gallery-caption">Lost in translation</div>
-                </div>
-
-                <!-- PHOTO 6 -->
-                      <div class="gallery-item">
-                    <img src="githubphotos/WNT01244.JPEG" alt="Sign" class="gallery-image" data-full="githubphotos/WNT01240.JPEG">
-                    <div class="gallery-caption">Famous crowd, famouser fish</div>
-                </div>
-                
-            </div>
+            <div class="gallery-grid" id="galleryGrid"></div>
         </div>
     </div>
 
@@ -92,7 +54,7 @@
         <!-- Caption and counter -->
         <div class="lightbox-info">
             <div class="lightbox-counter">
-                <span class="current-photo">1</span> / <span class="total-photos">4</span>
+                <span class="current-photo">1</span> / <span class="total-photos">6</span>
             </div>
             <div class="lightbox-caption"></div>
             <div class="lightbox-controls-hint">
@@ -102,36 +64,86 @@
     </div>
 
     <script>
+        // ===== PHOTO DATA =====
+        // Easy to add photos: just add a new object to this array!
+        const photos = [
+            {
+                thumbnail: "githubphotos/WNT00410.JPEG",
+                full: "githubphotos/WNT00410.JPEG",
+                alt: "Kamo River in Kyoto",
+                caption: "Kamo River in Kyoto"
+            },
+            {
+                thumbnail: "githubphotos/WNT00456.JPEG",
+                full: "githubphotos/WNT00456.JPEG",
+                alt: "Kinkaku-ji in Kyoto",
+                caption: "Kinkaku-ji in Kyoto"
+            },
+            {
+                thumbnail: "githubphotos/WNT00649.JPEG",
+                full: "githubphotos/WNT00649.JPEG",
+                alt: "Kiyomizu-dera Temple in Kyoto",
+                caption: "Kiyomizu-dera Temple in Kyoto - founded in 780"
+            },
+            {
+                thumbnail: "githubphotos/WNT01240.JPEG",
+                full: "githubphotos/WNT01240.JPEG",
+                alt: "Sea Turtles at Churaumi Aquarium",
+                caption: "Sea Turtles at Churaumi Aquarium in Kyoto"
+            },
+            {
+                thumbnail: "githubphotos/blackandwhiteresto.JPEG",
+                full: "githubphotos/blackandwhiteresto.JPEG",
+                alt: "Sign",
+                caption: "Lost in translation"
+            },
+            {
+                thumbnail: "githubphotos/WNT01244.JPEG",
+                full: "githubphotos/WNT01244.JPEG",
+                alt: "Sign",
+                caption: "Famous crowd, famouser fish"
+            }
+        ];
+
+        // ===== RENDER GALLERY =====
+        const galleryGrid = document.getElementById('galleryGrid');
+        photos.forEach((photo, index) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.innerHTML = `
+                <img src="${photo.thumbnail}" alt="${photo.alt}" class="gallery-image" data-index="${index}">
+                <div class="gallery-caption">${photo.caption}</div>
+            `;
+            galleryGrid.appendChild(galleryItem);
+        });
+
+        // ===== LIGHTBOX FUNCTIONALITY =====
         const lightbox = document.getElementById('lightbox');
         const lightboxImage = document.querySelector('.lightbox-image');
         const lightboxCaption = document.querySelector('.lightbox-caption');
         const currentPhotoSpan = document.querySelector('.current-photo');
         const totalPhotosSpan = document.querySelector('.total-photos');
-        const galleryImages = document.querySelectorAll('.gallery-image');
         let currentIndex = 0;
 
-        // Set total photos count
-        totalPhotosSpan.textContent = galleryImages.length;
+        // Update total photos count
+        totalPhotosSpan.textContent = photos.length;
 
         // Open lightbox when clicking on an image
-        galleryImages.forEach((img, index) => {
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', () => {
-                currentIndex = index;
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('gallery-image')) {
+                currentIndex = parseInt(e.target.dataset.index);
                 openLightbox();
-            });
+            }
         });
 
         function openLightbox() {
-            const img = galleryImages[currentIndex];
-            lightboxImage.src = img.dataset.full;
-            lightboxCaption.textContent = img.alt;
+            const photo = photos[currentIndex];
+            lightboxImage.src = photo.full;
+            lightboxCaption.textContent = photo.caption;
             currentPhotoSpan.textContent = currentIndex + 1;
             
             lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
-            
-            // Focus the lightbox for keyboard accessibility
             lightbox.focus();
         }
 
@@ -141,8 +153,8 @@
         }
 
         function showImage(index) {
-            if (index >= galleryImages.length) currentIndex = 0;
-            if (index < 0) currentIndex = galleryImages.length - 1;
+            if (index >= photos.length) currentIndex = 0;
+            if (index < 0) currentIndex = photos.length - 1;
             
             openLightbox();
         }
@@ -150,7 +162,7 @@
         // Close button
         document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
-        // Next/Prev buttons with better click targets
+        // Next/Prev buttons
         document.querySelector('.lightbox-next').addEventListener('click', (e) => {
             e.stopPropagation();
             currentIndex++;
@@ -163,7 +175,7 @@
             showImage(currentIndex);
         });
 
-        // Close on background click (but not on image or buttons)
+        // Close on background click
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
