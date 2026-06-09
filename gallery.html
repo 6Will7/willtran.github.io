@@ -15,11 +15,10 @@
             <nav>
                 <ul>
                     <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="gallery.html"class="active" >Gallery</a></li>
+                    <li><a href="gallery.html" class="active">Gallery</a></li>
                     <li><a href="Resume.pdf" target="_blank">Download My Resume</a></li>
-                    <li><a href="recipes.html" >Recipes</a></li>
+                    <li><a href="recipes.html">Recipes</a></li>
                     <li><a href="reference.html">Personal reference items</a></li>
-                 
                 </ul>
             </nav>
         </div>
@@ -33,36 +32,112 @@
             <!-- Gallery Grid -->
             <div class="gallery-grid">
                 
-                <!-- PHOTO 1 - Repeat this structure for each image -->
+                <!-- PHOTO 1 -->
                 <div class="gallery-item">
-                    <!-- Replace with your uploaded image filename -->
-                    <img src="githubphotos/WNT00410.JPEG" alt="Description of first photo">
+                    <img src="githubphotos/WNT00410.JPEG" alt="Kamo River in Kyoto" class="gallery-image" data-full="githubphotos/WNT00410.JPEG">
                     <div class="gallery-caption">Kamo River in Kyoto</div>
                 </div>
 
                 <!-- PHOTO 2 -->
                 <div class="gallery-item">
-                    <img src="githubphotos/WNT00456.JPEG" alt="Description of second photo">
-                    <div class="gallery-caption">Kinkaku-ji in Kyoto+</div>
+                    <img src="githubphotos/WNT00456.JPEG" alt="Kinkaku-ji in Kyoto" class="gallery-image" data-full="githubphotos/WNT00456.JPEG">
+                    <div class="gallery-caption">Kinkaku-ji in Kyoto</div>
                 </div>
 
                 <!-- PHOTO 3 -->
                 <div class="gallery-item">
-                    <img src="githubphotos/WNT00649.JPEG" alt="Description of third photo">
+                    <img src="githubphotos/WNT00649.JPEG" alt="Kiyomizu-dera Temple in Kyoto" class="gallery-image" data-full="githubphotos/WNT00649.JPEG">
                     <div class="gallery-caption">Kiyomizu-dera Temple in Kyoto - founded in 780</div>
                 </div>
 
-       <!-- PHOTO 4 -->
+                <!-- PHOTO 4 -->
                 <div class="gallery-item">
-                    <img src="githubphotos/WNT01240.JPEG" alt="Description of third photo">
+                    <img src="githubphotos/WNT01240.JPEG" alt="Sea Turtles at Churaumi Aquarium" class="gallery-image" data-full="githubphotos/WNT01240.JPEG">
                     <div class="gallery-caption">Sea Turtles at Churaumi Aquarium in Kyoto</div>
                 </div>
-
-
                 
             </div>
         </div>
     </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-image" src="" alt="">
+        <div class="lightbox-caption"></div>
+        <button class="lightbox-prev">&#10094;</button>
+        <button class="lightbox-next">&#10095;</button>
+    </div>
+
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.querySelector('.lightbox-image');
+        const lightboxCaption = document.querySelector('.lightbox-caption');
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        let currentIndex = 0;
+
+        // Open lightbox
+        galleryImages.forEach((img, index) => {
+            img.addEventListener('click', () => {
+                currentIndex = index;
+                openLightbox(img);
+            });
+        });
+
+        function openLightbox(img) {
+            lightbox.classList.add('active');
+            lightboxImage.src = img.dataset.full;
+            lightboxCaption.textContent = img.alt;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showImage(index) {
+            if (index >= galleryImages.length) currentIndex = 0;
+            if (index < 0) currentIndex = galleryImages.length - 1;
+            
+            const img = galleryImages[currentIndex];
+            lightboxImage.src = img.dataset.full;
+            lightboxCaption.textContent = img.alt;
+        }
+
+        // Close button
+        document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+
+        // Next/Prev buttons
+        document.querySelector('.lightbox-next').addEventListener('click', () => {
+            currentIndex++;
+            showImage(currentIndex);
+        });
+
+        document.querySelector('.lightbox-prev').addEventListener('click', () => {
+            currentIndex--;
+            showImage(currentIndex);
+        });
+
+        // Close on background click
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'ArrowRight') {
+                currentIndex++;
+                showImage(currentIndex);
+            }
+            if (e.key === 'ArrowLeft') {
+                currentIndex--;
+                showImage(currentIndex);
+            }
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
 
 </body>
 </html>
