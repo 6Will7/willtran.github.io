@@ -14,7 +14,7 @@
             <a href="index.html" class="logo-link">William Tran</a>
             <nav>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html" class="active">Home</a></li>
                     <li><a href="gallery.html" class="active">Gallery</a></li>
                     <li><a href="Resume.pdf" target="_blank">Download My Resume</a></li>
                     <li><a href="recipes.html">Recipes</a></li>
@@ -53,7 +53,7 @@
                 <!-- PHOTO 4 -->
                 <div class="gallery-item">
                     <img src="githubphotos/WNT01240.JPEG" alt="Sea Turtles at Churaumi Aquarium" class="gallery-image" data-full="githubphotos/WNT01240.JPEG">
-                    <div class="gallery-caption">Sea Turtles at Churaumi Aquarium in Okinawa</div>
+                    <div class="gallery-caption">Sea Turtles at Churaumi Aquarium in Kyoto</div>
                 </div>
                 
             </div>
@@ -62,33 +62,66 @@
 
     <!-- Lightbox Modal -->
     <div id="lightbox" class="lightbox">
-        <span class="lightbox-close">&times;</span>
-        <img class="lightbox-image" src="" alt="">
-        <div class="lightbox-caption"></div>
-        <button class="lightbox-prev">&#10094;</button>
-        <button class="lightbox-next">&#10095;</button>
+        <!-- Close button -->
+        <button class="lightbox-close" aria-label="Close lightbox">✕</button>
+        
+        <!-- Image container -->
+        <div class="lightbox-container">
+            <img class="lightbox-image" src="" alt="">
+            
+            <!-- Navigation buttons -->
+            <button class="lightbox-nav lightbox-prev" aria-label="Previous image">
+                <span class="nav-arrow">❮</span>
+            </button>
+            <button class="lightbox-nav lightbox-next" aria-label="Next image">
+                <span class="nav-arrow">❯</span>
+            </button>
+        </div>
+        
+        <!-- Caption and counter -->
+        <div class="lightbox-info">
+            <div class="lightbox-counter">
+                <span class="current-photo">1</span> / <span class="total-photos">4</span>
+            </div>
+            <div class="lightbox-caption"></div>
+            <div class="lightbox-controls-hint">
+                Use arrow keys or click buttons to navigate • Press ESC to close
+            </div>
+        </div>
     </div>
 
     <script>
         const lightbox = document.getElementById('lightbox');
         const lightboxImage = document.querySelector('.lightbox-image');
         const lightboxCaption = document.querySelector('.lightbox-caption');
+        const currentPhotoSpan = document.querySelector('.current-photo');
+        const totalPhotosSpan = document.querySelector('.total-photos');
         const galleryImages = document.querySelectorAll('.gallery-image');
         let currentIndex = 0;
 
-        // Open lightbox
+        // Set total photos count
+        totalPhotosSpan.textContent = galleryImages.length;
+
+        // Open lightbox when clicking on an image
         galleryImages.forEach((img, index) => {
+            img.style.cursor = 'pointer';
             img.addEventListener('click', () => {
                 currentIndex = index;
-                openLightbox(img);
+                openLightbox();
             });
         });
 
-        function openLightbox(img) {
-            lightbox.classList.add('active');
+        function openLightbox() {
+            const img = galleryImages[currentIndex];
             lightboxImage.src = img.dataset.full;
             lightboxCaption.textContent = img.alt;
+            currentPhotoSpan.textContent = currentIndex + 1;
+            
+            lightbox.classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Focus the lightbox for keyboard accessibility
+            lightbox.focus();
         }
 
         function closeLightbox() {
@@ -100,33 +133,43 @@
             if (index >= galleryImages.length) currentIndex = 0;
             if (index < 0) currentIndex = galleryImages.length - 1;
             
-            const img = galleryImages[currentIndex];
-            lightboxImage.src = img.dataset.full;
-            lightboxCaption.textContent = img.alt;
+            openLightbox();
         }
 
         // Close button
         document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
-        // Next/Prev buttons
-        document.querySelector('.lightbox-next').addEventListener('click', () => {
+        // Next/Prev buttons with better click targets
+        document.querySelector('.lightbox-next').addEventListener('click', (e) => {
+            e.stopPropagation();
             currentIndex++;
             showImage(currentIndex);
         });
 
-        document.querySelector('.lightbox-prev').addEventListener('click', () => {
+        document.querySelector('.lightbox-prev').addEventListener('click', (e) => {
+            e.stopPropagation();
             currentIndex--;
             showImage(currentIndex);
         });
 
-        // Close on background click
+        // Close on background click (but not on image or buttons)
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
+        });
+
+        // Prevent closing when clicking on content
+        document.querySelector('.lightbox-container').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        document.querySelector('.lightbox-info').addEventListener('click', (e) => {
+            e.stopPropagation();
         });
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
+            
             if (e.key === 'ArrowRight') {
                 currentIndex++;
                 showImage(currentIndex);
