@@ -107,7 +107,7 @@ a:hover {
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     margin-top: 2rem;
 }
 
@@ -117,21 +117,163 @@ a:hover {
     border: 1px solid #1a1a3e;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(124, 143, 255, 0.15);
+    border-color: #7c8fff;
 }
 
 .gallery-item img {
     width: 100%;
-    height: 250px;
+    height: 300px;
     object-fit: cover;
     display: block;
     border-bottom: 1px solid #1a1a3e;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
 }
 
 .gallery-caption {
-    padding: 1rem;
+    padding: 1.2rem;
     color: #b0b0c8;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 500;
+    line-height: 1.4;
+}
+
+/* --- Lightbox Modal --- */
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox.active {
+    display: flex;
+    opacity: 1;
+}
+
+.lightbox-image {
+    max-width: 90%;
+    max-height: 80vh;
+    object-fit: contain;
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.lightbox-caption {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #f8f8f8;
+    font-size: 1.1rem;
+    text-align: center;
+    max-width: 80%;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    color: #f8f8f8;
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    font-weight: 300;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.lightbox-close:hover {
+    color: #7c8fff;
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8f8f8;
+    border: none;
+    font-size: 2rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: rgba(124, 143, 255, 0.3);
+    color: #7c8fff;
+}
+
+.lightbox-prev {
+    left: 20px;
+}
+
+.lightbox-next {
+    right: 20px;
+}
+
+/* Mobile responsiveness for lightbox */
+@media (max-width: 768px) {
+    .lightbox-prev,
+    .lightbox-next {
+        padding: 0.8rem 1rem;
+        font-size: 1.5rem;
+    }
+
+    .lightbox-close {
+        top: 20px;
+        right: 20px;
+        font-size: 2rem;
+    }
+
+    .lightbox-caption {
+        bottom: 10px;
+        font-size: 0.95rem;
+        max-width: 90%;
+    }
+
+    .gallery-item img {
+        height: 250px;
+    }
 }
 
 /* --- Resume Styling (Specific to resume.html) --- */
