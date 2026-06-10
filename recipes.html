@@ -5,133 +5,378 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipes | William Tran</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Recipe-specific styling */
+        .section-nav {
+            display: flex;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .section-nav a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border: 2px solid #333;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .section-nav a:hover {
+            background-color: #333;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #333;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .section-icon {
+            font-size: 2em;
+        }
+
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .recipe-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .recipe-card h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.4em;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .recipe-meta strong {
+            color: #333;
+        }
+
+        .recipe-card ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .recipe-card li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .recipe-card ol {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .recipe-card ol li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .recipe-toggle {
+            cursor: pointer;
+            color: #0066cc;
+            font-weight: 500;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .recipe-toggle:hover {
+            color: #004499;
+        }
+
+        .recipe-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .recipe-details.show {
+            display: block;
+        }
+
+        .toc-box {
+            background-color: #f5f5f5;
+            border-left: 4px solid #333;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .toc-box h2 {
+            margin-top: 0;
+        }
+
+        .disclaimer-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .disclaimer-box h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+
+        .disclaimer-box p {
+            margin: 10px 0;
+            color: #856404;
+        }
+
+        .empty-section {
+            text-align: center;
+            color: #999;
+            margin: 40px 0;
+            font-style: italic;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
- 
     <!-- Shared Navigation -->
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo-link">William Tran</a>
             <nav>
                 <ul>
-                    <li><a href="index.html" ">Home</a></li>
+                    <li><a href="index.html">Home</a></li>
                     <li><a href="gallery.html">Gallery</a></li>
-                    <li><a href="Resume.pdf" target="_blank">Download My Resume</a></li>
-                    <li><a href="recipes.html"class="active>Recipes</a></li>
-                    <li><a href="videos.html">Videos</a></li>
-                                </ul>
+                    <li><a href="recipes.html" class="active">Recipes</a></li>
+                    <li><a href="resume.html">Resume</a></li>
+                </ul>
             </nav>
         </div>
     </header>
- <!--End Shared Navigation -->
+
     <div class="container">
         
         <!-- Food Safety Disclaimer -->
         <div class="disclaimer-box">
             <h3>⚠️ Food Safety Disclaimer</h3>
-            <p>WillTran.org does not accept liability for any danger, disability, or other negative physical/mental sensations incurred in the preparation and enjoyment of the below recipes. Thanks and bon appetite!!!</p>
-        </div>
-            <p>These recipes are provided for informational purposes only. Always follow proper food safety guidelines when preparing meals. Handle raw ingredients carefully, maintain appropriate cooking temperatures, and store food correctly to prevent foodborne illness. If you have allergies or health concerns, consult with a healthcare professional before consuming unfamiliar ingredients.</p>
-        </div>
-
-        <!-- Wikipedia-Style Table of Contents -->
-        <div class="section toc-box">
-            <h2>Recipe Index</h2>
-            <ul>
-                <li><a href="#caramelized-onions">Caramelized Onions</a></li>
-                <li><a href="#lomo-saltado">Lomo Saltado</a></li>
-                <li><a href="#achari-gobhi">Achari Gobhi</a></li>
-                <li><a href="#handmade-dumplings">Handmade Dumplings</a></li>
-            </ul>
+            <p>WillTran.org does not accept liability for any danger, disability, or other negative physical/mental sensations incurred in the preparation and enjoyment of the below recipes.</p>
+            <p>These recipes are provided for informational purposes only. Always follow proper food safety guidelines when preparing meals. Handle raw ingredients carefully, maintain appropriate cooking temperatures, and store foods properly.</p>
         </div>
 
-        <!-- Recipe 1 -->
-        <div id="caramelized-onions" class="section recipe-section">
-            <h2>Caramelized Onions</h2>
-            <p><strong>Prep time:</strong> 15 mins | <strong>Cook time:</strong> 50 mins for every two onions</p>
-            <h3>Ingredients</h3>
-            <ul>
-                <li>Sliced onions (for diced remove 5 mins cook time, but add 5 mins prep time)</li>
-                <li>Salt</li>
-                <li>Brown Sugar</li>
-                <li>Ground Peppercorns</li>
-            </ul>
-            <h3>Instructions</h3>
-            <ol>
-                <li>Heat wide pan with oil. I like avocado oil because it has a high smoke point</li>
-                <li>Once pan is hot - but before it smokes - add the onions</li>
-                <li>Reduce heat from 5.5/10 to 3.5/10</li>
-                <li>Gradually add seasonings as you cook. This allows gradual caramelization, and you can season to taste</li>
-                <li>Enjoy onions</li>
-            </ol>
-            <a href="#top" class="back-to-top">↑ Back to Top</a>
+        <!-- Quick Navigation -->
+        <div class="toc-box">
+            <h2>Browse By Category</h2>
+            <div class="section-nav">
+                <a href="#sauces">🍶 Sauces</a>
+                <a href="#vegetable">🥬 Vegetable</a>
+                <a href="#protein">🥩 Protein</a>
+                <a href="#dessert">🍰 Dessert</a>
+            </div>
         </div>
 
-        <!-- Recipe 2 -->
-        <div id="lomo-saltado" class="section recipe-section">
-            <h2>Lomo Saltado</h2>
-            <p><strong>Prep time:</strong> 15 mins | <strong>Cook time:</strong> 15 mins</p>
-            <h3>Ingredients</h3>
-            <ul>
-                <li>Sirloin steak strips</li>
-                <li>Red onions and tomatoes, sliced thick</li>
-                <li>Soy sauce and aji amarillo paste</li>
-                <li>French fries (served mixed in or on the side)</li>
-            </ul>
-            <h3>Instructions</h3>
-            <ol>
-                <li>Sear the beef quickly in a very hot wok or skillet. Remove and set aside.</li>
-                <li>Stir-fry the onions and tomatoes until slightly softened but still crisp.</li>
-                <li>Add the beef back in along with soy sauce and aji amarillo.</li>
-                <li>Serve immediately over rice with french fries.</li>
-            </ol>
-            <a href="#top" class="back-to-top">↑ Back to Top</a>
+        <!-- SAUCES SECTION -->
+        <div id="sauces" class="section">
+            <div class="section-header">
+                <span class="section-icon">🍶</span>
+                <h2>Sauces</h2>
+            </div>
+            <div class="recipes-grid">
+                <!-- Caramelized Onions -->
+                <div class="recipe-card">
+                    <h3>Caramelized Onions</h3>
+                    <div class="recipe-meta">
+                        <span><strong>Prep:</strong> 15 mins</span>
+                        <span><strong>Cook:</strong> 50 mins</span>
+                    </div>
+                    <p><strong>Ingredients:</strong></p>
+                    <ul>
+                        <li>Sliced onions (for diced remove 5 mins cook time, but add 5 mins prep time)</li>
+                        <li>Salt</li>
+                        <li>Brown Sugar</li>
+                        <li>Ground Peppercorns</li>
+                    </ul>
+                    <span class="recipe-toggle" onclick="toggleRecipeDetails(this)">Show Instructions</span>
+                    <div class="recipe-details">
+                        <p><strong>Instructions:</strong></p>
+                        <ol>
+                            <li>Heat wide pan with oil. I like avocado oil because it has a high smoke point</li>
+                            <li>Once pan is hot - but before it smokes - add the onions</li>
+                            <li>Reduce heat from 5.5/10 to 3.5/10</li>
+                            <li>Gradually add seasonings as you cook. This allows gradual caramelization, and you can season to taste</li>
+                            <li>Enjoy onions</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="back-link"><a href="#top">↑ Back to Categories</a></div>
         </div>
 
-        <!-- Recipe 3 -->
-        <div id="achari-gobhi" class="section recipe-section">
-            <h2>Achari Gobhi</h2>
-            <p><strong>Prep time:</strong> 10 mins | <strong>Cook time:</strong> 25 mins</p>
-            <h3>Ingredients</h3>
-            <ul>
-                <li>Cauliflower florets</li>
-                <li>Pickling spices (fennel, mustard seeds, nigella seeds)</li>
-                <li>Ginger, garlic, and green chilies</li>
-                <li>Mustard oil</li>
-            </ul>
-            <h3>Instructions</h3>
-            <ol>
-                <li>Heat mustard oil until it smokes slightly, then let it cool a bit.</li>
-                <li>Temper the pickling spices in the oil.</li>
-                <li>Add ginger, garlic, and the cauliflower.</li>
-                <li>Sauté until tender and coated with the aromatic spices.</li>
-            </ol>
-            <a href="#top" class="back-to-top">↑ Back to Top</a>
+        <!-- VEGETABLE SECTION -->
+        <div id="vegetable" class="section">
+            <div class="section-header">
+                <span class="section-icon">🥬</span>
+                <h2>Vegetable</h2>
+            </div>
+            <div class="recipes-grid">
+                <!-- Achari Gobhi -->
+                <div class="recipe-card">
+                    <h3>Achari Gobhi</h3>
+                    <div class="recipe-meta">
+                        <span><strong>Prep:</strong> 10 mins</span>
+                        <span><strong>Cook:</strong> 25 mins</span>
+                    </div>
+                    <p><strong>Ingredients:</strong></p>
+                    <ul>
+                        <li>Cauliflower florets</li>
+                        <li>Pickling spices (fennel, mustard seeds, nigella seeds)</li>
+                        <li>Ginger, garlic, and green chilies</li>
+                        <li>Mustard oil</li>
+                    </ul>
+                    <span class="recipe-toggle" onclick="toggleRecipeDetails(this)">Show Instructions</span>
+                    <div class="recipe-details">
+                        <p><strong>Instructions:</strong></p>
+                        <ol>
+                            <li>Heat mustard oil until it smokes slightly, then let it cool a bit.</li>
+                            <li>Temper the pickling spices in the oil.</li>
+                            <li>Add ginger, garlic, and the cauliflower.</li>
+                            <li>Sauté until tender and coated with the aromatic spices.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="back-link"><a href="#top">↑ Back to Categories</a></div>
         </div>
-        
-        <!-- Recipe 4 -->
-        <div id="handmade-dumplings" class="section recipe-section">
-            <h2>Handmade Dumplings</h2>
-            <p><strong>Prep time:</strong> 60 mins | <strong>Cook time:</strong> 15 mins</p>
-            <h3>Ingredients</h3>
-            <ul>
-                <li>Ground pork or chicken</li>
-                <li>Napa cabbage, finely chopped and squeezed dry</li>
-                <li>Ginger, soy sauce, and sesame oil</li>
-                <li>Dumpling wrappers</li>
-            </ul>
-            <h3>Instructions</h3>
-            <ol>
-                <li>Mix the filling ingredients thoroughly in one direction.</li>
-                <li>Place a small spoonful of filling in the center of a wrapper.</li>
-                <li>Wet the edges with water, fold, and pleat to seal.</li>
-                <li>Pan-fry, boil, or steam until cooked through.</li>
-            </ol>
-            <a href="#top" class="back-to-top">↑ Back to Top</a>
+
+        <!-- PROTEIN SECTION -->
+        <div id="protein" class="section">
+            <div class="section-header">
+                <span class="section-icon">🥩</span>
+                <h2>Protein</h2>
+            </div>
+            <div class="recipes-grid">
+                <!-- Lomo Saltado -->
+                <div class="recipe-card">
+                    <h3>Lomo Saltado</h3>
+                    <div class="recipe-meta">
+                        <span><strong>Prep:</strong> 15 mins</span>
+                        <span><strong>Cook:</strong> 15 mins</span>
+                    </div>
+                    <p><strong>Ingredients:</strong></p>
+                    <ul>
+                        <li>Sirloin steak strips</li>
+                        <li>Red onions and tomatoes, sliced thick</li>
+                        <li>Soy sauce and aji amarillo paste</li>
+                        <li>French fries (served mixed in or on the side)</li>
+                    </ul>
+                    <span class="recipe-toggle" onclick="toggleRecipeDetails(this)">Show Instructions</span>
+                    <div class="recipe-details">
+                        <p><strong>Instructions:</strong></p>
+                        <ol>
+                            <li>Sear the beef quickly in a very hot wok or skillet. Remove and set aside.</li>
+                            <li>Stir-fry the onions and tomatoes until slightly softened but still crisp.</li>
+                            <li>Add the beef back in along with soy sauce and aji amarillo.</li>
+                            <li>Serve immediately over rice with french fries.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Handmade Dumplings -->
+                <div class="recipe-card">
+                    <h3>Handmade Dumplings</h3>
+                    <div class="recipe-meta">
+                        <span><strong>Prep:</strong> 60 mins</span>
+                        <span><strong>Cook:</strong> 15 mins</span>
+                    </div>
+                    <p><strong>Ingredients:</strong></p>
+                    <ul>
+                        <li>Ground pork or chicken</li>
+                        <li>Napa cabbage, finely chopped and squeezed dry</li>
+                        <li>Ginger, soy sauce, and sesame oil</li>
+                        <li>Dumpling wrappers</li>
+                    </ul>
+                    <span class="recipe-toggle" onclick="toggleRecipeDetails(this)">Show Instructions</span>
+                    <div class="recipe-details">
+                        <p><strong>Instructions:</strong></p>
+                        <ol>
+                            <li>Mix the filling ingredients thoroughly in one direction.</li>
+                            <li>Place a small spoonful of filling in the center of a wrapper.</li>
+                            <li>Wet the edges with water, fold, and pleat to seal.</li>
+                            <li>Pan-fry, boil, or steam until cooked through.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="back-link"><a href="#top">↑ Back to Categories</a></div>
+        </div>
+
+        <!-- DESSERT SECTION -->
+        <div id="dessert" class="section">
+            <div class="section-header">
+                <span class="section-icon">🍰</span>
+                <h2>Dessert</h2>
+            </div>
+            <p class="empty-section">No recipes yet. Check back soon! 👀</p>
+            <div class="back-link"><a href="#top">↑ Back to Categories</a></div>
         </div>
 
     </div>
+
+    <script>
+        function toggleRecipeDetails(element) {
+            const details = element.nextElementSibling;
+            details.classList.toggle('show');
+            element.textContent = details.classList.contains('show') ? 'Hide Instructions' : 'Show Instructions';
+        }
+    </script>
 
 </body>
 </html>
