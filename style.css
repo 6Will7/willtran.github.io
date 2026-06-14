@@ -3,9 +3,9 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
-    color: #f8f8f8; /* marble white  text */
+    color: #010E0A; /* dark text */
     margin: 0;
-    background-color: #070738; /* dark blue background */
+    background-color: #eae2b7; /* vanilla custard backgrpound */
 }
 
 .container {
@@ -16,7 +16,7 @@ body {
 
 /* --- Header & Navigation --- */
 header {
-    background-color: #070738;
+    background-color: #003049;
     padding: 1.5rem 0;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     border-bottom: 3px solid #0f172a; /* Deep navy anchor line */
