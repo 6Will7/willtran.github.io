@@ -68,6 +68,41 @@
             </div>
         </div>
     </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 1. Find the button and the HTML tag
+    const toggleBtn = document.getElementById("theme-toggle");
+    const htmlElement = document.documentElement; 
 
+    // 2. Check if the user previously saved a preference
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      htmlElement.setAttribute("data-theme", savedTheme);
+    }
+
+    // 3. Make the button actually do something when clicked
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const currentTheme = htmlElement.getAttribute("data-theme");
+        let newTheme;
+
+        // Determine which theme to switch to
+        if (currentTheme === "dark") {
+          newTheme = "light";
+        } else if (currentTheme === "light") {
+          newTheme = "dark";
+        } else {
+          // If no theme is set, check the computer's default
+          const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          newTheme = systemPrefersDark ? "light" : "dark";
+        }
+
+        // Apply the new theme and save it to the browser
+        htmlElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    }
+  });
+</script>
 </body>
 </html>
