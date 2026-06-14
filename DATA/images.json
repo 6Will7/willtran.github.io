@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "url": "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+    "alt": "Cloudinary sample flower"
+  },
+  {
+    "id": 2,
+    "url": "https://res.cloudinary.com/demo/image/upload/w_800/v1602143494/cld-sample.jpg",
+    "alt": "Cloudinary sample dog"
+  },
+  {
+    "id": 3,
+    "url": "https://res.cloudinary.com/demo/image/upload/w_800/v1602143495/cld-sample-2.jpg",
+    "alt": "Cloudinary sample mountain"
+  }
+]
