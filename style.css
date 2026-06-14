@@ -125,9 +125,11 @@ body {
 
 /* --- Layout --- */
 .container {
-  max-width: 900px;
+  /* Increased from 900px to stretch across modern widescreen displays */
+  max-width: 1440px; 
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  /* Uses viewport width (vw) so the padding fluidly scales with the screen */
+  padding: 4rem 5vw; 
 }
 
 /* --- Header & Navigation --- */
@@ -143,9 +145,11 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 900px;
+  /* Must perfectly match the container width above */
+  max-width: 1440px; 
   margin: 0 auto;
-  padding: 0 1.5rem;
+  /* Match the 5vw side padding of the main container */
+  padding: 0 5vw; 
 }
 
 .logo-link {
