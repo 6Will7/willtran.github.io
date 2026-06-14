@@ -1,108 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>William Tran </title>
-    <!-- We now link to our shared style file! -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Will Tran</title>
+  <meta name="description" content="Undistinguished not-so-gentle man in the bay area">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://willtran.org/">
+  <meta property="og:title" content="WILL TRAN">
+  <meta property="og:description" content="WILL TRAN">
+  <meta property="og:image" content="https://willtran.org/images/og-preview.jpg">
+
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://willtran.org/">
+  <meta property="twitter:title" content="Will Tran — Creative Director">
+  <meta property="twitter:description" content="Award-winning creative director based in Los Angeles. Portfolio, resume, and selected works.">
+  <meta property="twitter:image" content="https://willtran.org/images/og-preview.jpg">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Shared Navigation -->
-    <header>
-        <div class="nav-container">
-            <a href="index.html" class="logo-link">William Tran</a>
-            <nav>
-                <ul>
-                    <!-- Place inside your header or nav -->
-<button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
-  <span class="toggle-icon">◐</span>
-</button>
-                    <li><a href="index.html" class="active">Home</a></li>
-                    <li><a href="gallery.html">Gallery</a></li>
-                    <li><a href="Resume.pdf" target="_blank">Download My Resume</a></li>
-                    <li><a href="recipes.html">Recipes</a></li>
-                    <li><a href="videos.html">Videos</a></li>
-                                </ul>
-            </nav>
-        </div>
-    </header>
- <!--End Shared Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo-link">Will Tran</a>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="active">Work</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="resume.html">Resume</a></li>
+        </ul>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+          <span class="toggle-icon">◐</span>
+        </button>
+      </nav>
+    </div>
+  </header>
 
+  <main class="container">
     
+    <section class="section">
+      <h2>Hello, welcome to my website.</h2>
+      <p>I live in the bay area, and am cooking up this website in my spare time, so please forgive any errors!</p>
+      <p>Let me know what else you'd like to see on this website by sending a note to:.</p>
+    </section>
+
+    <section class="section">
+      <h2>Selected Photos</h2>
+      
+      <div class="gallery-grid">
+        
+        <article class="gallery-item">
+          <img src="images/project1.jpg" alt="Photo 0" loading="lazy">
+          <div class="gallery-caption">
+            <strong>abc</strong><br>
+            xyz
+          </div>
+        </article>
+
+        <article class="gallery-item">
+          <img src="images/project2.jpg" alt="Photo1" loading="lazy">
+          <div class="gallery-caption">
+            <strong>wow</strong><br>
+            wowzers
+          </div>
+        </article>
+
+        <article class="gallery-item">
+          <img src="images/project3.jpg" alt="Photo2" loading="lazy">
+          <div class="gallery-caption">
+            <strong>bad</strong><br>
+            michael jackson
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
     <div class="container">
-        <div class="section">
-            <h2>Greetings</h2>
-            <p>Hello, thank you for visiting <a href="https://willtran.org">https://willtran.org</a>. I am currently building out this website behind the scenes, so please visit again soon for:</p>
-            <p>Nice looking pictures</p>
-            <p>More recipes</p>
-            <p>More visual improvements</p>
-        </div>
-
-        <div class="section">
-            <h2>Let's Connect</h2>
-            <p>Feel free to reach out directly at <a href="mailto:hello@willtran.org">hello@willtran.org</a> or explore my links above. You can also request to connect on Linkedin.</p>
-        </div>
+      <p>&copy; 2026 Will Tran. All rights reserved.</p>
     </div>
+  </footer>
 
-    <div class="container">
-        <div class="section">
-            <h2>Featured Photographs</h2>
-            
-            <!-- Gallery Grid -->
-            <div class="gallery-grid">
-                
-                <!-- PHOTO 1 -->
-                <div class="gallery-item">
-                    <img src="WNT00966.JPEG" alt="Rabbit on Okunoshima Island Japan">
-                    <div class="gallery-caption">A curious rabbit</div>
-                </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const toggleBtn = document.getElementById("theme-toggle");
+      const htmlElement = document.documentElement; 
 
-                <!-- PHOTO 2 -->
-                <div class="gallery-item">
-                    <img src="WNT00253.JPEG" alt="Mount Fuji from Fujisan World Heritage Center">
-                    <div class="gallery-caption">Mount Fuji from the Fujisan World Heritage Center in Fujinomiya. Check the recipes section for a stir fry recipe from this region!</div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // 1. Find the button and the HTML tag
-    const toggleBtn = document.getElementById("theme-toggle");
-    const htmlElement = document.documentElement; 
+      // 1. Check if user previously saved a theme preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        htmlElement.setAttribute("data-theme", savedTheme);
+      }
 
-    // 2. Check if the user previously saved a preference
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      htmlElement.setAttribute("data-theme", savedTheme);
-    }
+      // 2. Button click logic
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          const currentTheme = htmlElement.getAttribute("data-theme");
+          let newTheme;
 
-    // 3. Make the button actually do something when clicked
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        const currentTheme = htmlElement.getAttribute("data-theme");
-        let newTheme;
+          if (currentTheme === "dark") {
+            newTheme = "light";
+          } else if (currentTheme === "light") {
+            newTheme = "dark";
+          } else {
+            // Fallback to checking the operating system preference
+            const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            newTheme = systemPrefersDark ? "light" : "dark";
+          }
 
-        // Determine which theme to switch to
-        if (currentTheme === "dark") {
-          newTheme = "light";
-        } else if (currentTheme === "light") {
-          newTheme = "dark";
-        } else {
-          // If no theme is set, check the computer's default
-          const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-          newTheme = systemPrefersDark ? "light" : "dark";
-        }
+          // Apply and save the new theme
+          htmlElement.setAttribute("data-theme", newTheme);
+          localStorage.setItem("theme", newTheme);
+        });
+      }
+    });
+  </script>
 
-        // Apply the new theme and save it to the browser
-        htmlElement.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
-      });
-    }
-  });
-</script>
 </body>
 </html>
