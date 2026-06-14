@@ -1,50 +1,98 @@
 /* style.css - Crisp & Institutional Theme */
 
-
 /* --- 1. Global Light Theme (Default) --- */
 :root {
   /* Core Colors */
   --color-bg: #fbfaf3;       /* Warm, crisp off-white */
   --color-text: #03071e;     /* Deep institutional navy/black */
-  
-  /* Secondary Structural Colors */
-  --color-text-muted: #475569; /* Slate gray for secondary text/metadata */
-  --color-border: #e2e8f0;     /* Light gray for subtle dividers */
+  --color-text-muted: #475569; /* Slate gray */
+  --color-border: #e2e8f0;     /* Light gray */
+
+  /* Structural & Card Colors */
+  --color-header-bg: #ffffff;
+  --color-header-border: #e2e8f0;
+  --color-card-bg: #ffffff;
+  --color-card-border: #e2e8f0;
+  --color-card-bg-alt: #f1f5f9; /* Slightly darker than card for contrast */
+
+  /* Navigation & Links */
+  --color-nav-text: #475569;
+  --color-nav-text-active: #03071e;
+  --color-accent: #2563eb;       /* Crisp institutional blue */
+  --color-accent-hover: #1d4ed8;
+
+  /* Alerts (Disclaimer Box) */
+  --color-alert-bg: #fef2f2;
+  --color-alert-border: #fecaca;
+  --color-danger: #ef4444;
+  --color-danger-text: #b91c1c;
+  --color-alert-text: #450a0a;
 
   /* Animation */
-  --transition-theme: background-color 0.3s ease, color 0.3s ease;
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* --- 2. System-Aware Dark Mode --- */
-/* Applies automatically if the user's OS is in dark mode AND they haven't manually toggled */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #03071e;       /* Inverts to the deep navy */
-    --color-text: #fbfaf3;     /* Inverts to the crisp off-white */
-    --color-text-muted: #94a3b8; /* Lighter slate for legibility in dark mode */
-    --color-border: #1e293b;   /* Darker slate for structural borders */
+    /* These are all your original hardcoded colors mapped to variables! */
+    --color-bg: #03071e;
+    --color-text: #fbfaf3;
+    --color-text-muted: #b0b0c8;
+    --color-border: #1e293b;
+    
+    --color-header-bg: #003049;
+    --color-header-border: #0f172a;
+    --color-card-bg: #070738;
+    --color-card-border: #1a1a3e;
+    --color-card-bg-alt: #0a0a2a;
+    
+    --color-nav-text: #b0b0c8;
+    --color-nav-text-active: #f8f8f8;
+    --color-accent: #7c8fff;
+    --color-accent-hover: #9ca3ff;
+
+    --color-alert-bg: #1a2332;
+    --color-alert-border: #2d3748;
+    --color-danger: #ff6b6b;
+    --color-danger-text: #ff8787;
+    --color-alert-text: #cbd5e0;
   }
 }
 
 /* --- 3. Manual Dark Mode Override --- */
-/* Applies when the JavaScript toggle sets data-theme="dark" */
 [data-theme="dark"] {
   --color-bg: #03071e;
   --color-text: #fbfaf3;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #b0b0c8;
   --color-border: #1e293b;
+  
+  --color-header-bg: #003049;
+  --color-header-border: #0f172a;
+  --color-card-bg: #070738;
+  --color-card-border: #1a1a3e;
+  --color-card-bg-alt: #0a0a2a;
+  
+  --color-nav-text: #b0b0c8;
+  --color-nav-text-active: #f8f8f8;
+  --color-accent: #7c8fff;
+  --color-accent-hover: #9ca3ff;
+
+  --color-alert-bg: #1a2332;
+  --color-alert-border: #2d3748;
+  --color-danger: #ff6b6b;
+  --color-danger-text: #ff8787;
+  --color-alert-text: #cbd5e0;
 }
 
 /* --- 4. Base Body Application --- */
 body {
- body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.6;
   margin: 0;
   transition: var(--transition-theme); 
-}
 }
 
 /* --- Theme Toggle Button --- */
@@ -53,7 +101,7 @@ body {
   border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: 0.5rem 0.75rem;
-  border-radius: 4px; /* Slight rounding for an institutional feel */
+  border-radius: 4px;
   cursor: pointer;
   font-size: 1.25rem;
   display: flex;
@@ -62,7 +110,6 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Desktop Hover State */
 @media (hover: hover) {
   .theme-toggle:hover {
     background-color: var(--color-text);
@@ -70,568 +117,437 @@ body {
   }
 }
 
-/* Mobile Touch Target Expansion */
 @media (max-width: 768px) {
   .theme-toggle {
-    padding: 0.75rem 1rem; /* Easier to tap on screens */
+    padding: 0.75rem 1rem;
   }
 }
 
-
-
+/* --- Layout --- */
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
 /* --- Header & Navigation --- */
 header {
-    background-color: #003049;
-    padding: 1.5rem 0;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-    border-bottom: 3px solid #0f172a; /* Deep navy anchor line */
+  background-color: var(--color-header-bg);
+  padding: 1.5rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-bottom: 3px solid var(--color-header-border);
+  transition: var(--transition-theme);
 }
 
 .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .logo-link {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #f8f8f8; /* marble white */
-    text-decoration: none;
-    letter-spacing: -0.5px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-nav-text-active);
+  text-decoration: none;
+  letter-spacing: -0.5px;
 }
 
 nav ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
 }
 
 nav a {
-    text-decoration: none;
-    color: #b0b0c8; /* Light slate */
-    font-weight: 500;
-    font-size: 0.95rem;
-    transition: color 0.2s ease;
-    text-transform: uppercase; /* More formal, institutional feel */
-    letter-spacing: 0.5px;
+  text-decoration: none;
+  color: var(--color-nav-text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 nav a:hover {
-    color: #7c8fff; /* Lighter blue */
+  color: var(--color-accent);
 }
 
 nav a.active {
-    color: #f8f8f8;
-    font-weight: 700;
-    border-bottom: 2px solid #7c8fff;
-    padding-bottom: 4px;
+  color: var(--color-nav-text-active);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 4px;
 }
 
 /* --- Sections & Cards --- */
 .section {
-    margin: 2.5rem 0;
-    padding: 2.5rem;
-    background: #070738;
-    border-radius: 4px; /* Sharper corners, less bubbly */
-    border: 1px solid #1a1a3e;
-    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+  margin: 2.5rem 0;
+  padding: 2.5rem;
+  background: var(--color-card-bg);
+  border-radius: 4px;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: var(--transition-theme);
 }
 
 h2 {
-    font-size: 1.4rem;
-    color: #f8f8f8;
-    border-bottom: 2px solid #1a1a3e;
-    padding-bottom: 0.5rem;
-    margin-top: 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  font-size: 1.4rem;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-card-border);
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 h3 {
-    color: #f8f8f8;
+  color: var(--color-text);
 }
 
 a {
-    color: #7c8fff;
-    text-decoration: none;
-    font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
 }
 
 a:hover {
-    text-decoration: underline;
-    color: #9ca3ff;
+  text-decoration: underline;
+  color: var(--color-accent-hover);
 }
 
-/* --- Gallery Grid (Specific to gallery.html) --- */
+/* --- Gallery Grid --- */
 .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
 }
 
 .gallery-item {
-    background: #070738;
-    border-radius: 4px;
-    border: 1px solid #1a1a3e;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+  background: var(--color-card-bg);
+  border-radius: 4px;
+  border: 1px solid var(--color-card-border);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
 }
 
 .gallery-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(124, 143, 255, 0.15);
-    border-color: #7c8fff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-accent);
 }
 
 .gallery-item img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    display: block;
-    border-bottom: 1px solid #1a1a3e;
-    transition: transform 0.3s ease;
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 1px solid var(--color-card-border);
+  transition: transform 0.3s ease;
 }
 
 .gallery-item:hover img {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .gallery-caption {
-    padding: 1.2rem;
-    color: #b0b0c8;
-    font-size: 0.95rem;
-    font-weight: 500;
-    line-height: 1.4;
+  padding: 1.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
-/* --- Improved Lightbox Modal --- */
+/* --- Lightbox Modal --- */
 .lightbox {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.97);
-    z-index: 1000;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    padding: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.97); /* Always dark overlay */
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .lightbox.active {
-    display: flex;
-    opacity: 1;
+  display: flex;
+  opacity: 1;
 }
 
-/* Image container with navigation */
 .lightbox-container {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    padding: 1rem;
-    box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .lightbox-image {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    animation: zoomInLightbox 0.4s ease;
-    box-shadow: 0 0 40px rgba(124, 143, 255, 0.2);
-    touch-action: pinch-zoom;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  animation: zoomInLightbox 0.4s ease;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+  touch-action: pinch-zoom;
 }
 
 @keyframes zoomInLightbox {
-    from {
-        transform: scale(0.85);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-/* Navigation arrows - larger and more intuitive */
 .lightbox-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.12);
-    border: 2px solid rgba(124, 143, 255, 0.3);
-    color: #f8f8f8;
-    font-size: 1.5rem;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    backdrop-filter: blur(8px);
-    z-index: 10;
-    -webkit-tap-highlight-color: transparent;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff; /* Always light inside lightbox */
+  font-size: 1.5rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  backdrop-filter: blur(8px);
+  z-index: 10;
 }
 
 .lightbox-nav:hover {
-    background: rgba(124, 143, 255, 0.25);
-    border-color: #7c8fff;
-    box-shadow: 0 0 20px rgba(124, 143, 255, 0.4);
-    transform: translateY(-50%) scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #ffffff;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .lightbox-nav:active {
-    transform: translateY(-50%) scale(0.95);
+  transform: translateY(-50%) scale(0.95);
 }
 
-.nav-arrow {
-    font-weight: bold;
-    display: block;
-}
+.nav-arrow { font-weight: bold; display: block; }
+.lightbox-prev { left: 1rem; }
+.lightbox-next { right: 1rem; }
 
-.lightbox-prev {
-    left: 1rem;
-}
-
-.lightbox-next {
-    right: 1rem;
-}
-
-/* Close button */
 .lightbox-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.12);
-    border: 2px solid rgba(124, 143, 255, 0.3);
-    color: #f8f8f8;
-    font-size: 1.8rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    backdrop-filter: blur(8px);
-    z-index: 20;
-    -webkit-tap-highlight-color: transparent;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  backdrop-filter: blur(8px);
+  z-index: 20;
 }
 
 .lightbox-close:hover {
-    background: rgba(255, 76, 76, 0.25);
-    border-color: #ff6b6b;
-    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+  background: rgba(255, 76, 76, 0.25);
+  border-color: #ff6b6b;
 }
 
 .lightbox-close:active {
-    transform: scale(0.9);
+  transform: scale(0.9);
 }
 
-/* Info section below image */
 .lightbox-info {
-    text-align: center;
-    color: #f8f8f8;
-    animation: slideUpLightbox 0.4s ease;
-    max-width: 100%;
-    padding: 1rem;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    overflow-y: auto;
-    max-height: 20vh;
+  text-align: center;
+  color: #ffffff;
+  animation: slideUpLightbox 0.4s ease;
+  max-width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow-y: auto;
+  max-height: 20vh;
 }
 
 @keyframes slideUpLightbox {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .lightbox-counter {
-    font-size: 0.9rem;
-    color: #7c8fff;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    letter-spacing: 1px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
 }
 
 .lightbox-caption {
-    font-size: 1rem;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-    color: #e8e8ff;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
 }
 
 .lightbox-controls-hint {
-    font-size: 0.75rem;
-    color: #b0b0c8;
-    font-style: italic;
-    opacity: 0.7;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  opacity: 0.7;
 }
 
-/* Tablet/Medium screen responsiveness */
+/* Responsive Media Queries for Lightbox */
 @media (max-width: 1024px) {
-    .lightbox-nav {
-        padding: 1.2rem;
-        width: 55px;
-        height: 55px;
-        font-size: 1.3rem;
-    }
-
-    .lightbox-prev {
-        left: 0.75rem;
-    }
-
-    .lightbox-next {
-        right: 0.75rem;
-    }
+  .lightbox-nav { padding: 1.2rem; width: 55px; height: 55px; font-size: 1.3rem; }
+  .lightbox-prev { left: 0.75rem; }
+  .lightbox-next { right: 0.75rem; }
 }
 
-/* Mobile responsiveness */
 @media (max-width: 768px) {
-    .lightbox {
-        padding: 0;
-        flex-direction: column;
-    }
-
-    .lightbox-container {
-        width: 100%;
-        flex: 1;
-        padding: 0.75rem;
-        min-height: 0;
-    }
-
-    .lightbox-image {
-        max-width: 100%;
-        max-height: 100%;
-    }
-
-    .lightbox-nav {
-        padding: 1rem;
-        width: 48px;
-        height: 48px;
-        font-size: 1.2rem;
-    }
-
-    .lightbox-prev {
-        left: 0.5rem;
-    }
-
-    .lightbox-next {
-        right: 0.5rem;
-    }
-
-    .lightbox-close {
-        top: 0.75rem;
-        right: 0.75rem;
-        width: 44px;
-        height: 44px;
-        font-size: 1.4rem;
-        padding: 0.4rem 0.8rem;
-    }
-
-    .lightbox-info {
-        max-height: 18vh;
-        padding: 0.75rem;
-    }
-
-    .lightbox-caption {
-        font-size: 0.9rem;
-        line-height: 1.3;
-        margin-bottom: 0.4rem;
-    }
-
-    .lightbox-counter {
-        font-size: 0.85rem;
-        margin-bottom: 0.4rem;
-    }
-
-    .lightbox-controls-hint {
-        font-size: 0.7rem;
-    }
+  .lightbox { padding: 0; flex-direction: column; }
+  .lightbox-container { width: 100%; flex: 1; padding: 0.75rem; min-height: 0; }
+  .lightbox-image { max-width: 100%; max-height: 100%; }
+  .lightbox-nav { padding: 1rem; width: 48px; height: 48px; font-size: 1.2rem; }
+  .lightbox-prev { left: 0.5rem; }
+  .lightbox-next { right: 0.5rem; }
+  .lightbox-close { top: 0.75rem; right: 0.75rem; width: 44px; height: 44px; font-size: 1.4rem; padding: 0.4rem 0.8rem; }
+  .lightbox-info { max-height: 18vh; padding: 0.75rem; }
+  .lightbox-caption { font-size: 0.9rem; line-height: 1.3; margin-bottom: 0.4rem; }
+  .lightbox-counter { font-size: 0.85rem; margin-bottom: 0.4rem; }
+  .lightbox-controls-hint { font-size: 0.7rem; }
 }
 
-/* Landscape mode optimization */
 @media (max-height: 600px) and (orientation: landscape) {
-    .lightbox-nav {
-        padding: 0.8rem;
-        width: 44px;
-        height: 44px;
-        font-size: 1.1rem;
-    }
-
-    .lightbox-close {
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .lightbox-info {
-        max-height: 12vh;
-        padding: 0.5rem;
-    }
-
-    .lightbox-caption {
-        font-size: 0.85rem;
-        margin-bottom: 0.2rem;
-        line-height: 1.2;
-    }
-
-    .lightbox-counter {
-        font-size: 0.8rem;
-        margin-bottom: 0.2rem;
-    }
-
-    .lightbox-controls-hint {
-        font-size: 0.65rem;
-    }
+  .lightbox-nav { padding: 0.8rem; width: 44px; height: 44px; font-size: 1.1rem; }
+  .lightbox-close { top: 0.5rem; right: 0.5rem; width: 40px; height: 40px; font-size: 1.2rem; padding: 0.3rem 0.6rem; }
+  .lightbox-info { max-height: 12vh; padding: 0.5rem; }
+  .lightbox-caption { font-size: 0.85rem; margin-bottom: 0.2rem; line-height: 1.2; }
+  .lightbox-counter { font-size: 0.8rem; margin-bottom: 0.2rem; }
+  .lightbox-controls-hint { font-size: 0.65rem; }
 }
 
-/* Very small screens */
 @media (max-width: 480px) {
-    .lightbox-nav {
-        padding: 0.9rem;
-        width: 44px;
-        height: 44px;
-        font-size: 1.1rem;
-    }
-
-    .lightbox-close {
-        width: 42px;
-        height: 42px;
-    }
+  .lightbox-nav { padding: 0.9rem; width: 44px; height: 44px; font-size: 1.1rem; }
+  .lightbox-close { width: 42px; height: 42px; }
 }
 
-/* --- Resume Styling (Specific to resume.html) --- */
+/* --- Resume Styling --- */
 .resume-entry {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .resume-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
 .resume-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #f8f8f8;
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--color-text);
 }
 
 .resume-company {
-    font-weight: 600;
-    color: #7c8fff;
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .resume-date {
-    color: #b0b0c8;
-    font-size: 0.95rem;
-    white-space: nowrap;
-    font-weight: 500;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 /* --- Recipe Page Styling --- */
-
-/* The Wikipedia-style index box */
 .toc-box {
-    background: #0a0a2a; /* Slightly darker than your main cards */
-    padding-bottom: 1.5rem;
+  background: var(--color-card-bg-alt);
+  padding-bottom: 1.5rem;
+  border-radius: 4px;
 }
 
 .toc-box ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
+  list-style-type: disc;
+  padding-left: 1.5rem;
 }
 
 .toc-box li {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Adds breathing room when jumping to a section */
 .recipe-section {
-    scroll-margin-top: 2rem; 
+  scroll-margin-top: 2rem; 
 }
 
 .recipe-section ul, .recipe-section ol {
-    color: #b0b0c8;
+  color: var(--color-text-muted);
 }
 
 .recipe-section li {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .back-to-top {
-    display: inline-block;
-    margin-top: 1.5rem;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* --- Disclaimer Box --- */
 .disclaimer-box {
-    background: #1a2332; /* Darker, alert-like background */
-    border-left: 4px solid #ff6b6b; /* Red accent on left */
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border-radius: 4px;
-    border: 1px solid #2d3748;
+  background: var(--color-alert-bg);
+  border-left: 4px solid var(--color-danger);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-alert-border);
+  transition: var(--transition-theme);
 }
 
 .disclaimer-box h3 {
-    margin-top: 0;
-    color: #ff8787; /* Softer red */
-    font-size: 1.1rem;
-    text-transform: none;
+  margin-top: 0;
+  color: var(--color-danger-text);
+  font-size: 1.1rem;
+  text-transform: none;
 }
 
 .disclaimer-box p {
-    margin: 0.5rem 0 0 0;
-    color: #cbd5e0; /* Lighter text for readability */
-    font-size: 0.95rem;
-    line-height: 1.6;
+  margin: 0.5rem 0 0 0;
+  color: var(--color-alert-text);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
