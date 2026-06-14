@@ -1,5 +1,80 @@
 /* style.css - Crisp & Institutional Theme */
 
+
+/* --- 1. Global Light Theme (Default) --- */
+:root {
+  /* Core Colors */
+  --color-bg: #fbfaf3;       /* Warm, crisp off-white */
+  --color-text: #03071e;     /* Deep institutional navy/black */
+  
+  /* Secondary Structural Colors */
+  --color-text-muted: #475569; /* Slate gray for secondary text/metadata */
+  --color-border: #e2e8f0;     /* Light gray for subtle dividers */
+
+  /* Animation */
+  --transition-theme: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- 2. System-Aware Dark Mode --- */
+/* Applies automatically if the user's OS is in dark mode AND they haven't manually toggled */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #03071e;       /* Inverts to the deep navy */
+    --color-text: #fbfaf3;     /* Inverts to the crisp off-white */
+    --color-text-muted: #94a3b8; /* Lighter slate for legibility in dark mode */
+    --color-border: #1e293b;   /* Darker slate for structural borders */
+  }
+}
+
+/* --- 3. Manual Dark Mode Override --- */
+/* Applies when the JavaScript toggle sets data-theme="dark" */
+[data-theme="dark"] {
+  --color-bg: #03071e;
+  --color-text: #fbfaf3;
+  --color-text-muted: #94a3b8;
+  --color-border: #1e293b;
+}
+
+/* --- 4. Base Body Application --- */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: var(--transition-theme); /* Ensures the switch is smooth, not jarring */
+  
+  /* Optional: Enforces a crisp system font if you haven't set one yet */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Theme Toggle Button --- */
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px; /* Slight rounding for an institutional feel */
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Desktop Hover State */
+@media (hover: hover) {
+  .theme-toggle:hover {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+}
+
+/* Mobile Touch Target Expansion */
+@media (max-width: 768px) {
+  .theme-toggle {
+    padding: 0.75rem 1rem; /* Easier to tap on screens */
+  }
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
