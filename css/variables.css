@@ -1,0 +1,86 @@
+/* style.css - Crisp & Institutional Theme */
+
+/* --- 1. Global Light Theme (Default) --- */
+:root {
+  /* Core Colors */
+  --color-bg: #fbfaf3;       /* Warm, crisp off-white */
+  --color-text: #03071e;     /* Deep institutional navy/black */
+  --color-text-muted: #475569; /* Slate gray */
+  --color-border: #e2e8f0;     /* Light gray */
+
+  /* Structural & Card Colors */
+  --color-header-bg: #ffffff;
+  --color-header-border: #e2e8f0;
+  --color-card-bg: #ffffff;
+  --color-card-border: #e2e8f0;
+  --color-card-bg-alt: #f1f5f9; /* Slightly darker than card for contrast */
+
+  /* Navigation & Links */
+  --color-nav-text: #475569;
+  --color-nav-text-active: #03071e;
+  --color-accent: #2563eb;       /* Crisp institutional blue */
+  --color-accent-hover: #1d4ed8;
+
+  /* Alerts (Disclaimer Box) */
+  --color-alert-bg: #fef2f2;
+  --color-alert-border: #fecaca;
+  --color-danger: #ef4444;
+  --color-danger-text: #b91c1c;
+  --color-alert-text: #450a0a;
+
+  /* Animation */
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* --- 2. System-Aware Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* These are all your original hardcoded colors mapped to variables! */
+    --color-bg: #03071e;
+    --color-text: #fbfaf3;
+    --color-text-muted: #b0b0c8;
+    --color-border: #1e293b;
+    
+    --color-header-bg: #003049;
+    --color-header-border: #0f172a;
+    --color-card-bg: #070738;
+    --color-card-border: #1a1a3e;
+    --color-card-bg-alt: #0a0a2a;
+    
+    --color-nav-text: #b0b0c8;
+    --color-nav-text-active: #f8f8f8;
+    --color-accent: #7c8fff;
+    --color-accent-hover: #9ca3ff;
+
+    --color-alert-bg: #1a2332;
+    --color-alert-border: #2d3748;
+    --color-danger: #ff6b6b;
+    --color-danger-text: #ff8787;
+    --color-alert-text: #cbd5e0;
+  }
+}
+
+/* --- 3. Manual Dark Mode Override --- */
+[data-theme="dark"] {
+  --color-bg: #03071e;
+  --color-text: #fbfaf3;
+  --color-text-muted: #b0b0c8;
+  --color-border: #1e293b;
+  
+  --color-header-bg: #003049;
+  --color-header-border: #0f172a;
+  --color-card-bg: #070738;
+  --color-card-border: #1a1a3e;
+  --color-card-bg-alt: #0a0a2a;
+  
+  --color-nav-text: #b0b0c8;
+  --color-nav-text-active: #f8f8f8;
+  --color-accent: #7c8fff;
+  --color-accent-hover: #9ca3ff;
+
+  --color-alert-bg: #1a2332;
+  --color-alert-border: #2d3748;
+  --color-danger: #ff6b6b;
+  --color-danger-text: #ff8787;
+  --color-alert-text: #cbd5e0;
+}

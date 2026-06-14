@@ -1,0 +1,161 @@
+/* --- 4. Base Body Application --- */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  
+  /* MIN size (16px on phones), PREFERRED size (scales smoothly), MAX size (18px on desktops) */
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); 
+  
+  /* Ensures the light/dark mode switch is smooth */
+  transition: var(--transition-theme); 
+}
+/* --- Theme Toggle Button --- */
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+@media (hover: hover) {
+  .theme-toggle:hover {
+    background-color: var(--color-text);
+    color: var(--color-bg);
+  }
+}
+
+@media (max-width: 768px) {
+  .theme-toggle {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* --- Layout --- */
+.container {
+  /* Increased from 900px to stretch across modern widescreen displays */
+  max-width: 1440px; 
+  margin: 0 auto;
+  /* Uses viewport width (vw) so the padding fluidly scales with the screen */
+  padding: 4rem 5vw; 
+}
+
+/* --- Header & Navigation --- */
+header {
+  background-color: var(--color-header-bg);
+  padding: 1.5rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border-bottom: 3px solid var(--color-header-border);
+  transition: var(--transition-theme);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Must perfectly match the container width above */
+  max-width: 1440px; 
+  margin: 0 auto;
+  /* Match the 5vw side padding of the main container */
+  padding: 0 5vw; 
+}
+
+.logo-link {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-nav-text-active);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--color-nav-text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+nav a:hover {
+  color: var(--color-accent);
+}
+
+nav a.active {
+  color: var(--color-nav-text-active);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 4px;
+}
+
+/* --- Sections & Cards --- */
+.section {
+  margin: 2.5rem 0;
+  padding: 2.5rem;
+  background: var(--color-card-bg);
+  border-radius: 4px;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: var(--transition-theme);
+}
+
+h2 {
+  font-size: 1.4rem;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-card-border);
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+h3 {
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: var(--color-accent-hover);
+}
+
+/* Add this right after your .section block */
+.section p {
+  max-width: 75ch; /* Restricts the text line length for readability */
+  margin-left: 0;  /* Keeps the text anchored perfectly to the left */
+}
+
+/* Optional: If you want your headings to align with the restricted text */
+.section h2, .section h3 {
+  max-width: 75ch;
+  margin-left: 0;
+}
+/* Restricts paragraph width for optimal reading, preventing the "tennis match" effect on large screens */
+.section p {
+  max-width: 75ch; /* 'ch' stands for character width. 75 is the golden rule for readability. */
+  margin-left: auto; /* Optional: remove these two auto margins if you want text left-aligned instead of centered */
+  margin-right: auto;
+}
