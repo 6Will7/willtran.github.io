@@ -84,7 +84,6 @@
   --color-danger-text: #ff8787;
   --color-alert-text: #cbd5e0;
 }
-
 /* --- 4. Base Body Application --- */
 body {
   background-color: var(--color-bg);
@@ -92,9 +91,13 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.6;
   margin: 0;
+  
+  /* MIN size (16px on phones), PREFERRED size (scales smoothly), MAX size (18px on desktops) */
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); 
+  
+  /* Ensures the light/dark mode switch is smooth */
   transition: var(--transition-theme); 
 }
-
 /* --- Theme Toggle Button --- */
 .theme-toggle {
   background: transparent;
@@ -225,6 +228,23 @@ a:hover {
   color: var(--color-accent-hover);
 }
 
+/* Add this right after your .section block */
+.section p {
+  max-width: 75ch; /* Restricts the text line length for readability */
+  margin-left: 0;  /* Keeps the text anchored perfectly to the left */
+}
+
+/* Optional: If you want your headings to align with the restricted text */
+.section h2, .section h3 {
+  max-width: 75ch;
+  margin-left: 0;
+}
+/* Restricts paragraph width for optimal reading, preventing the "tennis match" effect on large screens */
+.section p {
+  max-width: 75ch; /* 'ch' stands for character width. 75 is the golden rule for readability. */
+  margin-left: auto; /* Optional: remove these two auto margins if you want text left-aligned instead of centered */
+  margin-right: auto;
+}
 /* --- Gallery Grid --- */
 .gallery-grid {
   display: grid;
@@ -554,4 +574,11 @@ a:hover {
   color: var(--color-alert-text);
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
+/* Add to the very bottom of the file */
+.disclaimer-box a {
+  color: var(--color-danger);
+  text-decoration: underline;
+  font-weight: 600;
 }
