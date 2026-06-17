@@ -1,25 +1,35 @@
 /* =========================================
    1. IMMEDIATE THEME CHECK (Prevents Flashing)
    ========================================= */
-// Check for saved theme immediately as the script loads
+// Runs instantly as the script loads to prevent a white flash
 const savedTheme = localStorage.getItem("theme");
 if (savedTheme) {
   document.documentElement.setAttribute("data-theme", savedTheme);
 }
 
 /* =========================================
-   2. UNIFIED HEADER INJECTION
+   2. WAIT FOR PAGE TO LOAD
    ========================================= */
-function loadHeader() {
-  fetch('header.html')
-    .then(response => response.text())
-    .then(data => {
-      // Inject the header
+// Ensures the browser has drawn the placeholders before injecting content
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // Kick off both injections simultaneously
+  loadHeader();
+  loadFooter();
+
+  /* =========================================
+     3. UNIFIED HEADER INJECTION
+     ========================================= */
+  async function loadHeader() {
+    try {
+      const response = await fetch('header.html');
+      if (!response.ok) throw new Error("Header file not found");
+      
+      const data = await response.text();
       document.getElementById('header-placeholder').innerHTML = data;
 
       // Automatically set the "active" class
-      let currentPage = window.location.pathname.split('/').pop();
-      if (currentPage === '') currentPage = 'index.html';
+      let currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
       const navLinks = document.querySelectorAll('.nav-container nav a');
       navLinks.forEach(link => {
@@ -28,20 +38,23 @@ function loadHeader() {
         }
       });
 
-      // Initialize the toggle button NOW that it actually exists on the page
+      // Initialize the toggle button NOW that the header exists
       initThemeToggle(); 
-    })
-    .catch(error => console.error('Error loading header:', error));
-}
 
-/* =========================================
-   4. UNIFIED FOOTER INJECTION
-   ========================================= */
-function loadFooter() {
-  fetch('footer.html')
-    .then(response => response.text())
-    .then(data => {
-      // Inject the footer
+    } catch (error) {
+      console.error('Error loading header:', error);
+    }
+  }
+
+  /* =========================================
+     4. UNIFIED FOOTER INJECTION
+     ========================================= */
+  async function loadFooter() {
+    try {
+      const response = await fetch('footer.html');
+      if (!response.ok) throw new Error("Footer file not found");
+      
+      const data = await response.text();
       document.getElementById('footer-placeholder').innerHTML = data;
 
       // Automatically set the copyright to the current year
@@ -49,32 +62,26 @@ function loadFooter() {
       if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
       }
-    })
-    .catch(error => console.error('Error loading footer:', error));
-}
-
-// Kick off the footer load!
-loadFooter();
-
-/* =========================================
-   5. THEME TOGGLE LOGIC
-   ========================================= */
-function initThemeToggle() {
-  const toggleBtn = document.getElementById("theme-toggle");
-  const htmlElement = document.documentElement; 
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      // Check current theme, default to 'light' if none is set
-      const currentTheme = htmlElement.getAttribute("data-theme") || "light";
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-
-      // Apply and save the new theme
-      htmlElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-    });
+    } catch (error) {
+      console.error('Error loading footer:', error);
+    }
   }
-}
 
-// Kick off the header load!
-loadHeader();
+  /* =========================================
+     5. THEME TOGGLE LOGIC
+     ========================================= */
+  function initThemeToggle() {
+    const toggleBtn = document.getElementById("theme-toggle");
+    const htmlElement = document.documentElement; 
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const currentTheme = htmlElement.getAttribute("data-theme") || "light";
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        htmlElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    }
+  }
+});
