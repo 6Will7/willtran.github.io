@@ -8,23 +8,26 @@
     <!-- Base styles for the institutional theme -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- ADD THIS LINE: Specific gallery and lightbox styles -->
+    <!-- Specific gallery and lightbox styles -->
     <link rel="stylesheet" href="gallery.css">
 </head>
 <body>
 
-    <!-- Shared Navigation -->
-<div id="header-placeholder"></div>
+    <!-- Shared Navigation Placeholder -->
+    <div id="header-placeholder"></div>
 
     <div class="container">
         <div class="section">
             <h2>Photographs</h2>
             <p>A collection of photos that I have taken. You can click to expand!</p>
             
-            <!-- Gallery Grid -->
+            <!-- Gallery Grid Container -->
             <div id="gallery-container"></div>
         </div>
     </div>
+
+    <!-- Shared Footer Placeholder -->
+    <div id="footer-placeholder"></div>
 
     <!-- Lightbox Modal -->
     <div id="lightbox" class="lightbox">
@@ -57,13 +60,32 @@
     </div>
 
     <script>
-     // ===== CLOUDINARY CONFIGURATION =====
+
+
+                // ===== LOAD SHARED HEADER AND FOOTER =====
+        function loadComponent(elementId, filepath) {
+            fetch(filepath)
+                .then(response => {
+                    if (!response.ok) throw new Error(`Failed to load ${filepath}`);
+                    return response.text();
+                })
+                .then(data => {
+                    document.getElementById(elementId).innerHTML = data;
+                })
+                .catch(error => console.error('Error loading component:', error));
+        }
+
+        // Load templates from your root directory
+        loadComponent('header-placeholder', 'header.html');
+        loadComponent('footer-placeholder', 'footer.html');
+
+
+        // ===== CLOUDINARY CONFIGURATION =====
         const cloudName = "YOUR_CLOUD_NAME"; 
         const thumbSettings = "c_fill,w_600,h_600,f_auto,q_auto"; 
         const fullSettings = "f_auto,q_auto";
 
         // ===== PHOTO DATA (CATEGORIZED) =====
-        // Group your photos into distinct sections here
         const gallerySections = [
             {
                 categoryTitle: "Kyoto Heritage",
@@ -121,12 +143,9 @@
                 ]
             }
         ];
-
         // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
-       // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
         const galleryContainer = document.getElementById('gallery-container');
         
-        // 1. Create the Jump Navigation Container at the very top
         const jumpNav = document.createElement('div');
         jumpNav.className = 'jump-nav';
         galleryContainer.appendChild(jumpNav);
@@ -135,29 +154,24 @@
         let globalIndex = 0;
 
         gallerySections.forEach(section => {
-            // Create a URL-safe ID from the title (e.g., "Kyoto Heritage" -> "kyoto-heritage")
             const sectionId = section.categoryTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-            // 2. Add a button to the Jump Menu for this section
             const jumpLink = document.createElement('a');
             jumpLink.href = `#${sectionId}`;
             jumpLink.textContent = section.categoryTitle;
             jumpNav.appendChild(jumpLink);
 
-            // 3. Create the Section Title (and attach the ID we just made)
             const sectionTitle = document.createElement('h3');
-            sectionTitle.id = sectionId; // <-- This makes the jump link work!
+            sectionTitle.id = sectionId;
             sectionTitle.textContent = section.categoryTitle;
             sectionTitle.style.marginTop = globalIndex === 0 ? "0" : "3rem";
             sectionTitle.style.borderBottom = "1px solid var(--color-border)";
             sectionTitle.style.paddingBottom = "0.5rem";
             galleryContainer.appendChild(sectionTitle);
 
-            // 4. Create the Grid for this section
             const grid = document.createElement('div');
             grid.className = 'gallery-grid';
 
-            // 5. Populate the Grid
             section.items.forEach(photo => {
                 allPhotosForLightbox.push(photo);
 
@@ -182,17 +196,18 @@
         const lightboxCaption = document.querySelector('.lightbox-caption');
         const currentPhotoSpan = document.querySelector('.current-photo');
         const totalPhotosSpan = document.querySelector('.total-photos');
+        const closeBtn = document.querySelector('.lightbox-close');
+        const prevBtn = document.querySelector('.lightbox-prev');
+        const nextBtn = document.querySelector('.lightbox-next');
+        
         let currentIndex = 0;
-
         let touchStartX = 0;
         let touchEndX = 0;
-        let touchStartY = 0;
-        let touchEndY = 0;
         const SWIPE_THRESHOLD = 50;
 
-        // Update the counter to reflect ALL photos across all sections
         totalPhotosSpan.textContent = allPhotosForLightbox.length;
 
+        // Open Lightbox on Image Click
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('gallery-image')) {
                 currentIndex = parseInt(e.target.dataset.index);
@@ -201,111 +216,73 @@
         });
 
         function openLightbox() {
-            // Pull from the master flat list
             const photo = allPhotosForLightbox[currentIndex];
             const fullUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${fullSettings}/${photo.filename}`;
             
             lightboxImage.src = fullUrl;
+            lightboxImage.alt = photo.alt;
             lightboxCaption.textContent = photo.caption;
             currentPhotoSpan.textContent = currentIndex + 1;
             
             lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            lightbox.focus();
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
         }
 
         function closeLightbox() {
             lightbox.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
+            lightboxImage.src = ""; // Clear source
         }
 
-        function showImage(index) {
-            if (index >= allPhotosForLightbox.length) currentIndex = 0;
-            if (index < 0) currentIndex = allPhotosForLightbox.length - 1;
+        function navigateLightbox(direction) {
+            if (direction === 'next') {
+                currentIndex = (currentIndex + 1) % allPhotosForLightbox.length;
+            } else if (direction === 'prev') {
+                currentIndex = (currentIndex - 1 + allPhotosForLightbox.length) % allPhotosForLightbox.length;
+            }
             openLightbox();
         }
 
-        document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
-
-        document.querySelector('.lightbox-next').addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentIndex++;
-            showImage(currentIndex);
-        });
-
-        document.querySelector('.lightbox-prev').addEventListener('click', (e) => {
-            e.stopPropagation();
-            currentIndex--;
-            showImage(currentIndex);
-        });
-
+        // Control Listeners
+        closeBtn.addEventListener('click', closeLightbox);
+        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox('next'); });
+        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox('prev'); });
+        
+        // Close on background click
         lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
-
-        document.querySelector('.lightbox-container').addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        document.querySelector('.lightbox-info').addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        // ===== TOUCH SWIPE GESTURES =====
-        lightboxImage.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].clientX;
-            touchStartY = e.changedTouches[0].clientY;
-        }, { passive: true });
-
-        lightboxImage.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].clientX;
-            touchEndY = e.changedTouches[0].clientY;
-            
-            const horizontalDistance = Math.abs(touchEndX - touchStartX);
-            const verticalDistance = Math.abs(touchEndY - touchStartY);
-            
-            if (horizontalDistance > SWIPE_THRESHOLD && horizontalDistance > verticalDistance) {
-                if (touchEndX < touchStartX) {
-                    currentIndex++;
-                    showImage(currentIndex);
-                } else if (touchEndX > touchStartX) {
-                    currentIndex--;
-                    showImage(currentIndex);
-                }
+            if (e.target === lightbox || e.target.classList.contains('lightbox-container')) {
+                closeLightbox();
             }
-        }, { passive: true });
+        });
 
-        // ===== KEYBOARD NAVIGATION =====
+        // Keyboard Controls
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
-            
-            if (e.key === 'ArrowRight') {
-                currentIndex++;
-                showImage(currentIndex);
-            }
-            if (e.key === 'ArrowLeft') {
-                currentIndex--;
-                showImage(currentIndex);
-            }
             if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') navigateLightbox('next');
+            if (e.key === 'ArrowLeft') navigateLightbox('prev');
         });
 
-        // ===== PREVENT DOUBLE-TAP ZOOM ON BUTTONS =====
-        let lastTap = 0;
-        ['lightbox-nav', 'lightbox-close'].forEach(className => {
-            document.querySelectorAll('.' + className).forEach(button => {
-                button.addEventListener('touchstart', (e) => {
-                    const now = Date.now();
-                    if (now - lastTap < 300) {
-                        e.preventDefault();
-                    }
-                    lastTap = now;
-                }, { passive: false });
-            });
-        });
+        // Swipe Controls for Mobile Devices
+        lightbox.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches.screenX;
+        }, { passive: true });
+
+        lightbox.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches.screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > SWIPE_THRESHOLD) {
+                if (diff > 0) {
+                    navigateLightbox('next'); // Swiped left
+                } else {
+                    navigateLightbox('prev'); // Swiped right
+                }
+            }
+        }
     </script>
-
 </body>
-
-    <div id="footer-placeholder"></div>
 </html>
