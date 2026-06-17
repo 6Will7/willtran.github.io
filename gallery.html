@@ -130,30 +130,42 @@
         ];
 
         // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
+       // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
         const galleryContainer = document.getElementById('gallery-container');
         
-        // We build a flat array of all photos behind the scenes 
-        // so the lightbox can still swipe continuously through everything!
+        // 1. Create the Jump Navigation Container at the very top
+        const jumpNav = document.createElement('div');
+        jumpNav.className = 'jump-nav';
+        galleryContainer.appendChild(jumpNav);
+        
         const allPhotosForLightbox = [];
         let globalIndex = 0;
 
         gallerySections.forEach(section => {
-            // 1. Create the Section Title
+            // Create a URL-safe ID from the title (e.g., "Kyoto Heritage" -> "kyoto-heritage")
+            const sectionId = section.categoryTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            // 2. Add a button to the Jump Menu for this section
+            const jumpLink = document.createElement('a');
+            jumpLink.href = `#${sectionId}`;
+            jumpLink.textContent = section.categoryTitle;
+            jumpNav.appendChild(jumpLink);
+
+            // 3. Create the Section Title (and attach the ID we just made)
             const sectionTitle = document.createElement('h3');
+            sectionTitle.id = sectionId; // <-- This makes the jump link work!
             sectionTitle.textContent = section.categoryTitle;
-            // Adds a little spacing above titles (except the first one)
             sectionTitle.style.marginTop = globalIndex === 0 ? "0" : "3rem";
             sectionTitle.style.borderBottom = "1px solid var(--color-border)";
             sectionTitle.style.paddingBottom = "0.5rem";
             galleryContainer.appendChild(sectionTitle);
 
-            // 2. Create the Grid for this section
+            // 4. Create the Grid for this section
             const grid = document.createElement('div');
             grid.className = 'gallery-grid';
 
-            // 3. Populate the Grid
+            // 5. Populate the Grid
             section.items.forEach(photo => {
-                // Add to our master list for the lightbox
                 allPhotosForLightbox.push(photo);
 
                 const thumbUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${thumbSettings}/${photo.filename}`;
@@ -165,12 +177,9 @@
                     <div class="gallery-caption">${photo.caption}</div>
                 `;
                 grid.appendChild(galleryItem);
-                
-                // Increment the global index for the next photo
                 globalIndex++;
             });
 
-            // Add the completed grid to the page
             galleryContainer.appendChild(grid);
         });
 
