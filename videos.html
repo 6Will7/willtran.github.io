@@ -3,83 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>William Tran - Videos</title>
-    <!-- We now link to our shared style file! -->
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/components.css">
 
     <style>
-        /* Specific styling to keep the videos centered and spaced well */
+        /* Responsive Video Gallery Styling */
         .video-gallery {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 40px;
-            margin: 50px auto;
-            max-width: 800px;
+            gap: 3rem;
+            margin: 3rem auto;
+            max-width: 900px;
         }
         
+        /* Forces videos to be perfectly responsive across all devices */
         .video-wrapper {
             width: 100%;
-            display: flex;
-            justify-content: center;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            border-radius: 8px; /* Soft institutional corners */
+            overflow: hidden;
+        }
+
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- Shared Navigation -->
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo-link">William Tran</a>
             <nav>
                 <ul>
-                    <li><a href="index.html" ">Home</a></li>
+                    <li><a href="index.html">Home</a></li>
                     <li><a href="gallery.html">Gallery</a></li>
-                    <li><a href="Resume.pdf" target="_blank">Download My Resume</a></li>
+                    <li><a href="Resume.pdf" target="_blank">Resume</a></li>
                     <li><a href="recipes.html">Recipes</a></li>
-                    <li><a href="videos.html"class="active>Videos</a></li>
-                                </ul>
+                    <li><a href="videos.html" class="active">Videos</a></li>
+                </ul>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+                    <span class="toggle-icon">◐</span>
+                </button>
             </nav>
         </div>
     </header>
- <!--End Shared Navigation -->
 
-    <main class="video-gallery">
-        <h1>Video Archive</h1>
+    <main class="container">
+        <section class="section video-gallery">
+            <h2>Video Archive</h2>
 
-        <div class="video-wrapper">
-            <iframe width="560" height="315"
-                src="https://www.youtube.com/embed/cSGIIujocGY?"
-                title="Tunes"
-                frameborder="0"
-                allowfullscreen></iframe>
-        </div>
-    
-        <div class="video-wrapper">
-            <iframe width="560" height="315"
-                src="https://www.youtube.com/embed/5mLnuCORMrU"
-                title="Test Video"
-                frameborder="0"
-                allowfullscreen></iframe>
-        </div>
-
-        <div class="video-wrapper">
-            <iframe width="560" height="315"
-                src="https://www.youtube.com/embed/Be8Yh34ePmg"
-                title="Nice Video"
-                frameborder="0"
-                allowfullscreen></iframe>
-        </div>
-
-        <div class="video-wrapper">
-            <iframe width="560" height="315"
-                src="https://www.youtube.com/embed/YmHZI03a_Yo"
-                title="Study Music"
-                frameborder="0"
-                allowfullscreen></iframe>
-        </div>
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/cSGIIujocGY" title="Tunes" allowfullscreen loading="lazy"></iframe>
+            </div>
         
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/5mLnuCORMrU" title="Test Video" allowfullscreen loading="lazy"></iframe>
+            </div>
+
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/Be8Yh34ePmg" title="Nice Video" allowfullscreen loading="lazy"></iframe>
+            </div>
+
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube.com/embed/YmHZI03a_Yo" title="Study Music" allowfullscreen loading="lazy"></iframe>
+            </div>
+            
+        </section>
     </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Will Tran. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
 
 </body>
 </html>
