@@ -2,6 +2,7 @@
 
 /* --- 1. Global Light Theme (Default) --- */
 :root {
+  color-scheme: light; /* <-- defaults to light */
   /* Core Colors */
   --color-bg: #fbfaf3;       /* Warm, crisp off-white */
   --color-text: #03071e;     /* Deep institutional navy/black */
