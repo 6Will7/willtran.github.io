@@ -29,7 +29,7 @@
             <p>A collection of photos that I have taken. You can click to expand!</p>
             
             <!-- Gallery Grid -->
-            <div class="gallery-grid" id="galleryGrid"></div>
+            <div id="gallery-container"></div>
         </div>
     </div>
 
@@ -64,74 +64,114 @@
     </div>
 
     <script>
-        // ===== PHOTO DATA =====
-        // Easy to add photos: just add a new object to this array!
-        const photos = [
-            {
-                thumbnail: "githubphotos/WNT00410.JPEG",
-                full: "githubphotos/WNT00410.JPEG",
-                alt: "Kamo River in Kyoto",
-                caption: "Kamo River in Kyoto"
-            },
-            {
-                thumbnail: "githubphotos/WNT00456.JPEG",
-                full: "githubphotos/WNT00456.JPEG",
-                alt: "Kinkaku-ji in Kyoto",
-                caption: "Kinkaku-ji in Kyoto"
-            },
-            {
-                thumbnail: "githubphotos/WNT00649.JPEG",
-                full: "githubphotos/WNT00649.JPEG",
-                alt: "Kiyomizu-dera Temple in Kyoto",
-                caption: "Kiyomizu-dera Temple in Kyoto - founded in 780"
-            },
+     // ===== CLOUDINARY CONFIGURATION =====
+        const cloudName = "YOUR_CLOUD_NAME"; 
+        const thumbSettings = "c_fill,w_600,h_600,f_auto,q_auto"; 
+        const fullSettings = "f_auto,q_auto";
 
+        // ===== PHOTO DATA (CATEGORIZED) =====
+        // Group your photos into distinct sections here
+        const gallerySections = [
             {
-                thumbnail: "githubphotos/WNT00665.JPEG",
-                full: "githubphotos/WNT00665.JPEG",
-                alt: "Kiyomizu-dera Temple in Kyoto",
-                caption: "Another angle of Kiyomizu-dera Temple"
+                categoryTitle: "Kyoto Heritage",
+                items: [
+                    {
+                        filename: "v123456789/WNT00410.jpg", 
+                        alt: "Kamo River in Kyoto",
+                        caption: "Kamo River in Kyoto"
+                    },
+                    {
+                        filename: "v123456789/WNT00456.jpg",
+                        alt: "Kinkaku-ji in Kyoto",
+                        caption: "Kinkaku-ji in Kyoto"
+                    },
+                    {
+                        filename: "v123456789/WNT00649.jpg",
+                        alt: "Kiyomizu-dera Temple in Kyoto",
+                        caption: "Kiyomizu-dera Temple in Kyoto - founded in 780"
+                    },
+                    {
+                        filename: "v123456789/WNT00665.jpg",
+                        alt: "Kiyomizu-dera Temple in Kyoto",
+                        caption: "Another angle of Kiyomizu-dera Temple"
+                    }
+                ]
             },
-
-
             {
-                thumbnail: "githubphotos/WNT00825 (1).JPEG",
-                full: "githubphotos/WNT00825 (1).JPEG",
-                alt: "Himeji Castle",
-                caption: "The White Heron Castle. Made famous by James Bond in the film You Only Live Twice "
-            },
-            
-                {
-                thumbnail: "githubphotos/WNT01013.JPEG",
-                full: "githubphotos/WNT01013.JPEG",
-                alt: "Sign",
-                caption: "Lost in translation"
+                categoryTitle: "Castles & Signs",
+                items: [
+                    {
+                        filename: "v123456789/WNT00825_1.jpg",
+                        alt: "Himeji Castle",
+                        caption: "The White Heron Castle. Made famous by James Bond."
+                    },
+                    {
+                        filename: "v123456789/WNT01013.jpg",
+                        alt: "Sign",
+                        caption: "Lost in translation"
+                    }
+                ]
             },
             {
-                thumbnail: "githubphotos/WNT01240.JPEG",
-                full: "githubphotos/WNT01240.JPEG",
-                alt: "Sea Turtles at Churaumi Aquarium",
-                caption: "Sea Turtles at Churaumi Aquarium in Okinawa"
-            },
-        
-            {
-                thumbnail: "githubphotos/WNT01244.JPEG",
-                full: "githubphotos/WNT01244.JPEG",
-                alt: "Sign",
-                caption: "Famous crowd, famouser fish"
+                categoryTitle: "Okinawa",
+                items: [
+                    {
+                        filename: "v123456789/WNT01240.jpg",
+                        alt: "Sea Turtles at Churaumi Aquarium",
+                        caption: "Sea Turtles at Churaumi Aquarium in Okinawa"
+                    },
+                    {
+                        filename: "v123456789/WNT01244.jpg",
+                        alt: "Sign",
+                        caption: "Famous crowd, famouser fish"
+                    }
+                ]
             }
         ];
 
-        // ===== RENDER GALLERY =====
-        const galleryGrid = document.getElementById('galleryGrid');
-        photos.forEach((photo, index) => {
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
-            galleryItem.innerHTML = `
-                <img src="${photo.thumbnail}" alt="${photo.alt}" class="gallery-image" data-index="${index}">
-                <div class="gallery-caption">${photo.caption}</div>
-            `;
-            galleryGrid.appendChild(galleryItem);
+        // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
+        const galleryContainer = document.getElementById('gallery-container');
+        
+        // We build a flat array of all photos behind the scenes 
+        // so the lightbox can still swipe continuously through everything!
+        const allPhotosForLightbox = [];
+        let globalIndex = 0;
+
+        gallerySections.forEach(section => {
+            // 1. Create the Section Title
+            const sectionTitle = document.createElement('h3');
+            sectionTitle.textContent = section.categoryTitle;
+            // Adds a little spacing above titles (except the first one)
+            sectionTitle.style.marginTop = globalIndex === 0 ? "0" : "3rem";
+            sectionTitle.style.borderBottom = "1px solid var(--color-border)";
+            sectionTitle.style.paddingBottom = "0.5rem";
+            galleryContainer.appendChild(sectionTitle);
+
+            // 2. Create the Grid for this section
+            const grid = document.createElement('div');
+            grid.className = 'gallery-grid';
+
+            // 3. Populate the Grid
+            section.items.forEach(photo => {
+                // Add to our master list for the lightbox
+                allPhotosForLightbox.push(photo);
+
+                const thumbUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${thumbSettings}/${photo.filename}`;
+                
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.innerHTML = `
+                    <img src="${thumbUrl}" alt="${photo.alt}" class="gallery-image" data-index="${globalIndex}" loading="lazy">
+                    <div class="gallery-caption">${photo.caption}</div>
+                `;
+                grid.appendChild(galleryItem);
+                
+                // Increment the global index for the next photo
+                globalIndex++;
+            });
+
+            // Add the completed grid to the page
+            galleryContainer.appendChild(grid);
         });
 
         // ===== LIGHTBOX FUNCTIONALITY =====
@@ -142,17 +182,15 @@
         const totalPhotosSpan = document.querySelector('.total-photos');
         let currentIndex = 0;
 
-        // Touch gesture tracking
         let touchStartX = 0;
         let touchEndX = 0;
         let touchStartY = 0;
         let touchEndY = 0;
         const SWIPE_THRESHOLD = 50;
 
-        // Update total photos count
-        totalPhotosSpan.textContent = photos.length;
+        // Update the counter to reflect ALL photos across all sections
+        totalPhotosSpan.textContent = allPhotosForLightbox.length;
 
-        // Open lightbox when clicking on an image
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('gallery-image')) {
                 currentIndex = parseInt(e.target.dataset.index);
@@ -161,8 +199,11 @@
         });
 
         function openLightbox() {
-            const photo = photos[currentIndex];
-            lightboxImage.src = photo.full;
+            // Pull from the master flat list
+            const photo = allPhotosForLightbox[currentIndex];
+            const fullUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${fullSettings}/${photo.filename}`;
+            
+            lightboxImage.src = fullUrl;
             lightboxCaption.textContent = photo.caption;
             currentPhotoSpan.textContent = currentIndex + 1;
             
@@ -177,16 +218,13 @@
         }
 
         function showImage(index) {
-            if (index >= photos.length) currentIndex = 0;
-            if (index < 0) currentIndex = photos.length - 1;
-            
+            if (index >= allPhotosForLightbox.length) currentIndex = 0;
+            if (index < 0) currentIndex = allPhotosForLightbox.length - 1;
             openLightbox();
         }
 
-        // Close button
         document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
-        // Next/Prev buttons
         document.querySelector('.lightbox-next').addEventListener('click', (e) => {
             e.stopPropagation();
             currentIndex++;
@@ -199,12 +237,10 @@
             showImage(currentIndex);
         });
 
-        // Close on background click
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
 
-        // Prevent closing when clicking on content
         document.querySelector('.lightbox-container').addEventListener('click', (e) => {
             e.stopPropagation();
         });
@@ -223,18 +259,14 @@
             touchEndX = e.changedTouches[0].clientX;
             touchEndY = e.changedTouches[0].clientY;
             
-            // Calculate if swipe is primarily horizontal
             const horizontalDistance = Math.abs(touchEndX - touchStartX);
             const verticalDistance = Math.abs(touchEndY - touchStartY);
             
-            // Only trigger navigation if horizontal swipe is significant
             if (horizontalDistance > SWIPE_THRESHOLD && horizontalDistance > verticalDistance) {
                 if (touchEndX < touchStartX) {
-                    // Swiped left - go to next image
                     currentIndex++;
                     showImage(currentIndex);
                 } else if (touchEndX > touchStartX) {
-                    // Swiped right - go to previous image
                     currentIndex--;
                     showImage(currentIndex);
                 }
