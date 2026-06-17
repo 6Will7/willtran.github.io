@@ -6,34 +6,30 @@ const savedTheme = localStorage.getItem("theme");
 if (savedTheme) {
   document.documentElement.setAttribute("data-theme", savedTheme);
 }
-
 /* =========================================
-   2. WAIT FOR PAGE TO LOAD
-   ========================================= */
-// Ensures the browser has drawn the placeholders before injecting content
-document.addEventListener("DOMContentLoaded", () => {
-  
-  // Kick off both injections simultaneously
-  loadHeader();
-  loadFooter();
-
-  /* =========================================
      3. UNIFIED HEADER INJECTION
      ========================================= */
   async function loadHeader() {
     try {
-      const response = await fetch('header.html');
+      // FIXED: Using explicit relative directory pathing for GitHub environment stability
+      const response = await fetch('./header.html');
       if (!response.ok) throw new Error("Header file not found");
       
       const data = await response.text();
       document.getElementById('header-placeholder').innerHTML = data;
 
-      // Automatically set the "active" class
-      let currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      // FIXED: Safely extract page path and normalize empty root endpoints to index.html
+      let path = window.location.pathname;
+      let currentPage = path.split('/').pop();
+      if (!currentPage || currentPage === "") {
+        currentPage = 'index.html';
+      }
 
       const navLinks = document.querySelectorAll('.nav-container nav a');
       navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
+        // Strip out leading paths from href attributes to get a clean match
+        let linkHref = link.getAttribute('href').split('/').pop();
+        if (linkHref === currentPage) {
           link.classList.add('active');
         }
       });
@@ -51,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
      ========================================= */
   async function loadFooter() {
     try {
-      const response = await fetch('footer.html');
+      // FIXED: Explicit relative file fetching setup
+      const response = await fetch('./footer.html');
       if (!response.ok) throw new Error("Footer file not found");
       
       const data = await response.text();
