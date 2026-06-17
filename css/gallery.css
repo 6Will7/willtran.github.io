@@ -14,6 +14,12 @@ html {
   margin-bottom: 3rem;
   padding-bottom: 2rem;
   border-bottom: 2px solid var(--color-border);
+  
+  /* FIXED: Attached the stray sticky rules securely to the navigation block */
+  position: sticky;
+  top: 80px; /* Adjust this so it sits just below your main header */
+  z-index: 100;
+  background-color: var(--color-bg); /* Prevents photos from showing through */
 }
 
 .jump-nav a {
@@ -38,10 +44,6 @@ html {
   transform: translateY(-2px); /* Matches the hover lift of your gallery cards */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-position: sticky;
-  top: 80px; /* Adjust this so it sits just below your main header */
-  z-index: 100;
-  background-color: var(--color-bg); /* Prevents photos from showing through */
 
 /* --- Gallery Grid --- */
 .gallery-grid {
@@ -67,10 +69,12 @@ position: sticky;
   border-color: var(--color-accent);
 }
 
+/* FIXED: Changed fixed height to responsive landscape ratio constraints */
 .gallery-item img {
   width: 100%;
-  height: 300px;
-  object-fit: cover;
+  height: auto; 
+  aspect-ratio: 3 / 2; /* Maintains panoramic/landscape canvas format */
+  object-fit: cover; /* Centers lens safely without compressing */
   display: block;
   border-bottom: 1px solid var(--color-card-border);
   transition: transform 0.3s ease;
@@ -258,6 +262,12 @@ position: sticky;
 @media (max-width: 768px) {
   .lightbox { padding: 0; flex-direction: column; }
   .lightbox-container { width: 100%; flex: 1; padding: 0.75rem; min-height: 0; }
+  
+  /* FIXED: Set mobile devices to render uncropped native vertical heights */
+  .gallery-item img {
+    aspect-ratio: auto;
+  }
+  
   .lightbox-image { max-width: 100%; max-height: 100%; }
   .lightbox-nav { padding: 1rem; width: 48px; height: 48px; font-size: 1.2rem; }
   .lightbox-prev { left: 0.5rem; }
