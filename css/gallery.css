@@ -1,3 +1,48 @@
+/* --- Global Smooth Scrolling --- */
+html {
+  scroll-behavior: smooth;
+  /* Adjust this number based on how tall your header is, 
+     so the jump link doesn't hide the title behind your navigation */
+  scroll-padding-top: 120px; 
+}
+
+/* --- Jump Navigation --- */
+.jump-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.jump-nav a {
+  padding: 0.5rem 1.25rem;
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 4px; /* Matches your gallery cards */
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-transform: uppercase; /* Institutional styling */
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.jump-nav a:hover {
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+  transform: translateY(-2px); /* Matches the hover lift of your gallery cards */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+position: sticky;
+  top: 80px; /* Adjust this so it sits just below your main header */
+  z-index: 100;
+  background-color: var(--color-bg); /* Prevents photos from showing through */
+
 /* --- Gallery Grid --- */
 .gallery-grid {
   display: grid;
