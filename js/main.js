@@ -35,7 +35,29 @@ function loadHeader() {
 }
 
 /* =========================================
-   3. THEME TOGGLE LOGIC
+   4. UNIFIED FOOTER INJECTION
+   ========================================= */
+function loadFooter() {
+  fetch('footer.html')
+    .then(response => response.text())
+    .then(data => {
+      // Inject the footer
+      document.getElementById('footer-placeholder').innerHTML = data;
+
+      // Automatically set the copyright to the current year
+      const yearSpan = document.getElementById('current-year');
+      if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+      }
+    })
+    .catch(error => console.error('Error loading footer:', error));
+}
+
+// Kick off the footer load!
+loadFooter();
+
+/* =========================================
+   5. THEME TOGGLE LOGIC
    ========================================= */
 function initThemeToggle() {
   const toggleBtn = document.getElementById("theme-toggle");
