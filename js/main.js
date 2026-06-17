@@ -6,7 +6,18 @@ const savedTheme = localStorage.getItem("theme");
 if (savedTheme) {
   document.documentElement.setAttribute("data-theme", savedTheme);
 }
+
 /* =========================================
+   2. WAIT FOR PAGE TO LOAD
+   ========================================= */
+// FIXED: Added the missing listener back so the code actually triggers!
+document.addEventListener("DOMContentLoaded", () => {
+  
+  // Kick off both injections simultaneously
+  loadHeader();
+  loadFooter();
+
+  /* =========================================
      3. UNIFIED HEADER INJECTION
      ========================================= */
   async function loadHeader() {
