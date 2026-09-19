@@ -176,6 +176,16 @@ html {
 }
 
 /* --- Sticky header with blur --- */
+/* Note: on placeholder pages the <header> is injected inside
+   #header-placeholder, which is exactly header-sized — sticky must be on
+   the wrapper (a direct child of body) to have room to stick. Pages with a
+   hardcoded <header> (videos.html, recipes.html) are covered by the header
+   rule below. */
+#header-placeholder {
+  position: sticky;
+  top: 0;
+  z-index: 300;
+}
 header {
   position: sticky;
   top: 0;
