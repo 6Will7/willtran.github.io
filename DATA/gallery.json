@@ -1,0 +1,34 @@
+{
+  "_readme": "HOW TO ADD / CHANGE PHOTOS: 1) Upload the photo to Cloudinary. 2) Copy the part of its delivery URL that comes after '/upload/' (e.g. 'v1781416390/MPEG_-_12_cpgws8.jpg'). 3) Paste it as the 'id' of a new entry below, with an 'alt' description and a 'caption'. 4) Set 'featured: true' on up to 3 photos to show them on the homepage. 5) Add a new category block to start a new gallery section. That's it \u2014 no other files need editing.",
+  "categories": [
+    {
+      "photos": [
+        {
+          "alt": "Mount Fuji",
+          "caption": "Mount Fuji",
+          "featured": true,
+          "id": "v1781416390/MPEG_-_12_cpgws8.jpg"
+        },
+        {
+          "alt": "Fujisandwich",
+          "caption": "Fujisandwich",
+          "featured": true,
+          "id": "v1781416390/MPEG_-_13_lxmpz1.jpg"
+        }
+      ],
+      "title": "Japan"
+    },
+    {
+      "photos": [
+        {
+          "alt": "A curious rabbit",
+          "caption": "A curious rabbit",
+          "featured": true,
+          "id": "v1781416406/MPEG_-_104_zmuo4n.jpg"
+        }
+      ],
+      "title": "Wildlife"
+    }
+  ],
+  "cloudName": "dzya7bgz6"
+}

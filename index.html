@@ -19,7 +19,9 @@
   <meta property="twitter:description" content="An analyst.">
   <meta property="twitter:image" content="https://willtran.org/images/og-preview.jpg">
 
- <link rel="stylesheet" href="css/variables.css">
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+
+  <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/gallery.css">
   <link rel="stylesheet" href="css/components.css">
@@ -27,48 +29,54 @@
 <body>
 
   <div id="header-placeholder"></div>
+
   <main class="container">
-    
-    <section class="section">
-      <h2>Hello, welcome to my website.</h2>
-      <p>I live in the bay area, and am cooking up this website in my spare time, so please forgive any errors!</p>
-      <p>Let me know what else you'd like to see on this website by sending a note to:.</p>
+
+    <section class="hero reveal">
+      <p class="hero-kicker">Hello, welcome to my website</p>
+      <h1 class="hero-title">Will Tran</h1>
+      <p class="hero-subtitle">I live in the Bay Area, and I'm cooking up this website in my spare time — please forgive any errors. I take photos, cook Japanese-style recipes, and tinker with things.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="gallery.html">View the gallery</a>
+        <a class="btn btn-secondary" href="recipes.html">Browse recipes</a>
+      </div>
     </section>
 
-    <section class="section">
-      <h2>Selected Photos</h2>
-      
-      <div class="gallery-grid">
-        
-        <article class="gallery-item">
-          <img src="https://res.cloudinary.com/dzya7bgz6/image/upload/v1781416390/MPEG_-_12_cpgws8.jpg" alt="Fujisan" loading="lazy">
-          <div class="gallery-caption">
-            <strong>Mount Fuji</strong><br>
-            Check the recipes page for my favorite Japanese-style recipes!
-          </div>
-        </article>
+    <section class="section reveal">
+      <div class="section-header">
+        <h2>Selected Photos</h2>
+        <a class="section-link" href="gallery.html">View all &rarr;</a>
+      </div>
+      <!-- Rendered from DATA/gallery.json (photos flagged "featured") by js/gallery.js -->
+      <div id="featured-grid" class="gallery-grid" aria-live="polite"></div>
+    </section>
 
-        <article class="gallery-item">
-          <img src="https://res.cloudinary.com/dzya7bgz6/image/upload/v1781416406/MPEG_-_104_zmuo4n.jpg" alt="Photo1" loading="lazy">
-          <div class="gallery-caption">
-            <strong>A curious rabbit</strong><br>
-          </div>
-        </article>
-
-        <article class="gallery-item">
-          <img src="https://res.cloudinary.com/dzya7bgz6/image/upload/v1781416390/MPEG_-_13_lxmpz1.jpg" alt="Fuji2" loading="lazy">
-          <div class="gallery-caption">
-            <strong>Fujisandwich</strong><br>
-          </div>
-        </article>
-
+    <section class="section reveal">
+      <h2>Explore</h2>
+      <div class="explore-grid">
+        <a class="explore-card" href="recipes.html">
+          <h3>Recipes</h3>
+          <p>My favorite Japanese-style recipes, from weeknight staples to weekend projects.</p>
+          <span class="explore-link">Browse recipes &rarr;</span>
+        </a>
+        <a class="explore-card" href="videos.html">
+          <h3>Videos</h3>
+          <p>Things I've filmed and put together.</p>
+          <span class="explore-link">Watch videos &rarr;</span>
+        </a>
+        <a class="explore-card" href="Resume.pdf" target="_blank" rel="noopener">
+          <h3>Resume</h3>
+          <p>What I do for work, on one page.</p>
+          <span class="explore-link">Open resume &rarr;</span>
+        </a>
       </div>
     </section>
 
   </main>
-<div id="footer-placeholder"></div>
 
- <script src="js/main.js"></script>
+  <div id="footer-placeholder"></div>
 
+  <script src="js/main.js" defer></script>
+  <script src="js/gallery.js" defer></script>
 </body>
 </html>

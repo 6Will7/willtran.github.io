@@ -3,286 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
-    <title>Gallery | William Tran</title>
-    
-    <!-- Base styles for the institutional theme -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Specific gallery and lightbox styles -->
-    <link rel="stylesheet" href="gallery.css">
+    <meta name="description" content="Photo gallery — a collection of photographs by Will Tran. Click any photo to expand.">
+    <title>Gallery | Will Tran</title>
+
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
 
     <!-- Shared Navigation Placeholder -->
     <div id="header-placeholder"></div>
 
-    <div class="container">
-        <div class="section">
+    <main class="container">
+        <section class="section reveal">
             <h2>Photographs</h2>
-            <p>A collection of photos that I have taken. You can click to expand!</p>
-            
-            <!-- Gallery Grid Container -->
-            <div id="gallery-container"></div>
-        </div>
-    </div>
+            <p>A collection of photos that I have taken. Click any photo to expand it.</p>
+
+            <!-- Gallery Grid Container (rendered from DATA/gallery.json by js/gallery.js) -->
+            <div id="gallery-container" aria-live="polite"></div>
+        </section>
+    </main>
 
     <!-- Shared Footer Placeholder -->
     <div id="footer-placeholder"></div>
 
     <!-- Lightbox Modal -->
-    <div id="lightbox" class="lightbox">
-        <!-- Close button -->
-        <button class="lightbox-close" aria-label="Close lightbox">✕</button>
-        
-        <!-- Image container -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+        <button class="lightbox-close" aria-label="Close photo viewer">&times;</button>
+
         <div class="lightbox-container">
             <img class="lightbox-image" src="" alt="">
-            
-            <!-- Navigation buttons -->
+
             <button class="lightbox-nav lightbox-prev" aria-label="Previous image">
-                <span class="nav-arrow">❮</span>
+                <span class="nav-arrow">&#10094;</span>
             </button>
             <button class="lightbox-nav lightbox-next" aria-label="Next image">
-                <span class="nav-arrow">❯</span>
+                <span class="nav-arrow">&#10095;</span>
             </button>
         </div>
-        
-        <!-- Caption and counter -->
+
         <div class="lightbox-info">
             <div class="lightbox-counter">
-                <span class="current-photo">1</span> / <span class="total-photos">6</span>
+                <span class="current-photo">1</span> / <span class="total-photos">0</span>
             </div>
             <div class="lightbox-caption"></div>
             <div class="lightbox-controls-hint">
-                Swipe to navigate • ESC to close
+                Swipe or use arrow keys to navigate &middot; ESC to close
             </div>
         </div>
     </div>
 
-    <script>
-
-
-                // ===== LOAD SHARED HEADER AND FOOTER =====
-        function loadComponent(elementId, filepath) {
-            fetch(filepath)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Failed to load ${filepath}`);
-                    return response.text();
-                })
-                .then(data => {
-                    document.getElementById(elementId).innerHTML = data;
-                })
-                .catch(error => console.error('Error loading component:', error));
-        }
-
-        // Load templates from your root directory
-        loadComponent('header-placeholder', 'header.html');
-        loadComponent('footer-placeholder', 'footer.html');
-
-
-        // ===== CLOUDINARY CONFIGURATION =====
-        const cloudName = "YOUR_CLOUD_NAME"; 
-        const thumbSettings = "c_fill,w_600,h_600,f_auto,q_auto"; 
-        const fullSettings = "f_auto,q_auto";
-
-        // ===== PHOTO DATA (CATEGORIZED) =====
-        const gallerySections = [
-            {
-                categoryTitle: "Kyoto Heritage",
-                items: [
-                    {
-                        filename: "v123456789/WNT00410.jpg", 
-                        alt: "Kamo River in Kyoto",
-                        caption: "Kamo River in Kyoto"
-                    },
-                    {
-                        filename: "v123456789/WNT00456.jpg",
-                        alt: "Kinkaku-ji in Kyoto",
-                        caption: "Kinkaku-ji in Kyoto"
-                    },
-                    {
-                        filename: "v123456789/WNT00649.jpg",
-                        alt: "Kiyomizu-dera Temple in Kyoto",
-                        caption: "Kiyomizu-dera Temple in Kyoto - founded in 780"
-                    },
-                    {
-                        filename: "v123456789/WNT00665.jpg",
-                        alt: "Kiyomizu-dera Temple in Kyoto",
-                        caption: "Another angle of Kiyomizu-dera Temple"
-                    }
-                ]
-            },
-            {
-                categoryTitle: "Castles & Signs",
-                items: [
-                    {
-                        filename: "v123456789/WNT00825_1.jpg",
-                        alt: "Himeji Castle",
-                        caption: "The White Heron Castle. Made famous by James Bond."
-                    },
-                    {
-                        filename: "v123456789/WNT01013.jpg",
-                        alt: "Sign",
-                        caption: "Lost in translation"
-                    }
-                ]
-            },
-            {
-                categoryTitle: "Okinawa",
-                items: [
-                    {
-                        filename: "v123456789/WNT01240.jpg",
-                        alt: "Sea Turtles at Churaumi Aquarium",
-                        caption: "Sea Turtles at Churaumi Aquarium in Okinawa"
-                    },
-                    {
-                        filename: "v123456789/WNT01244.jpg",
-                        alt: "Sign",
-                        caption: "Famous crowd, famouser fish"
-                    }
-                ]
-            }
-        ];
-        // ===== RENDER GALLERY & BUILD LIGHTBOX DATA =====
-        const galleryContainer = document.getElementById('gallery-container');
-        
-        const jumpNav = document.createElement('div');
-        jumpNav.className = 'jump-nav';
-        galleryContainer.appendChild(jumpNav);
-        
-        const allPhotosForLightbox = [];
-        let globalIndex = 0;
-
-        gallerySections.forEach(section => {
-            const sectionId = section.categoryTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-            const jumpLink = document.createElement('a');
-            jumpLink.href = `#${sectionId}`;
-            jumpLink.textContent = section.categoryTitle;
-            jumpNav.appendChild(jumpLink);
-
-            const sectionTitle = document.createElement('h3');
-            sectionTitle.id = sectionId;
-            sectionTitle.textContent = section.categoryTitle;
-            sectionTitle.style.marginTop = globalIndex === 0 ? "0" : "3rem";
-            sectionTitle.style.borderBottom = "1px solid var(--color-border)";
-            sectionTitle.style.paddingBottom = "0.5rem";
-            galleryContainer.appendChild(sectionTitle);
-
-            const grid = document.createElement('div');
-            grid.className = 'gallery-grid';
-
-            section.items.forEach(photo => {
-                allPhotosForLightbox.push(photo);
-
-                const thumbUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${thumbSettings}/${photo.filename}`;
-                
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                galleryItem.innerHTML = `
-                    <img src="${thumbUrl}" alt="${photo.alt}" class="gallery-image" data-index="${globalIndex}" loading="lazy">
-                    <div class="gallery-caption">${photo.caption}</div>
-                `;
-                grid.appendChild(galleryItem);
-                globalIndex++;
-            });
-
-            galleryContainer.appendChild(grid);
-        });
-
-        // ===== LIGHTBOX FUNCTIONALITY =====
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.querySelector('.lightbox-image');
-        const lightboxCaption = document.querySelector('.lightbox-caption');
-        const currentPhotoSpan = document.querySelector('.current-photo');
-        const totalPhotosSpan = document.querySelector('.total-photos');
-        const closeBtn = document.querySelector('.lightbox-close');
-        const prevBtn = document.querySelector('.lightbox-prev');
-        const nextBtn = document.querySelector('.lightbox-next');
-        
-        let currentIndex = 0;
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const SWIPE_THRESHOLD = 50;
-
-        totalPhotosSpan.textContent = allPhotosForLightbox.length;
-
-        // Open Lightbox on Image Click
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('gallery-image')) {
-                currentIndex = parseInt(e.target.dataset.index);
-                openLightbox();
-            }
-        });
-
-        function openLightbox() {
-            const photo = allPhotosForLightbox[currentIndex];
-            const fullUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${fullSettings}/${photo.filename}`;
-            
-            lightboxImage.src = fullUrl;
-            lightboxImage.alt = photo.alt;
-            lightboxCaption.textContent = photo.caption;
-            currentPhotoSpan.textContent = currentIndex + 1;
-            
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Stop background scrolling
-        }
-
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = '';
-            lightboxImage.src = ""; // Clear source
-        }
-
-        function navigateLightbox(direction) {
-            if (direction === 'next') {
-                currentIndex = (currentIndex + 1) % allPhotosForLightbox.length;
-            } else if (direction === 'prev') {
-                currentIndex = (currentIndex - 1 + allPhotosForLightbox.length) % allPhotosForLightbox.length;
-            }
-            openLightbox();
-        }
-
-        // Control Listeners
-        closeBtn.addEventListener('click', closeLightbox);
-        nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox('next'); });
-        prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateLightbox('prev'); });
-        
-        // Close on background click
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox || e.target.classList.contains('lightbox-container')) {
-                closeLightbox();
-            }
-        });
-
-        // Keyboard Controls
-        document.addEventListener('keydown', (e) => {
-            if (!lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowRight') navigateLightbox('next');
-            if (e.key === 'ArrowLeft') navigateLightbox('prev');
-        });
-
-        // Swipe Controls for Mobile Devices
-        lightbox.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches.screenX;
-        }, { passive: true });
-
-        lightbox.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches.screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > SWIPE_THRESHOLD) {
-                if (diff > 0) {
-                    navigateLightbox('next'); // Swiped left
-                } else {
-                    navigateLightbox('prev'); // Swiped right
-                }
-            }
-        }
-    </script>
+    <script src="js/main.js" defer></script>
+    <script src="js/gallery.js" defer></script>
 </body>
 </html>
