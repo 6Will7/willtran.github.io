@@ -1,0 +1,202 @@
+/* calculator.css — natural-language calculator page.
+   Uses the site theme variables so dark mode comes for free. */
+
+.calc-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  max-width: 760px;
+  box-shadow: 0 2px 12px rgba(3, 7, 30, 0.05);
+}
+
+.calc-input-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.calc-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  transition: var(--transition-theme);
+}
+
+.calc-input-row input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+
+.calc-input-row input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.calc-result {
+  margin-top: 1.25rem;
+  min-height: 5.75rem;
+  padding: 1rem 1.1rem;
+  background: var(--color-card-bg-alt);
+  border: 1px solid var(--color-card-border);
+  border-radius: 10px;
+}
+
+.calc-interpretation {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.35rem;
+  word-break: break-word;
+}
+
+.calc-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--color-text);
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.calc-value.calc-error {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--color-danger-text);
+}
+
+.calc-value.calc-idle {
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.calc-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.calc-examples-label {
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.1rem;
+}
+
+.calc-chip {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: var(--transition-theme), transform 0.12s ease;
+}
+
+.calc-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.calc-capabilities {
+  margin-top: 1.1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.calc-history-wrap {
+  max-width: 760px;
+  margin-top: 2rem;
+}
+
+.calc-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calc-history-head h3 {
+  margin: 0;
+}
+
+.calc-clear {
+  font-family: inherit;
+  font-size: 0.85rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  transition: var(--transition-theme);
+}
+
+.calc-clear:hover {
+  color: var(--color-danger-text);
+  border-color: var(--color-danger);
+}
+
+.calc-history {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calc-history li button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  text-align: left;
+  font-family: inherit;
+  padding: 0.7rem 1rem;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: var(--transition-theme);
+}
+
+.calc-history li button:hover {
+  border-color: var(--color-accent);
+}
+
+.calc-history .hist-q {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.calc-history .hist-a {
+  color: var(--color-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calc-history-empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+}
+
+@media (max-width: 600px) {
+  .calc-input-row {
+    flex-direction: column;
+  }
+  .calc-value {
+    font-size: 1.5rem;
+  }
+}
