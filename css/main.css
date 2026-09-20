@@ -40,6 +40,13 @@ body {
   }
 }
 
+/* --- Brand group: theme toggle sits top-left, ahead of the site name --- */
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
 /* --- Layout --- */
 .container {
   /* Increased from 900px to stretch across modern widescreen displays */
