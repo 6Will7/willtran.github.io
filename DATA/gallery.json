@@ -1,34 +1,589 @@
 {
-  "_readme": "HOW TO ADD / CHANGE PHOTOS: 1) Upload the photo to Cloudinary. 2) Copy the part of its delivery URL that comes after '/upload/' (e.g. 'v1781416390/MPEG_-_12_cpgws8.jpg'). 3) Paste it as the 'id' of a new entry below, with an 'alt' description and a 'caption'. 4) Set 'featured: true' on up to 3 photos to show them on the homepage. 5) Add a new category block to start a new gallery section. That's it \u2014 no other files need editing.",
+  "_readme": "HOW TO ADD / CHANGE PHOTOS: 1) Upload the photo to Cloudinary. 2) Copy the part of its delivery URL that comes after '/upload/' (e.g. 'v1781416390/MPEG_-_12_cpgws8.jpg'). 3) Paste it as the 'id' of a new entry below, with an 'alt' description and a 'caption'. 4) Set 'featured: true' on up to 3 photos to show them on the homepage. 5) Add a new category block to start a new gallery section. That's it — no other files need editing.",
+  "cloudName": "dzya7bgz6",
   "categories": [
     {
+      "title": "Temples & Shrines",
       "photos": [
         {
-          "alt": "Mount Fuji",
-          "caption": "Mount Fuji",
-          "featured": true,
-          "id": "v1781416390/MPEG_-_12_cpgws8.jpg"
+          "id": "v1781416407/MPEG_-_113_ux7ugr.jpg",
+          "alt": "Red guardian lion statue",
+          "caption": "Red guardian lion statue"
         },
         {
-          "alt": "Fujisandwich",
-          "caption": "Fujisandwich",
-          "featured": true,
-          "id": "v1781416390/MPEG_-_13_lxmpz1.jpg"
+          "id": "MPEG_-_88_pfeayy.jpg",
+          "alt": "Temple glowing with paper lanterns at dusk",
+          "caption": "Temple glowing with paper lanterns at dusk"
+        },
+        {
+          "id": "MPEG_-_86_a9wicf.jpg",
+          "alt": "Lantern-lit temple at dusk",
+          "caption": "Lantern-lit temple at dusk"
+        },
+        {
+          "id": "MPEG_-_85_hw3xjs.jpg",
+          "alt": "Lantern-lined path through the trees",
+          "caption": "Lantern-lined path through the trees"
+        },
+        {
+          "id": "MPEG_-_84_ud4zkx.jpg",
+          "alt": "Vermilion pagoda against the sky",
+          "caption": "Vermilion pagoda against the sky"
+        },
+        {
+          "id": "MPEG_-_83_oifepv.jpg",
+          "alt": "Temple gate overlooking the city",
+          "caption": "Temple gate overlooking the city"
+        },
+        {
+          "id": "MPEG_-_82_kegrri.jpg",
+          "alt": "Vermilion temple eaves and brackets",
+          "caption": "Vermilion temple eaves and brackets"
+        },
+        {
+          "id": "MPEG_-_81_rfrsay.jpg",
+          "alt": "Crowds at the temple at sunset",
+          "caption": "Crowds at the temple at sunset"
+        },
+        {
+          "id": "MPEG_-_80_r41nev.jpg",
+          "alt": "Vermilion temple buildings among the trees",
+          "caption": "Vermilion temple buildings among the trees"
+        },
+        {
+          "id": "MPEG_-_78_pvprkw.jpg",
+          "alt": "Temple hall with stone lanterns",
+          "caption": "Temple hall with stone lanterns"
+        },
+        {
+          "id": "MPEG_-_75_ekr7uo.jpg",
+          "alt": "Pagoda rising above the trees",
+          "caption": "Pagoda rising above the trees",
+          "featured": true
+        },
+        {
+          "id": "MPEG_-_74_hvaf5q.jpg",
+          "alt": "Pagoda among green trees",
+          "caption": "Pagoda among green trees"
+        },
+        {
+          "id": "MPEG_-_70_tgv1fx.jpg",
+          "alt": "Crowd at the temple entrance",
+          "caption": "Crowd at the temple entrance"
+        },
+        {
+          "id": "MPEG_-_69_k6ygr8.jpg",
+          "alt": "Temple roofline above the azaleas",
+          "caption": "Temple roofline above the azaleas"
+        },
+        {
+          "id": "MPEG_-_68_v70yae.jpg",
+          "alt": "Temple building in the trees",
+          "caption": "Temple building in the trees"
+        },
+        {
+          "id": "MPEG_-_65_brolyx.jpg",
+          "alt": "Red pavilion on the hillside",
+          "caption": "Red pavilion on the hillside"
+        },
+        {
+          "id": "MPEG_-_67_vo88bu.jpg",
+          "alt": "Vermilion pagoda up close",
+          "caption": "Vermilion pagoda up close"
+        },
+        {
+          "id": "MPEG_-_66_fwprvl.jpg",
+          "alt": "Temple rooftops against the sky",
+          "caption": "Temple rooftops against the sky"
+        },
+        {
+          "id": "MPEG_-_63_xl4xwf.jpg",
+          "alt": "Red temple above the stone steps",
+          "caption": "Red temple above the stone steps"
+        },
+        {
+          "id": "MPEG_-_64_h5kevm.jpg",
+          "alt": "Vermilion pavilion with stone lanterns",
+          "caption": "Vermilion pavilion with stone lanterns"
+        },
+        {
+          "id": "MPEG_-_62_jfrfkl.jpg",
+          "alt": "Vermilion temple and pagoda",
+          "caption": "Vermilion temple and pagoda"
+        },
+        {
+          "id": "MPEG_-_61_fcchkm.jpg",
+          "alt": "Temple hall facade",
+          "caption": "Temple hall facade"
+        },
+        {
+          "id": "MPEG_-_58_zhtww0.jpg",
+          "alt": "Red shrine beside a pine tree",
+          "caption": "Red shrine beside a pine tree"
+        },
+        {
+          "id": "MPEG_-_56_olfvey.jpg",
+          "alt": "Vermilion pavilion among pine trees",
+          "caption": "Vermilion pavilion among pine trees"
+        },
+        {
+          "id": "MPEG_-_57_okcnow.jpg",
+          "alt": "Long wooden temple corridor",
+          "caption": "Long wooden temple corridor"
+        },
+        {
+          "id": "MPEG_-_53_xl3j8f.jpg",
+          "alt": "Temple eaves lined with lanterns",
+          "caption": "Temple eaves lined with lanterns"
+        },
+        {
+          "id": "MPEG_-_51_lchldw.jpg",
+          "alt": "Shrine buildings with visitors",
+          "caption": "Shrine buildings with visitors"
+        },
+        {
+          "id": "MPEG_-_52_t94tfi.jpg",
+          "alt": "Shrine corridor lined with lanterns",
+          "caption": "Shrine corridor lined with lanterns"
+        },
+        {
+          "id": "MPEG_-_49_qcjebc.jpg",
+          "alt": "Gravel courtyard with visitors",
+          "caption": "Gravel courtyard with visitors"
+        },
+        {
+          "id": "MPEG_-_48_a2ohdg.jpg",
+          "alt": "Temple gate at the end of a path",
+          "caption": "Temple gate at the end of a path"
+        },
+        {
+          "id": "MPEG_-_46_tl9niv.jpg",
+          "alt": "Stone path leading to a temple gate",
+          "caption": "Stone path leading to a temple gate"
+        },
+        {
+          "id": "MPEG_-_44_u2pkff.jpg",
+          "alt": "Tree-lined stone path",
+          "caption": "Tree-lined stone path"
+        },
+        {
+          "id": "MPEG_-_41_a68xd4.jpg",
+          "alt": "Temple building surrounded by garden",
+          "caption": "Temple building surrounded by garden"
+        },
+        {
+          "id": "MPEG_-_38_sf8cyz.jpg",
+          "alt": "Golden pavilion up close",
+          "caption": "Golden pavilion up close"
+        },
+        {
+          "id": "MPEG_-_40_qt8cus.jpg",
+          "alt": "Temple building with white walls",
+          "caption": "Temple building with white walls"
+        },
+        {
+          "id": "MPEG_-_37_khuxfm.jpg",
+          "alt": "Golden pavilion among the trees",
+          "caption": "Golden pavilion among the trees"
+        },
+        {
+          "id": "MPEG_-_36_tm1t2k.jpg",
+          "alt": "Temple veranda overlooking the pond",
+          "caption": "Temple veranda overlooking the pond"
+        },
+        {
+          "id": "MPEG_-_34_aatrol.jpg",
+          "alt": "Golden pavilion across the pond",
+          "caption": "Golden pavilion across the pond",
+          "featured": true
+        },
+        {
+          "id": "MPEG_-_35_cph1bg.jpg",
+          "alt": "Golden pavilion framed by pine trees",
+          "caption": "Golden pavilion framed by pine trees"
+        },
+        {
+          "id": "MPEG_-_29_xcykly.jpg",
+          "alt": "Shrine surrounded by azaleas",
+          "caption": "Shrine surrounded by azaleas"
+        },
+        {
+          "id": "MPEG_-_27_dwqych.jpg",
+          "alt": "Temple draped with paper lanterns",
+          "caption": "Temple draped with paper lanterns"
+        },
+        {
+          "id": "MPEG_-_28_txtem4.jpg",
+          "alt": "Temple buildings with visitors",
+          "caption": "Temple buildings with visitors"
+        },
+        {
+          "id": "MPEG_-_26_izlm24.jpg",
+          "alt": "Vermilion temple gate",
+          "caption": "Vermilion temple gate"
+        },
+        {
+          "id": "MPEG_-_23_ufcf5y.jpg",
+          "alt": "Shrine balcony with a paper lantern",
+          "caption": "Shrine balcony with a paper lantern"
+        },
+        {
+          "id": "MPEG_-_24_b2yblc.jpg",
+          "alt": "Shrine pavilion",
+          "caption": "Shrine pavilion"
+        },
+        {
+          "id": "MPEG_-_22_wcvidv.jpg",
+          "alt": "Tunnel of vermilion torii gates",
+          "caption": "Tunnel of vermilion torii gates"
+        },
+        {
+          "id": "MPEG_-_21_yz7ybp.jpg",
+          "alt": "Vermilion torii gates up close",
+          "caption": "Vermilion torii gates up close"
+        },
+        {
+          "id": "MPEG_-_20_gc6y4x.jpg",
+          "alt": "Torii gates with black inscriptions",
+          "caption": "Torii gates with black inscriptions"
+        },
+        {
+          "id": "MPEG_-_14_owsawd.jpg",
+          "alt": "Torii gate standing in the water",
+          "caption": "Torii gate standing in the water"
+        },
+        {
+          "id": "MPEG_-_15_nzt2ss.jpg",
+          "alt": "Red bridge and torii gate over the pond",
+          "caption": "Red bridge and torii gate over the pond"
+        },
+        {
+          "id": "MPEG_-_4_ku2qsu.jpg",
+          "alt": "Red temple facade with gold details",
+          "caption": "Red temple facade with gold details"
+        },
+        {
+          "id": "MPEG_-_2_dye3pj.jpg",
+          "alt": "Pagoda beside a temple roof",
+          "caption": "Pagoda beside a temple roof"
         }
-      ],
-      "title": "Japan"
+      ]
     },
     {
+      "title": "Gardens",
       "photos": [
         {
-          "alt": "A curious rabbit",
-          "caption": "A curious rabbit",
-          "featured": true,
-          "id": "v1781416406/MPEG_-_104_zmuo4n.jpg"
+          "id": "v1781416406/MPEG_-_108_veeqmi.jpg",
+          "alt": "Temple courtyard garden",
+          "caption": "Temple courtyard garden"
+        },
+        {
+          "id": "v1781416406/MPEG_-_107_kfao1g.jpg",
+          "alt": "Garden path beside a traditional house",
+          "caption": "Garden path beside a traditional house"
+        },
+        {
+          "id": "MPEG_-_79_q7kmtl.jpg",
+          "alt": "Temple garden and pond",
+          "caption": "Temple garden and pond"
+        },
+        {
+          "id": "MPEG_-_73_vmtoxu.jpg",
+          "alt": "Garden pond edged with azaleas",
+          "caption": "Garden pond edged with azaleas"
+        },
+        {
+          "id": "MPEG_-_60_s8cxqx.jpg",
+          "alt": "Pond garden at the temple",
+          "caption": "Pond garden at the temple"
+        },
+        {
+          "id": "MPEG_-_59_gvenjz.jpg",
+          "alt": "Azaleas blooming on the hillside garden",
+          "caption": "Azaleas blooming on the hillside garden"
+        },
+        {
+          "id": "MPEG_-_47_e3eym6.jpg",
+          "alt": "Garden with pruned pine trees",
+          "caption": "Garden with pruned pine trees"
+        },
+        {
+          "id": "MPEG_-_45_gucrin.jpg",
+          "alt": "Rock garden with raked gravel",
+          "caption": "Rock garden with raked gravel"
+        },
+        {
+          "id": "MPEG_-_42_f8ay1a.jpg",
+          "alt": "Stone lantern in the garden",
+          "caption": "Stone lantern in the garden"
+        },
+        {
+          "id": "MPEG_-_39_vdcq4k.jpg",
+          "alt": "Mossy stone path through the woods",
+          "caption": "Mossy stone path through the woods"
         }
-      ],
-      "title": "Wildlife"
+      ]
+    },
+    {
+      "title": "Castles",
+      "photos": [
+        {
+          "id": "MPEG_-_96_u7bwen.jpg",
+          "alt": "White castle on the hill",
+          "caption": "White castle on the hill"
+        },
+        {
+          "id": "MPEG_-_95_fmwfuw.jpg",
+          "alt": "White castle among the trees",
+          "caption": "White castle among the trees"
+        },
+        {
+          "id": "MPEG_-_94_ixm1mu.jpg",
+          "alt": "White castle against the blue sky",
+          "caption": "White castle against the blue sky"
+        },
+        {
+          "id": "MPEG_-_93_d0jszo.jpg",
+          "alt": "Castle tower against the blue sky",
+          "caption": "Castle tower against the blue sky"
+        },
+        {
+          "id": "MPEG_-_90_ej4j64.jpg",
+          "alt": "White castle rising above the trees",
+          "caption": "White castle rising above the trees",
+          "featured": true
+        },
+        {
+          "id": "MPEG_-_89_danrnf.jpg",
+          "alt": "White castle and stone walls",
+          "caption": "White castle and stone walls"
+        }
+      ]
+    },
+    {
+      "title": "Mount Fuji",
+      "photos": [
+        {
+          "id": "MPEG_-_12_cpgws8.jpg",
+          "alt": "Mount Fuji",
+          "caption": "Mount Fuji"
+        },
+        {
+          "id": "MPEG_-_11_awatnc.jpg",
+          "alt": "Mount Fuji above the rooftops",
+          "caption": "Mount Fuji above the rooftops"
+        },
+        {
+          "id": "v1781416390/MPEG_-_13_lxmpz1.jpg",
+          "alt": "Fujisandwich",
+          "caption": "Fujisandwich"
+        }
+      ]
+    },
+    {
+      "title": "City",
+      "photos": [
+        {
+          "id": "v1781416406/MPEG_-_105_iy90em.jpg",
+          "alt": "City street at night",
+          "caption": "City street at night"
+        },
+        {
+          "id": "v1781416406/MPEG_-_106_wwst6k.jpg",
+          "alt": "Theater marquee at night",
+          "caption": "Theater marquee at night"
+        },
+        {
+          "id": "v1781416405/MPEG_-_102_x1lriw.jpg",
+          "alt": "Restaurant sign lit up at night",
+          "caption": "Restaurant sign lit up at night"
+        },
+        {
+          "id": "MPEG_-_100_drmbo6.jpg",
+          "alt": "Neon signs over the canal at night",
+          "caption": "Neon signs over the canal at night"
+        },
+        {
+          "id": "MPEG_-_101_ombxts.jpg",
+          "alt": "Lantern-lit street at night",
+          "caption": "Lantern-lit street at night"
+        },
+        {
+          "id": "MPEG_-_99_twlsyh.jpg",
+          "alt": "Crowds along the canal at night",
+          "caption": "Crowds along the canal at night"
+        },
+        {
+          "id": "MPEG_-_98_puirs1.jpg",
+          "alt": "Neon restaurant signs at night",
+          "caption": "Neon restaurant signs at night"
+        },
+        {
+          "id": "MPEG_-_97_uxyfdm.jpg",
+          "alt": "City street at dusk",
+          "caption": "City street at dusk"
+        },
+        {
+          "id": "MPEG_-_55_iodm0d.jpg",
+          "alt": "Museum building with a lawn",
+          "caption": "Museum building with a lawn"
+        },
+        {
+          "id": "MPEG_-_33_f7u1zq.jpg",
+          "alt": "Riverbank at dusk",
+          "caption": "Riverbank at dusk"
+        },
+        {
+          "id": "MPEG_-_32_fwnbyq.jpg",
+          "alt": "Sunset over the river and town",
+          "caption": "Sunset over the river and town"
+        },
+        {
+          "id": "MPEG_-_30_jhfdab.jpg",
+          "alt": "Wooden buildings along the river",
+          "caption": "Wooden buildings along the river"
+        },
+        {
+          "id": "MPEG_-_31_gwrukp.jpg",
+          "alt": "People relaxing by the river",
+          "caption": "People relaxing by the river"
+        },
+        {
+          "id": "MPEG_-_7_m7dptr.jpg",
+          "alt": "Tokyo Skytree against a blue sky",
+          "caption": "Tokyo Skytree against a blue sky"
+        },
+        {
+          "id": "MPEG_-_6_ug4udz.jpg",
+          "alt": "Modern towers with a golden sculpture",
+          "caption": "Modern towers with a golden sculpture"
+        },
+        {
+          "id": "MPEG_-_10_gqh9kx.jpg",
+          "alt": "Bridge glowing at night",
+          "caption": "Bridge glowing at night"
+        },
+        {
+          "id": "MPEG_-_8_eam1kr.jpg",
+          "alt": "Street lamps along the bridge",
+          "caption": "Street lamps along the bridge"
+        }
+      ]
+    },
+    {
+      "title": "Aquarium",
+      "photos": [
+        {
+          "id": "v1781416407/MPEG_-_112_p4ocsj.jpg",
+          "alt": "Whale shark gliding past the crowd",
+          "caption": "Whale shark gliding past the crowd"
+        },
+        {
+          "id": "v1781416407/MPEG_-_110_wibahk.jpg",
+          "alt": "Moray eel under purple light",
+          "caption": "Moray eel under purple light"
+        },
+        {
+          "id": "v1781416406/MPEG_-_109_lmwqfn.jpg",
+          "alt": "Moray eel close-up in a purple-lit tank",
+          "caption": "Moray eel close-up in a purple-lit tank"
+        }
+      ]
+    },
+    {
+      "title": "Wildlife",
+      "photos": [
+        {
+          "id": "v1781416406/MPEG_-_104_zmuo4n.jpg",
+          "alt": "A curious rabbit",
+          "caption": "A curious rabbit"
+        },
+        {
+          "id": "v1781416405/MPEG_-_103_khjxbj.jpg",
+          "alt": "Rabbit close-up on the pavement",
+          "caption": "Rabbit close-up on the pavement"
+        }
+      ]
+    },
+    {
+      "title": "Details",
+      "photos": [
+        {
+          "id": "MPEG_-_91_k9uybp.jpg",
+          "alt": "Wooden staircase",
+          "caption": "Wooden staircase"
+        },
+        {
+          "id": "MPEG_-_87_aghcc6.jpg",
+          "alt": "Rows of paper lanterns",
+          "caption": "Rows of paper lanterns"
+        },
+        {
+          "id": "MPEG_-_76_fqfhhv.jpg",
+          "alt": "Temple reflected in a convex mirror",
+          "caption": "Temple reflected in a convex mirror"
+        },
+        {
+          "id": "MPEG_-_77_ogyvel.jpg",
+          "alt": "Building reflected in a round mirror",
+          "caption": "Building reflected in a round mirror"
+        },
+        {
+          "id": "MPEG_-_71_bwyswc.jpg",
+          "alt": "Ornate eaves of a vermilion temple",
+          "caption": "Ornate eaves of a vermilion temple"
+        },
+        {
+          "id": "MPEG_-_72_mb4vxn.jpg",
+          "alt": "Vermilion temple eaves",
+          "caption": "Vermilion temple eaves"
+        },
+        {
+          "id": "MPEG_-_54_hrd3qz.jpg",
+          "alt": "Wall of glowing paper lanterns",
+          "caption": "Wall of glowing paper lanterns"
+        },
+        {
+          "id": "MPEG_-_50_edaobc.jpg",
+          "alt": "Wall of paper lanterns",
+          "caption": "Wall of paper lanterns"
+        },
+        {
+          "id": "MPEG_-_43_is2vaj.jpg",
+          "alt": "Vermilion temple roof beams",
+          "caption": "Vermilion temple roof beams"
+        },
+        {
+          "id": "MPEG_-_18_ao7cpl.jpg",
+          "alt": "Red temple ceiling beams",
+          "caption": "Red temple ceiling beams"
+        },
+        {
+          "id": "MPEG_-_17_yl3avg.jpg",
+          "alt": "Vermilion temple woodwork detail",
+          "caption": "Vermilion temple woodwork detail"
+        },
+        {
+          "id": "MPEG_-_5_ohhcw7.jpg",
+          "alt": "Red paper lanterns on a building",
+          "caption": "Red paper lanterns on a building"
+        },
+        {
+          "id": "MPEG_-_9_ct2ap1.jpg",
+          "alt": "Lantern wall with wooden plaques",
+          "caption": "Lantern wall with wooden plaques"
+        }
+      ]
+    },
+    {
+      "title": "People",
+      "photos": [
+        {
+          "id": "MPEG_-_16_evvbz2.jpg",
+          "alt": "Selfie with a camera in the hostel",
+          "caption": "Selfie with a camera in the hostel"
+        }
+      ]
     }
-  ],
-  "cloudName": "dzya7bgz6"
+  ]
 }
