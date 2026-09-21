@@ -405,6 +405,167 @@
     return { value: value, from: fromWord.trim(), to: toWord.trim(), result: result };
   }
 
+  /* ---------------- bond math ---------------- */
+  // Light normalization for keyword parsing (does not mangle "5%")
+  function lightNormalize(raw) {
+    var s = String(raw == null ? '' : raw).toLowerCase();
+    s = s.replace(/\u00d7/g, '*').replace(/\u00f7/g, '/').replace(/[\u2212\u2013\u2014]/g, '-');
+    s = s.replace(/\?/g, ' ');
+    s = s.replace(/[$\u20ac\u00a3\u00a5]/g, ' ');
+    s = s.replace(/(\d),(\d)/g, '$1$2');
+    s = s.replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  function bondCashflows(face, coupon, years, freq) {
+    var n = Math.max(1, Math.round(years * freq));
+    var cpn = face * coupon / freq;
+    var cfs = [];
+    for (var t = 1; t <= n; t++) cfs.push(t === n ? cpn + face : cpn);
+    return cfs;
+  }
+
+  function bondPriceFromYtm(face, coupon, years, freq, ytmAnnual) {
+    var cfs = bondCashflows(face, coupon, years, freq);
+    var y = ytmAnnual / freq, p = 0;
+    for (var t = 0; t < cfs.length; t++) p += cfs[t] / Math.pow(1 + y, t + 1);
+    return p;
+  }
+
+  function bondYtmFromPrice(face, coupon, years, freq, price) {
+    if (!(price > 0)) fail('Price must be a positive number.');
+    var lo = -0.999, hi = 10;
+    var plo = bondPriceFromYtm(face, coupon, years, freq, lo);
+    var phi = bondPriceFromYtm(face, coupon, years, freq, hi);
+    if (!(plo > price && phi < price)) fail("I couldn't find a yield for that price.");
+    for (var i = 0; i < 200; i++) {
+      var mid = (lo + hi) / 2;
+      if (bondPriceFromYtm(face, coupon, years, freq, mid) > price) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  // Macaulay duration (years), modified duration, annual convexity
+  function bondStats(face, coupon, years, freq, ytmAnnual) {
+    var cfs = bondCashflows(face, coupon, years, freq);
+    var y = ytmAnnual / freq, p = 0, w = 0, c = 0;
+    for (var t = 1; t <= cfs.length; t++) {
+      var pv = cfs[t - 1] / Math.pow(1 + y, t);
+      p += pv; w += t * pv; c += t * (t + 1) * pv;
+    }
+    var macaulay = (w / p) / freq;
+    return {
+      price: p,
+      macaulay: macaulay,
+      modified: macaulay / (1 + y),
+      convexity: (c / p) / Math.pow(1 + y, 2) / (freq * freq)
+    };
+  }
+
+  function fmtMoney(n) {
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtPct(x, digits) {
+    return (x * 100).toFixed(digits == null ? 3 : digits) + '%';
+  }
+
+  function parseBondParams(rest) {
+    function grab(re) { var m = rest.match(re); return m ? parseFloat(m[1]) : null; }
+    var p = { face: 1000, freq: 2, freqName: 'semiannual' };
+
+    var mf = grab(/\b(?:face|par)(?:\s+value)?\s+(\d+(?:\.\d+)?)/);
+    if (mf != null) p.face = mf;
+    if (!(p.face > 0)) fail('Face value must be positive.');
+
+    var mc = rest.match(/\bcoupon\s+(\d+(?:\.\d+)?)\s*%/) || rest.match(/(\d+(?:\.\d+)?)\s*%\s+coupon\b/);
+    if (mc) p.coupon = parseFloat(mc[1]) / 100;
+    else {
+      var mc2 = grab(/\bcoupon\s+(\d+(?:\.\d+)?)/);
+      if (mc2 != null) p.coupon = mc2 > 1 ? mc2 / 100 : mc2;
+    }
+    if (p.coupon == null) fail("I need a coupon rate \u2014 e.g. 'coupon 5%'.");
+    if (p.coupon < 0) fail('Coupon rate must be zero or positive.');
+
+    var yrs = grab(/\b(\d+(?:\.\d+)?)\s*(?:years?|yrs?)\b/) || grab(/\bmaturity\s+(\d+(?:\.\d+)?)/);
+    if (yrs == null) fail("I need years to maturity \u2014 e.g. '10 years'.");
+    if (!(yrs > 0) || yrs > 100) fail('Years to maturity must be between 0 and 100.');
+    p.years = yrs;
+
+    if (/\bquarterly\b/.test(rest)) { p.freq = 4; p.freqName = 'quarterly'; }
+    else if (/\bmonthly\b/.test(rest)) { p.freq = 12; p.freqName = 'monthly'; }
+    else if (/\bannual\b/.test(rest)) { p.freq = 1; p.freqName = 'annual'; }
+
+    var my = rest.match(/\b(?:yield|ytm)\s+(\d+(?:\.\d+)?)\s*%/) || rest.match(/(\d+(?:\.\d+)?)\s*%\s+(?:yield|ytm)\b/);
+    if (my) p.ytm = parseFloat(my[1]) / 100;
+    else {
+      var my2 = grab(/\b(?:yield|ytm)\s+(\d+(?:\.\d+)?)/);
+      if (my2 != null) p.ytm = my2 > 1 ? my2 / 100 : my2;
+    }
+
+    var mp = grab(/\bprice\s+(\d+(?:\.\d+)?)/);
+    if (mp != null) p.price = mp;
+
+    return p;
+  }
+
+  // Returns a bond result, or null when the input isn't a bond query.
+  function tryBond(s) {
+    var t = s.replace(/^(what is|what's|whats|calculate|compute|please)\s+/, '').replace(/^the\s+/, '');
+    if (!/^bond\b/.test(t)) return null;
+    var rest = t.replace(/^bond\s*/, '').replace(/(\d)\s*-\s*(?=years?\b)/g, '$1 ');
+    var cmd = null;
+    var mcmd = rest.match(/^(price|pricing|ytms?|yields?|duration|convexity|convex)\b/);
+    if (mcmd) {
+      var w = mcmd[1];
+      cmd = (w === 'price' || w === 'pricing') ? 'price'
+          : (w === 'duration') ? 'duration'
+          : (w === 'convexity' || w === 'convex') ? 'convexity' : 'ytm';
+      rest = rest.slice(mcmd[0].length).trim();
+    }
+    var p = parseBondParams(rest);
+    // tolerate the subcommand doubling as the known quantity
+    if (cmd === 'price' && p.ytm == null && p.price != null) cmd = 'ytm';
+    if (cmd === 'ytm' && p.price == null && p.ytm != null) cmd = 'price';
+    if (!cmd) cmd = (p.price != null) ? 'ytm' : 'price';
+
+    var spec = 'face ' + fmtMoney(p.face) + ' \u00b7 ' + fmtPct(p.coupon, 2) + ' coupon \u00b7 ' +
+               p.years + ' yrs ' + p.freqName;
+    var ytmAnnual, stats, extras;
+    if (cmd === 'price') {
+      if (p.ytm == null) fail("I need a yield to price the bond \u2014 e.g. 'yield 6%'.");
+      ytmAnnual = p.ytm;
+      stats = bondStats(p.face, p.coupon, p.years, p.freq, ytmAnnual);
+      extras = 'Macaulay duration ' + stats.macaulay.toFixed(2) + ' yrs, modified ' +
+               stats.modified.toFixed(2) + ', convexity ' + stats.convexity.toFixed(2);
+      return { ok: true, kind: 'bond', value: stats.price, display: fmtMoney(stats.price),
+               interpretation: 'Bond price \u00b7 ' + spec + ' \u00b7 ' + fmtPct(ytmAnnual, 2) +
+                 ' yield \u2014 ' + extras };
+    }
+    if (cmd === 'ytm') {
+      if (p.price == null) fail("I need a price to find the yield \u2014 e.g. 'price 950'.");
+      ytmAnnual = bondYtmFromPrice(p.face, p.coupon, p.years, p.freq, p.price);
+      stats = bondStats(p.face, p.coupon, p.years, p.freq, ytmAnnual);
+      extras = 'Macaulay duration ' + stats.macaulay.toFixed(2) + ' yrs, modified ' +
+               stats.modified.toFixed(2) + ', convexity ' + stats.convexity.toFixed(2);
+      return { ok: true, kind: 'bond', value: ytmAnnual, display: 'YTM ' + fmtPct(ytmAnnual),
+               interpretation: 'Yield to maturity \u00b7 ' + spec + ' \u00b7 price ' +
+                 fmtMoney(p.price) + ' \u2014 ' + extras };
+    }
+    if (p.ytm == null) fail("I need a yield for that \u2014 e.g. 'yield 6%'.");
+    ytmAnnual = p.ytm;
+    stats = bondStats(p.face, p.coupon, p.years, p.freq, ytmAnnual);
+    if (cmd === 'duration') {
+      return { ok: true, kind: 'bond', value: stats.macaulay,
+               display: stats.macaulay.toFixed(2) + ' years',
+               interpretation: 'Macaulay duration \u00b7 ' + spec + ' \u00b7 ' + fmtPct(ytmAnnual, 2) +
+                 ' yield \u2014 modified duration ' + stats.modified.toFixed(2) + ' yrs' };
+    }
+    return { ok: true, kind: 'bond', value: stats.convexity,
+             display: stats.convexity.toFixed(2),
+             interpretation: 'Convexity \u00b7 ' + spec + ' \u00b7 ' + fmtPct(ytmAnnual, 2) + ' yield' };
+  }
+
   /* ---------------- equation solving (linear) ---------------- */
   function solveEquation(text) {
     var parts = text.split('=');
@@ -440,6 +601,9 @@
   /* ---------------- public API ---------------- */
   function calculate(rawInput, lastAns) {
     try {
+      var bond = tryBond(lightNormalize(rawInput));
+      if (bond) return bond;
+
       var pre = preprocess(rawInput);
       if (!pre.text) return { ok: false, error: 'Type something to calculate \u2014 try "15% of 240".' };
 

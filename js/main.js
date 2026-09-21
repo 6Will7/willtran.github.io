@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadHeader() {
     var placeholder = document.getElementById("header-placeholder");
     if (!placeholder) { initThemeToggle(); return; } // page has its own hardcoded header
-    fetch("./header.html")
+    fetch("/header.html")
       .then(function (response) {
         if (!response.ok) throw new Error("Header file not found");
         return response.text();
@@ -35,11 +35,11 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(function (data) {
         placeholder.innerHTML = data;
 
-        // Highlight the active nav link
-        var path = window.location.pathname;
+        // Highlight the active nav link (trailing-slash tolerant for /calculator/)
+        var path = window.location.pathname.replace(/\/+$/, "");
         var currentPage = path.split("/").pop() || "index.html";
         document.querySelectorAll(".nav-container nav a").forEach(function (link) {
-          var linkHref = link.getAttribute("href").split("/").pop();
+          var linkHref = link.getAttribute("href").replace(/\/+$/, "").split("/").pop() || "index.html";
           if (linkHref === currentPage) link.classList.add("active");
         });
 
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadFooter() {
     var placeholder = document.getElementById("footer-placeholder");
     if (!placeholder) return; // page has its own hardcoded footer
-    fetch("./footer.html")
+    fetch("/footer.html")
       .then(function (response) {
         if (!response.ok) throw new Error("Footer file not found");
         return response.text();
