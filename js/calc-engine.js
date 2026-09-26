@@ -83,12 +83,14 @@
 
     s = s.replace(/\ban?\b/g, '1');                      // articles -> 1
 
-    // magnitude words: "2.5 billion" -> "2.5*1000000000"
-    s = s.replace(/(\d+(?:\.\d+)?)\s+hundreds?\b/g, '$1*100');
-    s = s.replace(/(\d+(?:\.\d+)?)\s+thousands?\b/g, '$1*1000');
-    s = s.replace(/(\d+(?:\.\d+)?)\s+millions?\b/g, '$1*1000000');
-    s = s.replace(/(\d+(?:\.\d+)?)\s+billions?\b/g, '$1*1000000000');
-    s = s.replace(/(\d+(?:\.\d+)?)\s+trillions?\b/g, '$1*1000000000000');
+    // magnitude words: "2.5 billion" -> "(2.5*1000000000)"
+    // parenthesized so order of operations holds: "7 thousand / 3.5 thousand"
+    // becomes "(7*1000)/(3.5*1000)", not "7*1000/3.5*1000"
+    s = s.replace(/(\d+(?:\.\d+)?)\s+hundreds?\b/g, '($1*100)');
+    s = s.replace(/(\d+(?:\.\d+)?)\s+thousands?\b/g, '($1*1000)');
+    s = s.replace(/(\d+(?:\.\d+)?)\s+millions?\b/g, '($1*1000000)');
+    s = s.replace(/(\d+(?:\.\d+)?)\s+billions?\b/g, '($1*1000000000)');
+    s = s.replace(/(\d+(?:\.\d+)?)\s+trillions?\b/g, '($1*1000000000000)');
 
     s = s.replace(/(\d+(?:\.\d+)?)\s+factorial\b/g, '$1!');
 
