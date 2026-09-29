@@ -36,24 +36,24 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     /* These are all your original hardcoded colors mapped to variables! */
-    --color-bg: #03071e;
-    --color-text: #fbfaf3;
-    --color-text-muted: #b0b0c8;
-    --color-border: #1e293b;
+    --color-bg: #0a1628;
+    --color-text: #eef2f7;
+    --color-text-muted: #8fa3b8;
+    --color-border: #1b2f4d;
     
-    --color-header-bg: #003049;
-    --color-header-border: #0f172a;
-    --color-card-bg: #070738;
-    --color-card-border: #1a1a3e;
-    --color-card-bg-alt: #0a0a2a;
+    --color-header-bg: #0d2138;
+    --color-header-border: #14263d;
+    --color-card-bg: #0e1f38;
+    --color-card-border: #1e3a5c;
+    --color-card-bg-alt: #0c1a2f;
     
-    --color-nav-text: #b0b0c8;
-    --color-nav-text-active: #f8f8f8;
-    --color-accent: #7c8fff;
-    --color-accent-hover: #9ca3ff;
+    --color-nav-text: #8fa3b8;
+    --color-nav-text-active: #ffffff;
+    --color-accent: #4d9fff;
+    --color-accent-hover: #80bcff;
 
-    --color-alert-bg: #1a2332;
-    --color-alert-border: #2d3748;
+    --color-alert-bg: #10233a;
+    --color-alert-border: #23405e;
     --color-danger: #ff6b6b;
     --color-danger-text: #ff8787;
     --color-alert-text: #cbd5e0;
@@ -62,24 +62,24 @@
 
 /* --- 3. Manual Dark Mode Override --- */
 [data-theme="dark"] {
-  --color-bg: #03071e;
-  --color-text: #fbfaf3;
-  --color-text-muted: #b0b0c8;
-  --color-border: #1e293b;
+  --color-bg: #0a1628;
+  --color-text: #eef2f7;
+  --color-text-muted: #8fa3b8;
+  --color-border: #1b2f4d;
   
-  --color-header-bg: #003049;
-  --color-header-border: #0f172a;
-  --color-card-bg: #070738;
-  --color-card-border: #1a1a3e;
-  --color-card-bg-alt: #0a0a2a;
+  --color-header-bg: #0d2138;
+  --color-header-border: #14263d;
+  --color-card-bg: #0e1f38;
+  --color-card-border: #1e3a5c;
+  --color-card-bg-alt: #0c1a2f;
   
-  --color-nav-text: #b0b0c8;
-  --color-nav-text-active: #f8f8f8;
-  --color-accent: #7c8fff;
-  --color-accent-hover: #9ca3ff;
+  --color-nav-text: #8fa3b8;
+  --color-nav-text-active: #ffffff;
+  --color-accent: #4d9fff;
+  --color-accent-hover: #80bcff;
 
-  --color-alert-bg: #1a2332;
-  --color-alert-border: #2d3748;
+  --color-alert-bg: #10233a;
+  --color-alert-border: #23405e;
   --color-danger: #ff6b6b;
   --color-danger-text: #ff8787;
   --color-alert-text: #cbd5e0;
