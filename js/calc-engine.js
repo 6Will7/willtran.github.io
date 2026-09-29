@@ -4,6 +4,7 @@
 
    Understands:
      - arithmetic: "2 + 2", "7 times 8", "10 divided by 4"
+     - number words: "two hundred and five", "twenty-one", "seven times eight"
      - percentages: "15% of 240", "20% off 80", "200 + 15%"
      - powers & roots: "2 to the power of 10", "square root of 144",
        "10 squared", "5!"
@@ -56,6 +57,49 @@
     [/\btriple\b/g, '3*']
   ];
 
+  // number words: "two hundred and five" -> 205 (handled in preprocess)
+  var NUM_WORDS = {
+    zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7,
+    eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13,
+    fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18,
+    nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+    seventy: 70, eighty: 80, ninety: 90
+  };
+  var NUM_SCALES = { hundred: 100, thousand: 1000, million: 1000000, billion: 1000000000, trillion: 1000000000000 };
+  // longest-first so "fourteen" wins over "four", "seventy" over "seven", etc.
+  var NUMWORD_ALT = 'fourteen|thirteen|twelve|eleven|eighteen|sixteen|seventeen|nineteen|' +
+    'seventy|sixty|eighty|ninety|twenty|thirty|forty|fifty|' +
+    'zero|one|two|three|four|five|six|seven|eight|nine|ten|fifteen|' +
+    'hundreds?|thousands?|millions?|billions?|trillions?|and';
+  var NUMWORD_RUN = new RegExp('(^|[^\\w])((?:' + NUMWORD_ALT + ')(?:[\\s-]+(?:' + NUMWORD_ALT + '))*)' +
+    '(?![\\w])', 'g');
+
+  function numberWords(s) {
+    return s.replace(NUMWORD_RUN, function (m, pre, run) {
+      var words = run.split(/[\s-]+/), vals = [], hasNum = false, hasScale = false;
+      for (var i = 0; i < words.length; i++) {
+        var w = words[i];
+        if (w === 'and') continue;
+        if (hasOwn(NUM_WORDS, w)) { vals.push(NUM_WORDS[w]); hasNum = true; }
+        else {
+          var base = w.replace(/s$/, '');
+          if (hasOwn(NUM_SCALES, base)) { vals.push(base); hasScale = true; }
+          else return m; // shouldn't happen; leave untouched
+        }
+      }
+      if (!hasNum) return m;                       // e.g. lone "hundred": magnitude rules handle it
+      if (/\band\b/.test(run) && !hasScale) return m; // "two and three" stays an error
+      var total = 0, current = 0;
+      for (var j = 0; j < vals.length; j++) {
+        var v = vals[j];
+        if (typeof v === 'number') current += v;
+        else if (v === 'hundred') current *= 100;
+        else { total += current * NUM_SCALES[v]; current = 0; }
+      }
+      return pre + String(total + current);
+    });
+  }
+
   function preprocess(raw) {
     var s = String(raw == null ? '' : raw).toLowerCase();
     var solveMode = false;
@@ -82,6 +126,8 @@
     for (var i = 0; i < WORDS.length; i++) s = s.replace(WORDS[i][0], WORDS[i][1]);
 
     s = s.replace(/\ban?\b/g, '1');                      // articles -> 1
+
+    s = numberWords(s); // "two hundred and five" -> "205" (before magnitude words)
 
     // magnitude words: "2.5 billion" -> "(2.5*1000000000)"
     // parenthesized so order of operations holds: "7 thousand / 3.5 thousand"
