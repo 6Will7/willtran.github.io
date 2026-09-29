@@ -51,11 +51,144 @@
 
   /* ---------- Lightbox ---------- */
   var lightbox, lightboxImage, lightboxCaption, currentPhotoSpan, totalPhotosSpan;
+  var lightboxContainer;
   var allPhotos = [];
   var cloudName = "";
   var currentIndex = 0;
-  var touchStartX = 0;
   var SWIPE_THRESHOLD = 50;
+
+  /* ----- Zoom & pan state ----- */
+  var ZOOM_MIN = 1, ZOOM_MAX = 4, DBL_TAP_ZOOM = 2.5;
+  var zoomState = { scale: 1, x: 0, y: 0 };
+  var pointers = new Map();   // active pointerId -> {x, y}
+  var pinchStart = null;      // {dist, scale} captured when 2nd finger lands
+  var dragLast = null;        // last pos for single-pointer panning
+  var downInfo = null;        // for tap / double-tap / swipe detection
+  var lastTap = 0;            // timestamp of previous tap (double-tap)
+  var suppressClick = false;  // set after a real pan/pinch so it can't close the lightbox
+
+  function applyZoom() {
+    lightboxImage.style.transform =
+      "translate(" + zoomState.x + "px," + zoomState.y + "px) scale(" + zoomState.scale + ")";
+    lightbox.classList.toggle("zoomed", zoomState.scale > 1);
+  }
+
+  function resetZoom() {
+    zoomState.scale = 1; zoomState.x = 0; zoomState.y = 0;
+    pointers.clear();
+    pinchStart = null; dragLast = null; downInfo = null;
+    suppressClick = false;
+    applyZoom();
+  }
+
+  function clampPan() {
+    var cw = lightboxContainer.clientWidth, ch = lightboxContainer.clientHeight;
+    var iw = lightboxImage.clientWidth * zoomState.scale;
+    var ih = lightboxImage.clientHeight * zoomState.scale;
+    var mx = Math.max(0, (iw - cw) / 2), my = Math.max(0, (ih - ch) / 2);
+    zoomState.x = Math.min(mx, Math.max(-mx, zoomState.x));
+    zoomState.y = Math.min(my, Math.max(-my, zoomState.y));
+  }
+
+  // Set an absolute scale, keeping the image point under (clientX, clientY) fixed.
+  function setZoomAt(clientX, clientY, newScale) {
+    newScale = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, newScale));
+    var s = zoomState.scale;
+    if (newScale === s) return;
+    // The image is flex-centered, so its untransformed center is the container center.
+    var r = lightboxContainer.getBoundingClientRect();
+    var cx = clientX - (r.left + r.width / 2);
+    var cy = clientY - (r.top + r.height / 2);
+    zoomState.x = cx - (cx - zoomState.x) * (newScale / s);
+    zoomState.y = cy - (cy - zoomState.y) * (newScale / s);
+    zoomState.scale = newScale;
+    if (newScale === ZOOM_MIN) { zoomState.x = 0; zoomState.y = 0; }
+    clampPan();
+    applyZoom();
+  }
+
+  function zoomStep(dir) {
+    var r = lightboxContainer.getBoundingClientRect();
+    var f = dir > 0 ? 1.4 : 1 / 1.4;
+    setZoomAt(r.left + r.width / 2, r.top + r.height / 2, zoomState.scale * f);
+  }
+
+  function toggleZoom(clientX, clientY) {
+    setZoomAt(clientX, clientY, zoomState.scale > 1 ? ZOOM_MIN : DBL_TAP_ZOOM);
+  }
+
+  function dist(a, b) {
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function onPointerDown(e) {
+    if (!lightbox.classList.contains("active")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.target.closest && e.target.closest("button")) return; // let buttons handle themselves
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 1) {
+      dragLast = { x: e.clientX, y: e.clientY };
+      downInfo = { x: e.clientX, y: e.clientY, t: Date.now(), moved: false };
+    } else if (pointers.size === 2) {
+      var pts = Array.from(pointers.values());
+      pinchStart = { dist: dist(pts[0], pts[1]), scale: zoomState.scale };
+      dragLast = null; downInfo = null; // second finger cancels tap/swipe
+    }
+  }
+
+  function onPointerMove(e) {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 2 && pinchStart) {
+      var pts = Array.from(pointers.values());
+      var d = dist(pts[0], pts[1]);
+      if (d > 0 && pinchStart.dist > 0) {
+        suppressClick = true;
+        setZoomAt((pts[0].x + pts[1].x) / 2, (pts[0].y + pts[1].y) / 2,
+                  pinchStart.scale * d / pinchStart.dist);
+      }
+      return;
+    }
+    if (pointers.size === 1 && dragLast) {
+      var dx = e.clientX - dragLast.x, dy = e.clientY - dragLast.y;
+      if (downInfo && Math.abs(e.clientX - downInfo.x) + Math.abs(e.clientY - downInfo.y) > 10) {
+        downInfo.moved = true;
+      }
+      if (zoomState.scale > 1 && (dx !== 0 || dy !== 0)) {
+        zoomState.x += dx; zoomState.y += dy;
+        if (downInfo && downInfo.moved) suppressClick = true; // real drag, not a tap
+        clampPan();
+        applyZoom();
+      }
+      dragLast = { x: e.clientX, y: e.clientY };
+    }
+  }
+
+  function onPointerUp(e) {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStart = null;
+    if (pointers.size === 0) {
+      if (downInfo && !downInfo.moved && Date.now() - downInfo.t < 400) {
+        var now = Date.now();
+        if (now - lastTap < 300) {
+          toggleZoom(e.clientX, e.clientY); // double-tap / double-click
+          lastTap = 0;
+        } else {
+          lastTap = now;
+        }
+      } else if (downInfo && downInfo.moved && zoomState.scale === 1) {
+        var sx = e.clientX - downInfo.x, sy = e.clientY - downInfo.y;
+        if (Math.abs(sx) > SWIPE_THRESHOLD && Math.abs(sx) > Math.abs(sy) * 1.5) {
+          navigateLightbox(sx < 0 ? "next" : "prev");
+        }
+      }
+      dragLast = null; downInfo = null;
+    } else if (pointers.size === 1) {
+      var p = pointers.values().next().value; // resume pan from the remaining finger
+      dragLast = { x: p.x, y: p.y };
+      downInfo = null;
+    }
+  }
 
   function initLightboxRefs() {
     lightbox = document.getElementById("lightbox");
@@ -76,6 +209,7 @@
     });
 
     lightbox.addEventListener("click", function (e) {
+      if (suppressClick) { suppressClick = false; return; }
       if (e.target === lightbox || e.target.classList.contains("lightbox-container")) {
         closeLightbox();
       }
@@ -86,23 +220,40 @@
       if (e.key === "Escape") closeLightbox();
       if (e.key === "ArrowRight") navigateLightbox("next");
       if (e.key === "ArrowLeft") navigateLightbox("prev");
+      if (e.key === "+" || e.key === "=") zoomStep(1);
+      if (e.key === "-") zoomStep(-1);
+      if (e.key === "0") resetZoom();
     });
 
-    lightbox.addEventListener("touchstart", function (e) {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
+    // Zoom & pan gestures (replaces the old touch swipe handlers)
+    lightboxContainer = lightbox.querySelector(".lightbox-container");
+    lightboxContainer.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
 
-    lightbox.addEventListener("touchend", function (e) {
-      var diff = touchStartX - e.changedTouches[0].screenX;
-      if (Math.abs(diff) > SWIPE_THRESHOLD) {
-        navigateLightbox(diff > 0 ? "next" : "prev");
-      }
-    }, { passive: true });
+    // Mouse wheel zooms toward the cursor
+    lightboxContainer.addEventListener("wheel", function (e) {
+      if (!lightbox.classList.contains("active")) return;
+      e.preventDefault();
+      var dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      setZoomAt(e.clientX, e.clientY, zoomState.scale * Math.exp(-dy * 0.0016));
+    }, { passive: false });
+
+    lightboxImage.addEventListener("dragstart", function (e) { e.preventDefault(); });
+
+    lightbox.querySelectorAll(".lightbox-zoom-btn").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        zoomStep(btn.getAttribute("data-zoom") === "in" ? 1 : -1);
+      });
+    });
   }
 
   function openLightbox(index) {
     currentIndex = index;
     var photo = allPhotos[currentIndex];
+    resetZoom();
     lightboxImage.src = fullUrl(cloudName, photo.id);
     lightboxImage.alt = photo.alt || "";
     lightboxCaption.textContent = photo.caption || "";
@@ -123,6 +274,7 @@
     lightbox.classList.remove("active");
     document.body.style.overflow = "";
     lightboxImage.src = "";
+    resetZoom();
   }
 
   function navigateLightbox(direction) {
