@@ -437,9 +437,10 @@
       api('recommendation').catch(function () { return null; }),
       api('earnings').catch(function () { return null; }),
       api('earnings-calendar', { from: iso(now), to: iso(future) }).catch(function () { return null; }),
-      api('financials', { freq: 'quarterly' }).catch(function () { return null; })
+      api('financials', { freq: 'quarterly' }).catch(function () { return null; }),
+      api('financials').catch(function () { return null; }) // annual 10-Ks (Q4 revenue)
     ]).then(function (res) {
-      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2], res[3]);
+      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2], res[3], res[4]);
     });
   }
 
@@ -458,7 +459,56 @@
       (sub ? '<span class="est-sub">' + sub + '</span>' : '') + '</div>';
   }
 
-  function renderEstimates(rec, earn, calData, finData) {
+  // Derive discrete quarterly revenue from Finnhub's as-reported financials.
+  // 10-Q figures are cumulative (Q2 covers 6 months), so: Q1 as filed,
+  // Q2 = 6mo − Q1, Q3 = 9mo − Q2, Q4 = 10-K − Q3. Amendments deduped by
+  // latest filed date; implausible results are dropped, never fabricated.
+  function quarterlyRevenue(finData) {
+    var REV_CONCEPTS = ['us-gaap_Revenues',
+      'us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax',
+      'us-gaap_SalesRevenueNet', 'us-gaap_SalesRevenueGoodsNet',
+      'us-gaap_RevenuesNetOfInterestExpense'];
+    var byYear = {};
+    ((finData && finData.data) || []).forEach(function (f) {
+      if (!f || !f.startDate || !f.endDate || !f.report || !f.report.ic) return;
+      var rev = null;
+      for (var i = 0; i < f.report.ic.length; i++) {
+        var item = f.report.ic[i];
+        if (item && item.value != null && REV_CONCEPTS.indexOf(String(item.concept)) !== -1) {
+          rev = item.value; break;
+        }
+      }
+      if (rev == null) return;
+      var y = String(f.startDate).slice(0, 10), e = String(f.endDate).slice(0, 10);
+      var g = byYear[y] || (byYear[y] = {});
+      var filed = f.filedDate || '';
+      if (!g[e] || filed > g[e].filed) {
+        var pd = (new Date(e + 'T00:00:00') - new Date(y + 'T00:00:00')) / 864e5;
+        g[e] = { end: e, rev: rev, filed: filed, pd: pd };
+      }
+    });
+    var out = [];
+    Object.keys(byYear).forEach(function (y) {
+      var reps = Object.keys(byYear[y]).map(function (e) { return byYear[y][e]; });
+      reps.sort(function (a, b) { return a.end < b.end ? -1 : (a.end > b.end ? 1 : 0); });
+      for (var i = 0; i < reps.length; i++) {
+        var q = null;
+        if (i === 0) {
+          if (reps[i].pd <= 100) q = reps[i].rev; // ~3-month quarter as filed
+        } else {
+          q = reps[i].rev - reps[i - 1].rev;
+          if (!(q > 0 && q <= reps[i].rev)) q = null;
+        }
+        if (q != null) out.push({ end: reps[i].end, revenue: q });
+      }
+    });
+    out.sort(function (a, b) { return a.end < b.end ? -1 : (a.end > b.end ? 1 : 0); });
+    return out;
+  }
+
+  function renderEstimates(rec, earn, calData, finQ, finA) {
+    // Merge quarterly 10-Qs and annual 10-Ks (Q4 only exists in the 10-K).
+    var finData = { data: ((finQ && finQ.data) || []).concat((finA && finA.data) || []) };
     var box = $('q-estimates');
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var html = '';
@@ -490,26 +540,19 @@
     }
 
     if (earn && earn.length) {
-      // Revenue actuals come from Finnhub's as-reported quarterly financials
-      // (revenue estimates for past quarters are a premium-only endpoint, so no
-      // estimate/surprise columns — actuals only). Matched to EPS rows by quarter end date.
-      var REV_CONCEPTS = ['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax',
-        'SalesRevenueNet', 'SalesRevenueGoodsNet', 'RevenuesNetOfInterestExpense'];
-      var finList = (finData && finData.data) || [];
+      // Revenue actuals come from Finnhub's as-reported quarterly financials.
+      // Those figures are cumulative (10-Q Q2 covers 6 months), so discrete
+      // quarters are derived: Q1 as filed, Q2 = 6mo − Q1, etc. Revenue
+      // estimates for past quarters are a premium-only endpoint, so the table
+      // shows actuals only. Matched to EPS rows by quarter end date.
+      var qrev = quarterlyRevenue(finData);
       function revenueFor(periodIso) {
-        if (!periodIso) return null;
+        if (!periodIso || !qrev.length) return null;
         var target = new Date(periodIso + 'T00:00:00').getTime();
         var best = null, bestDiff = 20 * 864e5; // within 20 days
-        finList.forEach(function (f) {
-          if (!f || !f.endDate || !f.report || !f.report.ic) return;
-          var diff = Math.abs(new Date(f.endDate + 'T00:00:00').getTime() - target);
-          if (diff > bestDiff) return;
-          for (var i = 0; i < f.report.ic.length; i++) {
-            var item = f.report.ic[i];
-            if (item && REV_CONCEPTS.indexOf(item.concept) !== -1 && item.value != null) {
-              best = item.value; bestDiff = diff; break;
-            }
-          }
+        qrev.forEach(function (r) {
+          var diff = Math.abs(new Date(r.end + 'T00:00:00').getTime() - target);
+          if (diff < bestDiff) { best = r.revenue; bestDiff = diff; }
         });
         return best;
       }
