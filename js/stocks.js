@@ -452,6 +452,12 @@
     return '$' + Number(n).toFixed(0);
   }
 
+  // Reusable section header: title + muted subtitle.
+  function blockHead(title, sub) {
+    return '<div class="est-head"><h3>' + title + '</h3>' +
+      (sub ? '<span class="est-sub">' + sub + '</span>' : '') + '</div>';
+  }
+
   function renderEstimates(rec, earn, calData, finData) {
     var box = $('q-estimates');
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -476,8 +482,8 @@
                  '%;background:' + g[2] + '" title="' + g[0] + ': ' + g[1] + '"></span>';
           legend += '<span><i style="background:' + g[2] + '"></i>' + g[0] + ' ' + g[1] + '</span>';
         });
-        html += '<div class="est-block"><div class="est-head"><h3>Analyst consensus</h3>' +
-          '<span class="est-sub">' + months[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + total + ' analysts</span></div>' +
+        html += '<div class="est-block">' + blockHead('Analyst consensus',
+          months[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + total + ' analysts') +
           '<div class="rec-score">' + label + ' <span class="rec-score-num">' + score.toFixed(2) + ' / 5</span></div>' +
           '<div class="rec-bar">' + bar + '</div><div class="rec-legend">' + legend + '</div></div>';
       }
@@ -512,13 +518,13 @@
       ((calData && calData.earningsCalendar) || []).forEach(function (c) {
         if (c && c.date && (!nextEarn || c.date < nextEarn.date)) nextEarn = c;
       });
-      var nextTxt = '';
+      var nextHtml = '';
       if (nextEarn) {
         var nd = nextEarn.date.split('-');
-        nextTxt = ' · Next: ' + months[parseInt(nd[1], 10) - 1] + ' ' +
-                  parseInt(nd[2], 10) + ', ' + nd[0];
-        if (nextEarn.epsEstimate != null) nextTxt += ' · Est. EPS $' + Number(nextEarn.epsEstimate).toFixed(2);
-        if (nextEarn.revenueEstimate != null) nextTxt += ' · Est. Rev ' + fmtMoney(nextEarn.revenueEstimate);
+        nextHtml = 'Next earnings: <strong>' + months[parseInt(nd[1], 10) - 1] + ' ' +
+                   parseInt(nd[2], 10) + ', ' + nd[0] + '</strong>';
+        if (nextEarn.epsEstimate != null) nextHtml += ' · Est. EPS $' + Number(nextEarn.epsEstimate).toFixed(2);
+        if (nextEarn.revenueEstimate != null) nextHtml += ' · Est. Rev ' + fmtMoney(nextEarn.revenueEstimate);
       }
       var rows4 = earn.slice(0, 4);
       var showRev = rows4.some(function (e) { return revenueFor(e.period) != null; });
@@ -536,8 +542,9 @@
       });
       var head = '<tr><th>Quarter</th><th>Est. EPS</th><th>Actual EPS</th><th>EPS Surprise</th>' +
         (showRev ? '<th>Revenue</th>' : '') + '</tr>';
-      html += '<div class="est-block"><div class="est-head"><h3>Earnings surprises</h3>' +
-        '<span class="est-sub">' + (showRev ? 'EPS vs estimates · revenue actuals' : 'EPS estimate vs actual') + nextTxt + '</span></div>' +
+      html += '<div class="est-block">' + blockHead('Earnings surprises',
+        showRev ? 'EPS vs estimates · revenue actuals' : 'EPS estimate vs actual') +
+        (nextHtml ? '<div class="next-earn">' + nextHtml + '</div>' : '') +
         '<div class="earn-table-wrap"><table class="earn-table"><thead>' + head + '</thead>' +
         '<tbody>' + rows + '</tbody></table></div></div>';
     }
@@ -568,8 +575,7 @@
                 '<span class="news-head">' + esc(n.headline || '') + '</span>' +
                 '<span class="news-meta">' + esc(n.source || '') + ' · ' + date + '</span></a>';
       });
-      box.innerHTML = '<div class="est-head"><h3>Latest news</h3>' +
-        '<span class="est-sub">past 7 days</span></div>' + html;
+      box.innerHTML = blockHead('Latest news', 'past 7 days') + html;
       box.hidden = false;
     }).catch(function () { /* no news route / no data — block stays hidden */ });
   }
