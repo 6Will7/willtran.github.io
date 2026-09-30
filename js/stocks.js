@@ -80,6 +80,7 @@
       card.hidden = false;
       loadChart(chartRange);
       loadFilings(sym);
+      loadEstimates(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -348,6 +349,69 @@
         '<a href="' + esc(f.indexUrl) + '" target="_blank" rel="noopener">Index</a>' +
         '</span></div>';
     }).join('');
+  }
+
+  function loadEstimates(sym) {
+    var box = $('q-estimates');
+    box.hidden = true;
+    box.innerHTML = '';
+    Promise.all([
+      api('recommendation').catch(function () { return null; }),
+      api('earnings').catch(function () { return null; })
+    ]).then(function (res) {
+      if (currentSymbol === sym) renderEstimates(res[0], res[1]);
+    });
+  }
+
+  function renderEstimates(rec, earn) {
+    var box = $('q-estimates');
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var html = '';
+
+    if (rec && rec.length) {
+      var r = rec[0];
+      var sb = r.strongBuy || 0, b = r.buy || 0, h = r.hold || 0, s = r.sell || 0, ss = r.strongSell || 0;
+      var total = sb + b + h + s + ss;
+      if (total > 0) {
+        var score = (sb * 5 + b * 4 + h * 3 + s * 2 + ss) / total;
+        var label = score >= 4.5 ? 'Strong Buy' : score >= 3.5 ? 'Buy' :
+                    score >= 2.5 ? 'Hold' : score >= 1.5 ? 'Sell' : 'Strong Sell';
+        var d = new Date(String(r.period).slice(0, 10) + 'T00:00:00');
+        var segs = [
+          ['Strong buy', sb, '#15803d'], ['Buy', b, '#4ade80'], ['Hold', h, '#a8a29e'],
+          ['Sell', s, '#f87171'], ['Strong sell', ss, '#DA121A']
+        ];
+        var bar = '', legend = '';
+        segs.forEach(function (g) {
+          bar += '<span class="rec-seg" style="width:' + (g[1] / total * 100).toFixed(1) +
+                 '%;background:' + g[2] + '" title="' + g[0] + ': ' + g[1] + '"></span>';
+          legend += '<span><i style="background:' + g[2] + '"></i>' + g[0] + ' ' + g[1] + '</span>';
+        });
+        html += '<div class="est-block"><div class="est-head"><h3>Analyst consensus</h3>' +
+          '<span class="est-sub">' + months[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + total + ' analysts</span></div>' +
+          '<div class="rec-score">' + label + ' <span class="rec-score-num">' + score.toFixed(2) + ' / 5</span></div>' +
+          '<div class="rec-bar">' + bar + '</div><div class="rec-legend">' + legend + '</div></div>';
+      }
+    }
+
+    if (earn && earn.length) {
+      var rows = '';
+      earn.slice(0, 4).forEach(function (e) {
+        var sp = e.surprisePercent;
+        var spTxt = (sp == null || isNaN(sp)) ? '—' : (sp >= 0 ? '+' : '−') + Math.abs(sp).toFixed(2) + '%';
+        var cls = (sp == null || isNaN(sp)) ? '' : (sp >= 0 ? 'up' : 'down');
+        var est = (e.estimate == null) ? '—' : '$' + Number(e.estimate).toFixed(2);
+        var act = (e.actual == null || e.actual === 0) ? '—' : '$' + Number(e.actual).toFixed(2);
+        rows += '<tr><td>Q' + e.quarter + ' ' + e.year + '</td><td>' + est + '</td><td>' + act +
+                '</td><td class="' + cls + '">' + spTxt + '</td></tr>';
+      });
+      html += '<div class="est-block"><div class="est-head"><h3>Earnings surprises</h3>' +
+        '<span class="est-sub">EPS estimate vs actual</span></div>' +
+        '<table class="earn-table"><thead><tr><th>Quarter</th><th>Est. EPS</th><th>Actual</th><th>Surprise</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></div>';
+    }
+
+    if (html) { box.innerHTML = html; box.hidden = false; }
   }
 
   function loadFilings(sym) {
