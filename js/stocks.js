@@ -13,13 +13,6 @@
 
   var currentSymbol = '', chartData = null, chartRange = '1D', prevClose = null;
 
-  var RANGES = {
-    '1D': { resolution: '15', seconds: 86400 },
-    '1W': { resolution: '30', seconds: 7 * 86400 },
-    '1M': { resolution: 'D', seconds: 30 * 86400 },
-    '1Y': { resolution: 'W', seconds: 365 * 86400 }
-  };
-
   function showError(msg) {
     errorBox.textContent = msg;
     errorBox.hidden = false;
@@ -134,11 +127,12 @@
     for (var i = 0; i < tabs.length; i++) {
       tabs[i].classList.toggle('active', tabs[i].getAttribute('data-range') === range);
     }
-    var cfg = RANGES[range];
     var now = Math.floor(Date.now() / 1000);
-    api('candle', { resolution: cfg.resolution, from: now - cfg.seconds, to: now })
+    // Price charts come from Yahoo Finance via the worker (Finnhub free tier blocks candles)
+    fetch(WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSym) + '&range=' + range)
+      .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (!d || d.s !== 'ok' || !d.c || !d.c.length) throw new Error('no chart data');
+        if (!d || !d.c || !d.c.length) throw new Error('no chart data');
         chartData = d;
         drawChart();
       })
