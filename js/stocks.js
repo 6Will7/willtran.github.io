@@ -117,7 +117,7 @@
       stat('52-week low', fmtPrice(m['52WeekLow'])) +
       stat('Beta', fmtNum(m.beta)) +
       stat('Dividend yield', m.dividendYieldIndicatedAnnual != null ?
-        (m.dividendYieldIndicatedAnnual * 100).toFixed(2) + '%' : '—');
+        Number(m.dividendYieldIndicatedAnnual).toFixed(2) + '%' : '—');
     if (profile.finnhubIndustry) html += stat('Industry', profile.finnhubIndustry);
     $('q-stats').innerHTML = html;
   }
