@@ -66,7 +66,16 @@
                     <button class="stocks-tab active" type="button" data-range="1D" role="tab">1D</button>
                     <button class="stocks-tab" type="button" data-range="1W" role="tab">1W</button>
                     <button class="stocks-tab" type="button" data-range="1M" role="tab">1M</button>
+                    <button class="stocks-tab" type="button" data-range="YTD" role="tab">YTD</button>
                     <button class="stocks-tab" type="button" data-range="1Y" role="tab">1Y</button>
+                    <button class="stocks-tab" type="button" data-range="3Y" role="tab">3Y</button>
+                    <button class="stocks-tab" type="button" data-range="5Y" role="tab">5Y</button>
+                    <span id="range-change" class="range-change" aria-live="polite"></span>
+                </div>
+                <div class="stocks-custom-range">
+                    <label>From <input type="date" id="custom-from"></label>
+                    <label>To <input type="date" id="custom-to"></label>
+                    <button id="custom-apply" type="button" class="stocks-tab">Apply</button>
                 </div>
                 <div class="stocks-chart-wrap">
                     <canvas id="stocks-chart"></canvas>
@@ -95,6 +104,6 @@
     <div id="footer-placeholder"></div>
 
     <script src="/js/main.js"></script>
-    <script src="/js/stocks.js?v=20260929d"></script>
+    <script src="/js/stocks.js?v=20260929e"></script>
 </body>
 </html>

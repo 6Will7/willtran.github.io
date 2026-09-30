@@ -9,6 +9,7 @@
   var searchInput = $('stocks-search'), goBtn = $('stocks-go');
   var setupBox = $('stocks-setup'), errorBox = $('stocks-error'), card = $('stocks-card');
   var canvas = $('stocks-chart'), tip = $('stocks-tip');
+  var rangeChangeEl = $('range-change');
   var ctx = canvas.getContext('2d');
 
   var currentSymbol = '', chartData = null, chartRange = '1D', prevClose = null;
@@ -121,32 +122,51 @@
 
   /* ---------- chart ---------- */
 
-  function loadChart(range) {
+  function loadChart(range, from, to) {
     chartRange = range;
-    var tabs = document.querySelectorAll('.stocks-tab');
+    var tabs = document.querySelectorAll('.stocks-tabs [data-range]');
     for (var i = 0; i < tabs.length; i++) {
       tabs[i].classList.toggle('active', tabs[i].getAttribute('data-range') === range);
     }
-    var now = Math.floor(Date.now() / 1000);
+    rangeChangeEl.textContent = '';
+    rangeChangeEl.className = 'range-change';
+    var url = WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) + '&range=' + range;
+    if (from && to) url += '&from=' + from + '&to=' + to;
     // Price charts come from Yahoo Finance via the worker (Finnhub free tier blocks candles)
-    fetch(WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) + '&range=' + range)
+    fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.c || !d.c.length) throw new Error('no chart data');
         chartData = d;
         drawChart();
+        updateRangeChange();
       })
-      .catch(function () { chartData = null; drawChart(true); });
+      .catch(function () { chartData = null; rangeChangeEl.textContent = ''; drawChart(true); });
+  }
+
+  function updateRangeChange() {
+    if (!chartData || chartData.c.length < 2) { rangeChangeEl.textContent = ''; return; }
+    var first = chartData.c[0], last = chartData.c[chartData.c.length - 1];
+    var pct = (last - first) / first * 100;
+    var label = {
+      '1D': 'today', '1W': 'past week', '1M': 'past month', 'YTD': 'YTD',
+      '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs', 'CUSTOM': 'selected range'
+    }[chartRange] || 'selected range';
+    rangeChangeEl.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '% ' + label;
+    rangeChangeEl.className = 'range-change ' + (pct >= 0 ? 'up' : 'down');
   }
 
   function xLabel(t) {
     var d = new Date(t * 1000);
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     if (chartRange === '1D') {
       var h = d.getHours(), ap = h >= 12 ? 'p' : 'a';
       h = h % 12 || 12;
       return h + ap;
     }
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var spanDays = chartData && chartData.t.length > 1 ?
+      (chartData.t[chartData.t.length - 1] - chartData.t[0]) / 86400 : 0;
+    if (spanDays > 400) return months[d.getMonth()] + " '" + String(d.getFullYear()).slice(2);
     return months[d.getMonth()] + ' ' + d.getDate();
   }
 
@@ -356,12 +376,21 @@
     });
   }
 
-  var tabs = document.querySelectorAll('.stocks-tab');
+  var tabs = document.querySelectorAll('.stocks-tabs [data-range]');
   for (var t = 0; t < tabs.length; t++) {
     tabs[t].addEventListener('click', function () {
       if (currentSymbol) loadChart(this.getAttribute('data-range'));
     });
   }
+  $('custom-apply').addEventListener('click', function () {
+    if (!currentSymbol) return;
+    var f = $('custom-from').value, te = $('custom-to').value;
+    if (!f || !te) return;
+    var from = Math.floor(new Date(f + 'T00:00:00') / 1000);
+    var to = Math.floor(new Date(te + 'T00:00:00') / 1000) + 86399;
+    if (!(to > from)) return;
+    loadChart('CUSTOM', from, to);
+  });
   var chips = document.querySelectorAll('.stocks-chips [data-sym]');
   for (var c = 0; c < chips.length; c++) {
     chips[c].addEventListener('click', function () {
