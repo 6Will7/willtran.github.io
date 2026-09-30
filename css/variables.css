@@ -21,6 +21,7 @@
   --color-nav-text-active: #03071e;
   --color-accent: #2563eb;       /* Crisp institutional blue */
   --color-accent-hover: #1d4ed8;
+  --color-accent-text: #ffffff;  /* Text on accent-colored backgrounds */
 
   /* Alerts (Disclaimer Box) */
   --color-alert-bg: #fef2f2;
@@ -36,52 +37,55 @@
 /* --- 2. System-Aware Dark Mode --- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* These are all your original hardcoded colors mapped to variables! */
-    --color-bg: #03071e;
-    --color-text: #fbfaf3;
-    --color-text-muted: #b0b0c8;
-    --color-border: #1e293b;
-    
-    --color-header-bg: #003049;
-    --color-header-border: #0f172a;
-    --color-card-bg: #070738;
-    --color-card-border: #1a1a3e;
-    --color-card-bg-alt: #0a0a2a;
-    
-    --color-nav-text: #b0b0c8;
-    --color-nav-text-active: #f8f8f8;
-    --color-accent: #7c8fff;
-    --color-accent-hover: #9ca3ff;
+    --color-bg: #1b1a1f;
+    --color-text: #f4f3ef;
+    --color-text-muted: #a9a8b1;
+    --color-border: #2e2d34;
 
-    --color-alert-bg: #1a2332;
-    --color-alert-border: #2d3748;
-    --color-danger: #ff6b6b;
-    --color-danger-text: #ff8787;
-    --color-alert-text: #cbd5e0;
+    /* Flat: no background/foreground distinction */
+    --color-header-bg: #1b1a1f;
+    --color-header-border: #2e2d34;
+    --color-card-bg: #1b1a1f;
+    --color-card-border: #2e2d34;
+    --color-card-bg-alt: #1b1a1f;
+
+    --color-nav-text: #a9a8b1;
+    --color-nav-text-active: #FCDD09;
+    --color-accent: #FCDD09;
+    --color-accent-hover: #d9bd08;
+    --color-accent-text: #1b1a1f;
+
+    --color-alert-bg: #1b1a1f;
+    --color-alert-border: #2e2d34;
+    --color-danger: #DA121A;
+    --color-danger-text: #ff8489;
+    --color-alert-text: #f4f3ef;
   }
 }
 
 /* --- 3. Manual Dark Mode Override --- */
 [data-theme="dark"] {
-  --color-bg: #03071e;
-  --color-text: #fbfaf3;
-  --color-text-muted: #b0b0c8;
-  --color-border: #1e293b;
-  
-  --color-header-bg: #003049;
-  --color-header-border: #0f172a;
-  --color-card-bg: #070738;
-  --color-card-border: #1a1a3e;
-  --color-card-bg-alt: #0a0a2a;
-  
-  --color-nav-text: #b0b0c8;
-  --color-nav-text-active: #f8f8f8;
-  --color-accent: #7c8fff;
-  --color-accent-hover: #9ca3ff;
+  --color-bg: #1b1a1f;
+  --color-text: #f4f3ef;
+  --color-text-muted: #a9a8b1;
+  --color-border: #2e2d34;
 
-  --color-alert-bg: #1a2332;
-  --color-alert-border: #2d3748;
-  --color-danger: #ff6b6b;
-  --color-danger-text: #ff8787;
-  --color-alert-text: #cbd5e0;
+  /* Flat: no background/foreground distinction */
+  --color-header-bg: #1b1a1f;
+  --color-header-border: #2e2d34;
+  --color-card-bg: #1b1a1f;
+  --color-card-border: #2e2d34;
+  --color-card-bg-alt: #1b1a1f;
+
+  --color-nav-text: #a9a8b1;
+  --color-nav-text-active: #FCDD09;
+  --color-accent: #FCDD09;
+  --color-accent-hover: #d9bd08;
+  --color-accent-text: #1b1a1f;
+
+  --color-alert-bg: #1b1a1f;
+  --color-alert-border: #2e2d34;
+  --color-danger: #DA121A;
+  --color-danger-text: #ff8489;
+  --color-alert-text: #f4f3ef;
 }

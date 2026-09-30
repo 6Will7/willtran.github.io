@@ -20,6 +20,7 @@
   --color-nav-text-active: #03071e;
   --color-accent: #2563eb;       /* Crisp institutional blue */
   --color-accent-hover: #1d4ed8;
+  --color-accent-text: #ffffff;
 
   /* Alerts (Disclaimer Box) */
   --color-alert-bg: #fef2f2;
@@ -36,52 +37,57 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     /* These are all your original hardcoded colors mapped to variables! */
-    --color-bg: #0a1628;
-    --color-text: #eef2f7;
-    --color-text-muted: #8fa3b8;
-    --color-border: #1b2f4d;
-    
-    --color-header-bg: #0d2138;
-    --color-header-border: #14263d;
-    --color-card-bg: #0e1f38;
-    --color-card-border: #1e3a5c;
-    --color-card-bg-alt: #0c1a2f;
-    
-    --color-nav-text: #8fa3b8;
-    --color-nav-text-active: #ffffff;
-    --color-accent: #4d9fff;
-    --color-accent-hover: #80bcff;
+    --color-bg: #1b1a1f;
+    --color-text: #f4f3ef;
+    --color-text-muted: #a9a8b1;
+    --color-border: #2e2d34;
 
-    --color-alert-bg: #10233a;
-    --color-alert-border: #23405e;
-    --color-danger: #ff6b6b;
-    --color-danger-text: #ff8787;
-    --color-alert-text: #cbd5e0;
+    /* Flat: no background/foreground distinction */
+    --color-header-bg: #1b1a1f;
+    --color-header-border: #2e2d34;
+    --color-card-bg: #1b1a1f;
+    --color-card-border: #2e2d34;
+    --color-card-bg-alt: #1b1a1f;
+
+    --color-nav-text: #a9a8b1;
+    --color-nav-text-active: #FCDD09;
+    --color-accent: #FCDD09;
+    --color-accent-hover: #d9bd08;
+    --color-accent-text: #1b1a1f;
+
+    --color-alert-bg: #1b1a1f;
+    --color-alert-border: #2e2d34;
+    --color-danger: #DA121A;
+    --color-danger-text: #ff8489;
+    --color-alert-text: #f4f3ef;
   }
 }
 
 /* --- 3. Manual Dark Mode Override --- */
 [data-theme="dark"] {
-  --color-bg: #0a1628;
-  --color-text: #eef2f7;
-  --color-text-muted: #8fa3b8;
-  --color-border: #1b2f4d;
-  
-  --color-header-bg: #0d2138;
-  --color-header-border: #14263d;
-  --color-card-bg: #0e1f38;
-  --color-card-border: #1e3a5c;
-  --color-card-bg-alt: #0c1a2f;
-  
-  --color-nav-text: #8fa3b8;
-  --color-nav-text-active: #ffffff;
-  --color-accent: #4d9fff;
-  --color-accent-hover: #80bcff;
+  --color-bg: #1b1a1f;
+  --color-text: #f4f3ef;
+  --color-text-muted: #a9a8b1;
+  --color-border: #2e2d34;
 
-  --color-alert-bg: #10233a;
-  --color-alert-border: #23405e;
-  --color-danger: #ff6b6b;
-  --color-danger-text: #ff8787;
+  /* Flat: no background/foreground distinction */
+  --color-header-bg: #1b1a1f;
+  --color-header-border: #2e2d34;
+  --color-card-bg: #1b1a1f;
+  --color-card-border: #2e2d34;
+  --color-card-bg-alt: #1b1a1f;
+
+  --color-nav-text: #a9a8b1;
+  --color-nav-text-active: #FCDD09;
+  --color-accent: #FCDD09;
+  --color-accent-hover: #d9bd08;
+  --color-accent-text: #1b1a1f;
+
+  --color-alert-bg: #1b1a1f;
+  --color-alert-border: #2e2d34;
+  --color-danger: #DA121A;
+  --color-danger-text: #ff8489;
+  --color-alert-text: #f4f3ef;
   --color-alert-text: #cbd5e0;
 }
 /* --- 4. Base Body Application --- */

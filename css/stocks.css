@@ -65,7 +65,7 @@
 .stocks-change.up { color: #16a34a; }
 .stocks-change.down { color: #dc2626; }
 [data-theme="dark"] .stocks-change.up { color: #4ade80; }
-[data-theme="dark"] .stocks-change.down { color: #f87171; }
+[data-theme="dark"] .stocks-change.down { color: #DA121A; }
 
 .stocks-dayrange {
   display: flex;
@@ -105,7 +105,7 @@
 .range-change.up { color: #16a34a; }
 .range-change.down { color: #dc2626; }
 [data-theme="dark"] .range-change.up { color: #4ade80; }
-[data-theme="dark"] .range-change.down { color: #f87171; }
+[data-theme="dark"] .range-change.down { color: #DA121A; }
 
 .stocks-custom-range {
   display: flex;
@@ -142,7 +142,7 @@
 .stocks-tab.active {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 
@@ -208,7 +208,7 @@
 .filing-badge.f-10k { background: rgba(37, 99, 235, 0.14); color: #2563eb; }
 .filing-badge.f-10q { background: rgba(22, 163, 74, 0.14); color: #16a34a; }
 .filing-badge.f-8k { background: rgba(217, 119, 6, 0.16); color: #b45309; }
-[data-theme="dark"] .filing-badge.f-10k { color: #7db8ff; }
+[data-theme="dark"] .filing-badge.f-10k { background: rgba(252, 221, 9, 0.14); color: #FCDD09; }
 [data-theme="dark"] .filing-badge.f-10q { color: #4ade80; }
 [data-theme="dark"] .filing-badge.f-8k { color: #fbbf24; }
 

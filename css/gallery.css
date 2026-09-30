@@ -39,7 +39,7 @@ html {
 
 .jump-nav a:hover {
   background-color: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-accent-text);
   border-color: var(--color-accent);
   transform: translateY(-2px); /* Matches the hover lift of your gallery cards */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

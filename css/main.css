@@ -262,10 +262,10 @@ header {
 .btn:hover { text-decoration: none; transform: translateY(-2px); }
 .btn-primary {
   background-color: var(--color-accent);
-  color: #ffffff;
+  color: var(--color-accent-text);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
-.btn-primary:hover { background-color: var(--color-accent-hover); color: #ffffff; }
+.btn-primary:hover { background-color: var(--color-accent-hover); color: var(--color-accent-text); }
 .btn-secondary {
   background-color: transparent;
   color: var(--color-text);
@@ -376,7 +376,7 @@ header {
 }
 .back-to-top-btn:hover {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent-text);
   border-color: var(--color-accent);
 }
 

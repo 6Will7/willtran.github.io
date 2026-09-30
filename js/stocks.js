@@ -231,7 +231,7 @@
 
     var up = closes[n - 1] >= closes[0];
     var lineColor = up ? '#16a34a' : '#dc2626';
-    if (dark) lineColor = up ? '#4ade80' : '#f87171';
+    if (dark) lineColor = up ? '#4ade80' : '#DA121A';
 
     // prev-close dashed line on 1D
     if (chartRange === '1D' && prevClose) {
