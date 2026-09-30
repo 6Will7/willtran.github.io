@@ -64,6 +64,7 @@
     if (!sym) return;
     if (!WORKER_URL) { setupBox.hidden = false; return; }
     currentSymbol = sym;
+    if (overlaySymbol === sym) clearOverlay(); // overlay can't be the main symbol
     clearError();
     card.hidden = true;
 
@@ -134,16 +135,113 @@
 
   var chartType = 'line'; // 'line' | 'candles'
 
+  /* ---------- overlay: a second ticker drawn on top of the main chart ---------- */
+
+  var OVERLAY_COLOR = '#8b5cf6';
+  var overlaySymbol = null, overlaySeries = null, overlayData = null;
+  var customFromTs = null, customToTs = null; // remembered for overlay refetch
+
+  function getOverlaySeries() {
+    if (overlaySeries || !lwChart) return overlaySeries;
+    overlaySeries = lwChart.addLineSeries({
+      priceScaleId: 'overlay', // own axis (left) so different price levels stay honest
+      color: OVERLAY_COLOR,
+      lineWidth: 2,
+      priceLineVisible: false,
+      lastValueVisible: true,
+      crosshairMarkerVisible: true,
+      visible: false
+    });
+    lwChart.priceScale('overlay').applyOptions({
+      position: 'left',
+      borderColor: chartPalette().border
+    });
+    return overlaySeries;
+  }
+
+  function chartUrlFor(sym, range) {
+    var url = WORKER_URL + '/chart?symbol=' + encodeURIComponent(sym) + '&range=' + range;
+    if (range === 'CUSTOM' && customFromTs && customToTs) {
+      url += '&from=' + customFromTs + '&to=' + customToTs;
+    }
+    return url;
+  }
+
+  function drawOverlay() {
+    var s = getOverlaySeries();
+    if (!s) return;
+    if (!overlayData || !overlayData.c || !overlayData.c.length) {
+      s.setData([]);
+      s.applyOptions({ visible: false });
+      return;
+    }
+    var pts = [];
+    for (var i = 0; i < overlayData.t.length; i++) {
+      pts.push({ time: overlayData.t[i], value: overlayData.c[i] });
+    }
+    s.setData(pts);
+    s.applyOptions({ visible: true });
+  }
+
+  function updateOverlayChip() {
+    var chip = $('overlay-chip');
+    if (!chip) return;
+    if (overlaySymbol) {
+      chip.hidden = false;
+      chip.innerHTML = '<i></i>' + overlaySymbol + ' <span aria-hidden="true">×</span>';
+      chip.title = 'Remove ' + overlaySymbol + ' overlay';
+    } else {
+      chip.hidden = true;
+      chip.innerHTML = '';
+    }
+  }
+
+  function clearOverlay() {
+    overlaySymbol = null;
+    overlayData = null;
+    if (overlaySeries) {
+      overlaySeries.setData([]);
+      overlaySeries.applyOptions({ visible: false });
+    }
+    updateOverlayChip();
+  }
+
+  function loadOverlay(sym) {
+    sym = (sym || '').trim().toUpperCase();
+    var input = $('overlay-input');
+    if (!sym || sym === currentSymbol) return;
+    overlaySymbol = sym;
+    updateOverlayChip();
+    fetch(chartUrlFor(sym, chartRange))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (sym !== overlaySymbol) return; // superseded
+        if (!d || !d.c || !d.c.length) throw new Error('no data');
+        overlayData = d;
+        drawOverlay();
+      })
+      .catch(function () {
+        if (sym !== overlaySymbol) return;
+        clearOverlay();
+        if (input) {
+          input.value = '';
+          input.placeholder = 'No chart data for ' + sym;
+          setTimeout(function () { input.placeholder = 'Overlay ticker…'; }, 2500);
+        }
+      });
+  }
+
   function loadChart(range, from, to) {
     chartRange = range;
+    customFromTs = (range === 'CUSTOM' && from) ? from : null;
+    customToTs = (range === 'CUSTOM' && to) ? to : null;
     var tabs = document.querySelectorAll('.stocks-tabs [data-range]');
     for (var i = 0; i < tabs.length; i++) {
       tabs[i].classList.toggle('active', tabs[i].getAttribute('data-range') === range);
     }
     rangeChangeEl.textContent = '';
     rangeChangeEl.className = 'range-change';
-    var url = WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) + '&range=' + range;
-    if (from && to) url += '&from=' + from + '&to=' + to;
+    var url = chartUrlFor(currentSymbol, range);
     // Price charts come from Yahoo Finance via the worker (Finnhub free tier blocks candles)
     fetch(url)
       .then(function (r) { return r.json(); })
@@ -152,18 +250,37 @@
         chartData = d;
         drawChart();
         updateRangeChange();
+        if (overlaySymbol) loadOverlay(overlaySymbol); // keep overlay in sync with range
       })
       .catch(function () { chartData = null; rangeChangeEl.textContent = ''; drawChart(true); });
   }
 
   function updateRangeChange() {
     if (!chartData || chartData.c.length < 2) { rangeChangeEl.textContent = ''; return; }
-    var first = chartData.c[0], last = chartData.c[chartData.c.length - 1];
+    // % is computed over the visible window, so dragging/zooming the chart
+    // updates the timeframe it describes.
+    var n = chartData.c.length, from = 0, to = n - 1, full = true;
+    if (lwChart) {
+      try {
+        var vr = lwChart.timeScale().getVisibleLogicalRange();
+        if (vr) {
+          var vf = Math.max(0, Math.floor(vr.from));
+          var vt = Math.min(n - 1, Math.ceil(vr.to) - 1);
+          if (vt > vf) {
+            from = vf; to = vt;
+            full = (vf <= 0 && vt >= n - 1);
+          }
+        }
+      } catch (e) {}
+    }
+    var first = chartData.c[from], last = chartData.c[to];
+    if (!first) { rangeChangeEl.textContent = ''; return; }
     var pct = (last - first) / first * 100;
-    var label = {
+    var rangeLabels = {
       '1D': 'today', '1W': 'past week', '1M': 'past month', 'YTD': 'YTD',
       '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs', 'CUSTOM': 'selected range'
-    }[chartRange] || 'selected range';
+    };
+    var label = full ? (rangeLabels[chartRange] || 'selected range') : 'visible range';
     rangeChangeEl.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '% ' + label;
     rangeChangeEl.className = 'range-change ' + (pct >= 0 ? 'up' : 'down');
   }
@@ -215,7 +332,19 @@
       },
       rightPriceScale: { borderColor: p.border },
       timeScale: { borderColor: p.border, timeVisible: true, secondsVisible: false },
-      localization: { locale: 'en-US' }
+      localization: { locale: 'en-US' },
+      // drag to pan through time, pinch/wheel to zoom the visible window
+      handleScroll: {
+        mouse: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: true
+      },
+      handleScale: {
+        mouse: true,
+        pinch: true,
+        axisPressedMouseMove: { time: true, price: true }
+      }
     });
     areaSeries = lwChart.addAreaSeries({
       lineWidth: 2, priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true
@@ -236,6 +365,8 @@
     // re-theme live when the site theme toggle flips
     new MutationObserver(function () { applyChartTheme(); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    // keep the % label in sync with the visible window as the user pans/zooms
+    lwChart.timeScale().subscribeVisibleLogicalRangeChange(function () { updateRangeChange(); });
     // keep the chart sized to its container
     if (window.ResizeObserver) {
       new ResizeObserver(function () {
@@ -261,6 +392,9 @@
       rightPriceScale: { borderColor: p.border },
       timeScale: { borderColor: p.border }
     });
+    if (overlaySeries) {
+      try { lwChart.priceScale('overlay').applyOptions({ borderColor: p.border }); } catch (e) {}
+    }
     paintSeries();
     if (chartData && hasOHLC()) volSeries.setData(buildVolData());
   }
@@ -664,6 +798,19 @@
     var to = Math.floor(new Date(te + 'T00:00:00') / 1000) + 86399;
     if (!(to > from)) return;
     loadChart('CUSTOM', from, to);
+  });
+
+  /* overlay wiring */
+  $('overlay-add').addEventListener('click', function () {
+    loadOverlay($('overlay-input').value);
+  });
+  $('overlay-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') loadOverlay(this.value);
+  });
+  $('overlay-chip').addEventListener('click', function () {
+    clearOverlay();
+    var input = $('overlay-input');
+    if (input) input.value = '';
   });
 
   /* chart type toggle (Line | Candles) */

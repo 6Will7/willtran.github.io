@@ -133,10 +133,47 @@
   display: flex;
   gap: 0.8rem;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
   margin: 0.55rem 0 0.7rem;
 }
 .chart-type-toggle { display: flex; gap: 0.3rem; }
+.chart-compare { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+.chart-compare input {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.3rem 0.55rem;
+  font: inherit;
+  font-size: 0.85rem;
+  width: 9.5rem;
+  text-transform: uppercase;
+}
+.chart-compare input::placeholder { text-transform: none; }
+.chart-compare input:focus { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.overlay-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.28rem 0.6rem;
+  cursor: pointer;
+}
+.overlay-chip i {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  flex: none;
+}
+.overlay-chip span { color: var(--color-text-muted); font-size: 0.95rem; line-height: 1; }
+.overlay-chip:hover { border-color: var(--color-accent); }
 
 /* company news */
 .stocks-news { margin-top: 1.2rem; }
