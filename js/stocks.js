@@ -110,6 +110,7 @@
       stat('Day high', fmtPrice(q.h)) +
       stat('Day low', fmtPrice(q.l)) +
       stat('Market cap', fmtBig(mcap)) +
+      stat('Enterprise value', fmtBig(m.enterpriseValue)) +
       stat('P/E (TTM)', fmtNum(m.peBasicExclExtraTTM)) +
       stat('52-week high', fmtPrice(m['52WeekHigh'])) +
       stat('52-week low', fmtPrice(m['52WeekLow'])) +
