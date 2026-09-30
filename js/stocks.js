@@ -135,6 +135,35 @@
 
   var chartType = 'line'; // 'line' | 'candles'
 
+  /* ---------- chart timezone: US Eastern (market time) ---------- */
+  // Lightweight Charts formats timestamps as UTC with no timezone option, so
+  // intraday bars are shifted so the UTC labels read as US Eastern wall time.
+  // Daily+ bars sit at 00:00 UTC (the date is unaffected) and are left alone.
+  var ET_TZ = 'America/New_York';
+  var etFmt = null;
+  function etShift(ts) {
+    try {
+      if (!etFmt) {
+        etFmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: ET_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        });
+      }
+      var parts = etFmt.formatToParts(new Date(ts * 1000));
+      var v = {};
+      for (var i = 0; i < parts.length; i++) v[parts[i].type] = parseInt(parts[i].value, 10);
+      return Math.floor(Date.UTC(v.year, v.month - 1, v.day, v.hour, v.minute, v.second) / 1000);
+    } catch (e) { return ts; }
+  }
+  function shiftIntraday(d, range) {
+    if (!d || !d.t || !d.t.length) return d;
+    var intraday = range === '1D' || range === '1W' ||
+      (range === 'CUSTOM' && (d.t[d.t.length - 1] - d.t[0]) <= 7 * 86400);
+    if (!intraday) return d;
+    d.t = d.t.map(etShift);
+    return d;
+  }
+
   /* ---------- overlay: a second ticker drawn on top of the main chart ---------- */
 
   var OVERLAY_COLOR = '#8b5cf6';
@@ -217,7 +246,7 @@
       .then(function (d) {
         if (sym !== overlaySymbol) return; // superseded
         if (!d || !d.c || !d.c.length) throw new Error('no data');
-        overlayData = d;
+        overlayData = shiftIntraday(d, chartRange);
         drawOverlay();
       })
       .catch(function () {
@@ -247,7 +276,7 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.c || !d.c.length) throw new Error('no chart data');
-        chartData = d;
+        chartData = shiftIntraday(d, range);
         extending = false;
         atDataStart = false; // fresh range — earlier history may exist again
         drawChart();
@@ -552,6 +581,7 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.c || d.c.length < 2) return;
+        d = shiftIntraday(d, chartRange);
         var first = overlayData.t[0], pt = [], pc = [];
         for (var i = 0; i < d.t.length; i++) {
           if (d.t[i] < first) { pt.push(d.t[i]); pc.push(d.c[i]); }
@@ -896,6 +926,7 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         extending = false;
+        d = shiftIntraday(d, chartRange);
         if (!d || !d.c || d.c.length < 2) { atDataStart = true; return; }
         var first = chartData.t[0];
         var nt = [], no = [], nh = [], nl = [], nc = [], nv = [];
