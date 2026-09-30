@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+    <meta name="description" content="Live US stock quotes with charts and key stats. By Will Tran.">
+    <title>Stocks | Will Tran</title>
+
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/stocks.css">
+</head>
+<body>
+
+    <!-- Shared Navigation Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>Stocks</h2>
+            <p>Live US quotes, charts, and key stats. Data by Finnhub.</p>
+
+            <div class="stocks-search-row">
+                <input id="stocks-search" type="text" autocomplete="off" spellcheck="false"
+                       placeholder="Enter a ticker — e.g. AAPL" aria-label="Stock ticker symbol"
+                       maxlength="12">
+                <button id="stocks-go" class="btn-primary" type="button">Quote</button>
+            </div>
+            <div class="stocks-chips">
+                <button class="calc-chip" type="button" data-sym="AAPL">AAPL</button>
+                <button class="calc-chip" type="button" data-sym="NVDA">NVDA</button>
+                <button class="calc-chip" type="button" data-sym="MSFT">MSFT</button>
+                <button class="calc-chip" type="button" data-sym="SPY">SPY</button>
+                <button class="calc-chip" type="button" data-sym="TSLA">TSLA</button>
+            </div>
+
+            <div id="stocks-setup" class="stocks-setup" hidden>
+                <strong>Almost there.</strong>
+                This page needs its data proxy configured before it can fetch quotes.
+                Finish the Cloudflare Worker setup, then the quotes will load here.
+            </div>
+
+            <div id="stocks-error" class="stocks-error" role="alert" hidden></div>
+
+            <div id="stocks-card" class="stocks-card" hidden>
+                <div class="stocks-head">
+                    <div class="stocks-id">
+                        <div id="q-name" class="stocks-name">—</div>
+                        <div id="q-sym" class="stocks-sym">—</div>
+                    </div>
+                    <div class="stocks-priceblock">
+                        <div id="q-price" class="stocks-price">—</div>
+                        <div id="q-change" class="stocks-change">—</div>
+                    </div>
+                </div>
+
+                <div class="stocks-dayrange">
+                    <span id="q-low" class="stocks-range-end">—</span>
+                    <div class="stocks-range-track"><div id="q-marker" class="stocks-range-marker"></div></div>
+                    <span id="q-high" class="stocks-range-end">—</span>
+                    <span class="stocks-range-label">Day range</span>
+                </div>
+
+                <div class="stocks-tabs" role="tablist" aria-label="Chart range">
+                    <button class="stocks-tab active" type="button" data-range="1D" role="tab">1D</button>
+                    <button class="stocks-tab" type="button" data-range="1W" role="tab">1W</button>
+                    <button class="stocks-tab" type="button" data-range="1M" role="tab">1M</button>
+                    <button class="stocks-tab" type="button" data-range="1Y" role="tab">1Y</button>
+                </div>
+                <div class="stocks-chart-wrap">
+                    <canvas id="stocks-chart"></canvas>
+                    <div id="stocks-tip" class="stocks-tip" hidden></div>
+                </div>
+
+                <div id="q-stats" class="stocks-stats"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Shared Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/stocks.js"></script>
+</body>
+</html>
