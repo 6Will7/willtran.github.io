@@ -153,22 +153,19 @@
   display: block;
   cursor: crosshair;
   touch-action: pan-y;
+  position: relative;
+}
+.stocks-chart-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  pointer-events: none;
 }
 
-.stocks-tip {
-  position: absolute;
-  pointer-events: none;
-  background: var(--color-card-bg-alt);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-  border-radius: 8px;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  transform: translate(-50%, -120%);
-  z-index: 2;
-}
 
 .stocks-stats {
   display: grid;

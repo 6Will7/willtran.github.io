@@ -8,9 +8,10 @@
   var $ = function (id) { return document.getElementById(id); };
   var searchInput = $('stocks-search'), goBtn = $('stocks-go');
   var setupBox = $('stocks-setup'), errorBox = $('stocks-error'), card = $('stocks-card');
-  var canvas = $('stocks-chart'), tip = $('stocks-tip');
+  var chartEl = $('stocks-chart');
   var rangeChangeEl = $('range-change');
-  var ctx = canvas.getContext('2d');
+
+  var lwChart = null, lwSeries = null, lwMsg = null, priceLines = [];
 
   var currentSymbol = '', chartData = null, chartRange = '1D', prevClose = null;
 
@@ -127,188 +128,148 @@
     $('q-stats').innerHTML = html;
   }
 
-  /* ---------- chart ---------- */
+  /* ---------- chart (TradingView Lightweight Charts) ---------- */
 
-  function loadChart(range, from, to) {
-    chartRange = range;
-    var tabs = document.querySelectorAll('.stocks-tabs [data-range]');
-    for (var i = 0; i < tabs.length; i++) {
-      tabs[i].classList.toggle('active', tabs[i].getAttribute('data-range') === range);
-    }
-    rangeChangeEl.textContent = '';
-    rangeChangeEl.className = 'range-change';
-    var url = WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) + '&range=' + range;
-    if (from && to) url += '&from=' + from + '&to=' + to;
-    // Price charts come from Yahoo Finance via the worker (Finnhub free tier blocks candles)
-    fetch(url)
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d || !d.c || !d.c.length) throw new Error('no chart data');
-        chartData = d;
-        drawChart();
-        updateRangeChange();
-      })
-      .catch(function () { chartData = null; rangeChangeEl.textContent = ''; drawChart(true); });
+  function isDark() {
+    if (document.documentElement.getAttribute('data-theme') === 'dark') return true;
+    if (document.documentElement.getAttribute('data-theme') === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  function updateRangeChange() {
-    if (!chartData || chartData.c.length < 2) { rangeChangeEl.textContent = ''; return; }
-    var first = chartData.c[0], last = chartData.c[chartData.c.length - 1];
-    var pct = (last - first) / first * 100;
-    var label = {
-      '1D': 'today', '1W': 'past week', '1M': 'past month', 'YTD': 'YTD',
-      '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs', 'CUSTOM': 'selected range'
-    }[chartRange] || 'selected range';
-    rangeChangeEl.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '% ' + label;
-    rangeChangeEl.className = 'range-change ' + (pct >= 0 ? 'up' : 'down');
+  function chartPalette() {
+    var dark = isDark();
+    return {
+      dark: dark,
+      bg: dark ? '#1b1a1f' : '#fbfaf3',
+      text: dark ? '#a9a8b1' : '#475569',
+      grid: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+      border: dark ? '#2e2d34' : '#e2e8f0',
+      up: dark ? '#FCDD09' : '#16a34a',
+      down: '#DA121A',
+      crosshair: dark ? '#FCDD09' : '#2563eb'
+    };
   }
 
-  function xLabel(t) {
-    var d = new Date(t * 1000);
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    if (chartRange === '1D') {
-      var h = d.getHours(), ap = h >= 12 ? 'p' : 'a';
-      h = h % 12 || 12;
-      return h + ap;
+  function ensureChart() {
+    if (lwChart || typeof LightweightCharts === 'undefined') return;
+    var p = chartPalette();
+    lwChart = LightweightCharts.createChart(chartEl, {
+      width: chartEl.clientWidth,
+      height: chartEl.clientHeight,
+      layout: {
+        background: { type: 'solid', color: p.bg },
+        textColor: p.text,
+        fontSize: 11,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      },
+      grid: {
+        vertLines: { color: p.grid },
+        horzLines: { color: p.grid }
+      },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: p.crosshair, width: 1, style: LightweightCharts.LineStyle.Dashed, labelBackgroundColor: p.crosshair },
+        horzLine: { color: p.crosshair, width: 1, style: LightweightCharts.LineStyle.Dashed, labelBackgroundColor: p.crosshair }
+      },
+      rightPriceScale: { borderColor: p.border },
+      timeScale: { borderColor: p.border, timeVisible: true, secondsVisible: false },
+      localization: { locale: 'en-US' }
+    });
+    lwSeries = lwChart.addAreaSeries({
+      lineWidth: 2,
+      priceLineVisible: false,
+      lastValueVisible: true,
+      crosshairMarkerVisible: true
+    });
+    lwMsg = document.createElement('div');
+    lwMsg.className = 'stocks-chart-msg';
+    lwMsg.hidden = true;
+    chartEl.appendChild(lwMsg);
+
+    // re-theme live when the site theme toggle flips
+    new MutationObserver(function () { applyChartTheme(); })
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    // keep the chart sized to its container
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        if (lwChart) lwChart.applyOptions({ width: chartEl.clientWidth, height: chartEl.clientHeight });
+      }).observe(chartEl);
+    } else {
+      window.addEventListener('resize', function () {
+        if (lwChart) lwChart.applyOptions({ width: chartEl.clientWidth, height: chartEl.clientHeight });
+      });
     }
-    var spanDays = chartData && chartData.t.length > 1 ?
-      (chartData.t[chartData.t.length - 1] - chartData.t[0]) / 86400 : 0;
-    if (spanDays > 400) return months[d.getMonth()] + " '" + String(d.getFullYear()).slice(2);
-    return months[d.getMonth()] + ' ' + d.getDate();
   }
 
-  function drawChart(empty, hoverIdx) {
-    var w = canvas.clientWidth, h = canvas.clientHeight;
-    var dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
+  function applyChartTheme() {
+    if (!lwChart) return;
+    var p = chartPalette();
+    lwChart.applyOptions({
+      layout: { background: { type: 'solid', color: p.bg }, textColor: p.text },
+      grid: { vertLines: { color: p.grid }, horzLines: { color: p.grid } },
+      crosshair: {
+        vertLine: { color: p.crosshair, labelBackgroundColor: p.crosshair },
+        horzLine: { color: p.crosshair, labelBackgroundColor: p.crosshair }
+      },
+      rightPriceScale: { borderColor: p.border },
+      timeScale: { borderColor: p.border }
+    });
+    paintSeries();
+  }
 
-    var padL = 8, padR = 64, padT = 14, padB = 26;
-    var iw = w - padL - padR, ih = h - padT - padB;
+  function hexA(hex, alpha) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
 
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches &&
-        document.documentElement.getAttribute('data-theme') !== 'light');
+  function paintSeries() {
+    if (!lwSeries || !chartData) return;
+    var p = chartPalette();
+    var closes = chartData.c;
+    var up = closes[closes.length - 1] >= closes[0];
+    var line = up ? p.up : p.down;
+    lwSeries.applyOptions({
+      lineColor: line,
+      topColor: hexA(line, 0.28),
+      bottomColor: hexA(line, 0)
+    });
+  }
 
-    function cssVar(name, fallback) {
-      var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-      return v || fallback;
-    }
-    var accent = cssVar('--color-accent', '#2563eb');
-    var muted = cssVar('--color-text-muted', '#64748b');
-    var gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
-
-    if (empty || !chartData) {
-      ctx.fillStyle = muted;
-      ctx.font = '14px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(empty ? 'Chart unavailable' : 'Loading…', w / 2, h / 2);
+  function drawChart(empty) {
+    ensureChart();
+    if (!lwChart) return; // library failed to load; chart area stays blank
+    if (empty || !chartData || chartData.c.length < 2) {
+      lwSeries.setData([]);
+      for (var i = 0; i < priceLines.length; i++) lwSeries.removePriceLine(priceLines[i]);
+      priceLines = [];
+      lwMsg.hidden = false;
+      lwMsg.textContent = empty ? 'Chart unavailable' : 'Loading…';
       return;
     }
-
-    var closes = chartData.c, times = chartData.t;
-    var n = closes.length;
-    var lo = Math.min.apply(null, closes), hi = Math.max.apply(null, closes);
-    if (chartRange === '1D' && prevClose) { lo = Math.min(lo, prevClose); hi = Math.max(hi, prevClose); }
-    var pad = (hi - lo) * 0.08 || 1;
-    lo -= pad; hi += pad;
-
-    var X = function (i) { return padL + (n === 1 ? iw / 2 : i / (n - 1) * iw); };
-    var Y = function (v) { return padT + (1 - (v - lo) / (hi - lo)) * ih; };
-
-    // gridlines + y labels
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'left';
-    for (var g = 0; g <= 4; g++) {
-      var gv = lo + (hi - lo) * g / 4, gy = Y(gv);
-      ctx.strokeStyle = gridColor;
-      ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(w - padR, gy); ctx.stroke();
-      ctx.fillStyle = muted;
-      ctx.fillText('$' + gv.toFixed(gv < 10 ? 2 : 0), w - padR + 8, gy + 4);
+    lwMsg.hidden = true;
+    var data = [];
+    for (var j = 0; j < chartData.t.length; j++) {
+      data.push({ time: chartData.t[j], value: chartData.c[j] });
     }
-    // x labels
-    ctx.textAlign = 'center';
-    var step = Math.max(1, Math.floor(n / 5));
-    for (var xi = 0; xi < n; xi += step) {
-      ctx.fillStyle = muted;
-      ctx.fillText(xLabel(times[xi]), X(xi), h - 8);
-    }
-
-    var up = closes[n - 1] >= closes[0];
-    var lineColor = up ? '#16a34a' : '#dc2626';
-    if (dark) lineColor = up ? '#4ade80' : '#DA121A';
-
-    // prev-close dashed line on 1D
+    paintSeries();
+    lwSeries.setData(data);
+    for (var k = 0; k < priceLines.length; k++) lwSeries.removePriceLine(priceLines[k]);
+    priceLines = [];
     if (chartRange === '1D' && prevClose) {
-      ctx.strokeStyle = muted;
-      ctx.setLineDash([5, 5]);
-      ctx.beginPath(); ctx.moveTo(padL, Y(prevClose)); ctx.lineTo(w - padR, Y(prevClose)); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = muted; ctx.textAlign = 'left';
-      ctx.fillText('prev ' + fmtPrice(prevClose), w - padR + 8, Y(prevClose) + 4);
+      var p = chartPalette();
+      priceLines.push(lwSeries.createPriceLine({
+        price: prevClose,
+        color: p.text,
+        lineWidth: 1,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: 'prev close'
+      }));
     }
-
-    // area fill
-    var grad = ctx.createLinearGradient(0, padT, 0, padT + ih);
-    grad.addColorStop(0, up ? 'rgba(22,163,74,0.25)' : 'rgba(220,38,38,0.25)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.beginPath();
-    ctx.moveTo(X(0), Y(closes[0]));
-    for (var i = 1; i < n; i++) ctx.lineTo(X(i), Y(closes[i]));
-    ctx.lineTo(X(n - 1), padT + ih); ctx.lineTo(X(0), padT + ih); ctx.closePath();
-    ctx.fillStyle = grad; ctx.fill();
-
-    // line
-    ctx.beginPath();
-    ctx.moveTo(X(0), Y(closes[0]));
-    for (var j = 1; j < n; j++) ctx.lineTo(X(j), Y(closes[j]));
-    ctx.strokeStyle = lineColor; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
-
-    // last point
-    ctx.beginPath();
-    ctx.arc(X(n - 1), Y(closes[n - 1]), 4, 0, Math.PI * 2);
-    ctx.fillStyle = lineColor; ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(X(n - 1), Y(closes[n - 1]), 1.8, 0, Math.PI * 2); ctx.fill();
-
-    // hover crosshair
-    if (hoverIdx != null && hoverIdx >= 0 && hoverIdx < n) {
-      var hx = X(hoverIdx), hy = Y(closes[hoverIdx]);
-      ctx.strokeStyle = muted; ctx.setLineDash([4, 4]);
-      ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + ih); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.beginPath(); ctx.arc(hx, hy, 5, 0, Math.PI * 2);
-      ctx.fillStyle = lineColor; ctx.fill();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-      tip.hidden = false;
-      tip.style.left = Math.min(Math.max(hx, 70), w - 70) + 'px';
-      tip.style.top = (hy + padT) + 'px';
-      tip.innerHTML = '<strong>' + fmtPrice(closes[hoverIdx]) + '</strong><br>' + xLabel(times[hoverIdx]);
-    } else {
-      tip.hidden = true;
-    }
-    canvas._geom = { X: X, n: n, padL: padL, iw: iw };
+    lwChart.timeScale().fitContent();
   }
 
-  canvas.addEventListener('mousemove', function (e) {
-    if (!chartData || !canvas._geom) return;
-    var rect = canvas.getBoundingClientRect();
-    var mx = e.clientX - rect.left;
-    var g = canvas._geom;
-    var idx = Math.round((mx - g.padL) / g.iw * (g.n - 1));
-    idx = Math.max(0, Math.min(g.n - 1, idx));
-    drawChart(false, idx);
-  });
-  canvas.addEventListener('mouseleave', function () { drawChart(false, null); });
-
-  var resizeTimer = null;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () { if (chartData) drawChart(); }, 150);
-  });
-
-  /* ---------- wiring ---------- */
+/* ---------- wiring ---------- */
 
   /* ---------- SEC filings ---------- */
 
