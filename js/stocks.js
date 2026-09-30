@@ -85,6 +85,7 @@
       renderStats(q, profile, metric);
       card.hidden = false;
       loadChart(chartRange);
+      loadFilings(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -287,6 +288,79 @@
   });
 
   /* ---------- wiring ---------- */
+
+  /* ---------- SEC filings ---------- */
+
+  var allFilings = [];
+  var filingsList = $('filings-list');
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[parseInt(parts[1], 10) - 1] + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
+  }
+
+  function badgeClass(form) {
+    if (form.indexOf('10-K') === 0) return 'f-10k';
+    if (form.indexOf('10-Q') === 0) return 'f-10q';
+    return 'f-8k';
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function renderFilings(filter) {
+    var rows = allFilings.filter(function (f) {
+      return filter === 'ALL' || f.form.indexOf(filter) === 0;
+    }).slice(0, 12);
+    if (!rows.length) {
+      filingsList.innerHTML = '<div class="filings-empty">No ' +
+        (filter === 'ALL' ? '' : esc(filter) + ' ') + 'filings found for this ticker.</div>';
+      return;
+    }
+    filingsList.innerHTML = rows.map(function (f) {
+      return '<div class="filing-row">' +
+        '<span class="filing-badge ' + badgeClass(f.form) + '">' + esc(f.form) + '</span>' +
+        '<span class="filing-meta"><strong>Filed ' + esc(fmtDate(f.filingDate)) + '</strong>' +
+        ' · Period ended ' + esc(fmtDate(f.reportDate)) + '</span>' +
+        '<span class="filing-links">' +
+        '<a href="' + esc(f.docUrl) + '" target="_blank" rel="noopener">Document</a>' +
+        '<a href="' + esc(f.indexUrl) + '" target="_blank" rel="noopener">Index</a>' +
+        '</span></div>';
+    }).join('');
+  }
+
+  function loadFilings(sym) {
+    allFilings = [];
+    filingsList.innerHTML = '<div class="filings-empty">Loading filings…</div>';
+    var tabs = document.querySelectorAll('.filing-tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].classList.toggle('active', tabs[i].getAttribute('data-form') === 'ALL');
+    }
+    fetch(WORKER_URL + '/sec/filings?symbol=' + encodeURIComponent(sym))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        allFilings = (d && d.filings) || [];
+        renderFilings('ALL');
+      })
+      .catch(function () {
+        filingsList.innerHTML = '<div class="filings-empty">Could not load filings.</div>';
+      });
+  }
+
+  var filingTabs = document.querySelectorAll('.filing-tab');
+  for (var ft = 0; ft < filingTabs.length; ft++) {
+    filingTabs[ft].addEventListener('click', function () {
+      for (var i = 0; i < filingTabs.length; i++) filingTabs[i].classList.remove('active');
+      this.classList.add('active');
+      renderFilings(this.getAttribute('data-form'));
+    });
+  }
 
   var tabs = document.querySelectorAll('.stocks-tab');
   for (var t = 0; t < tabs.length; t++) {
