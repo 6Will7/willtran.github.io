@@ -118,7 +118,12 @@
       stat('Beta', fmtNum(m.beta)) +
       stat('Dividend yield', m.dividendYieldIndicatedAnnual != null ?
         Number(m.dividendYieldIndicatedAnnual).toFixed(2) + '%' : '—');
-    if (profile.finnhubIndustry) html += stat('Industry', profile.finnhubIndustry);
+    if (profile.finnhubIndustry || true) {
+      var g = (typeof GICS !== 'undefined' && GICS[currentSymbol]) || null;
+      html += stat('GICS sector', g ? g.s : '—');
+      html += stat('GICS industry', g && g.i ? g.i : (profile.finnhubIndustry || '—'));
+      html += stat('GICS sub-industry', g ? g.u : '—');
+    }
     $('q-stats').innerHTML = html;
   }
 
