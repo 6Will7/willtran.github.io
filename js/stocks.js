@@ -248,6 +248,8 @@
       .then(function (d) {
         if (!d || !d.c || !d.c.length) throw new Error('no chart data');
         chartData = d;
+        extending = false;
+        atDataStart = false; // fresh range — earlier history may exist again
         drawChart();
         updateRangeChange();
         if (overlaySymbol) loadOverlay(overlaySymbol); // keep overlay in sync with range
@@ -365,8 +367,12 @@
     // re-theme live when the site theme toggle flips
     new MutationObserver(function () { applyChartTheme(); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    // keep the % label in sync with the visible window as the user pans/zooms
-    lwChart.timeScale().subscribeVisibleLogicalRangeChange(function () { updateRangeChange(); });
+    // keep the % label in sync with the visible window as the user pans/zooms,
+    // and load earlier history when they pan past the left edge
+    lwChart.timeScale().subscribeVisibleLogicalRangeChange(function () {
+      updateRangeChange();
+      maybeExtendLeft();
+    });
     // keep the chart sized to its container
     if (window.ResizeObserver) {
       new ResizeObserver(function () {
@@ -492,6 +498,15 @@
     }
     lwMsg.hidden = true;
     paintSeries();
+    setMainSeriesData();
+    updateTypeToggle();
+    addPrevCloseLine();
+    refreshSeriesVisibility();
+    lwChart.timeScale().fitContent();
+  }
+
+  function setMainSeriesData() {
+    if (!lwChart || !chartData) return;
     var n = chartData.t.length, i;
     var area = [], candles = [], ohlc = hasOHLC();
     for (i = 0; i < n; i++) {
@@ -506,10 +521,99 @@
     areaSeries.setData(area);
     candleSeries.setData(candles);
     volSeries.setData(ohlc ? buildVolData() : []);
-    updateTypeToggle();
-    addPrevCloseLine();
-    refreshSeriesVisibility();
-    lwChart.timeScale().fitContent();
+  }
+
+  // Same-window prepend for the overlay, so its bar interval matches the main chart's.
+  function extendOverlay(fromTs, toTs) {
+    if (!overlaySymbol || !overlayData || !overlayData.t || !overlayData.t.length) return;
+    fetch(WORKER_URL + '/chart?symbol=' + encodeURIComponent(overlaySymbol) +
+      '&from=' + fromTs + '&to=' + toTs)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.c || d.c.length < 2) return;
+        var first = overlayData.t[0], pt = [], pc = [];
+        for (var i = 0; i < d.t.length; i++) {
+          if (d.t[i] < first) { pt.push(d.t[i]); pc.push(d.c[i]); }
+        }
+        if (pt.length < 2) return;
+        overlayData.t = pt.concat(overlayData.t);
+        overlayData.c = pc.concat(overlayData.c);
+        drawOverlay();
+      })
+      .catch(function () {});
+  }
+
+  /* ---------- infinite scroll: load earlier history when panning left ---------- */
+
+  var extending = false, atDataStart = false;
+  var MAX_SPAN_SEC = 40 * 366 * 86400; // stop extending past ~40 years
+
+  // Chunk size (seconds) chosen so the worker returns the same bar interval
+  // as the current range — no mixed granularities on the chart.
+  function extensionChunk(range, spanSec) {
+    var day = 86400;
+    if (range === '1D' || range === '1W') return 6 * day; // 1h bars (closest available)
+    if (range === '1M' || range === 'YTD' || range === '1Y') return 100 * day; // 1d bars
+    if (range === '3Y' || range === '5Y') return Math.floor(2.5 * 366 * day); // 1wk bars
+    if (spanSec <= 7 * day) return 6 * day;
+    if (spanSec <= 120 * day) return 100 * day;
+    if (spanSec <= 3 * 366 * day) return Math.floor(2.5 * 366 * day);
+    return 10 * 366 * day; // 1mo bars
+  }
+
+  function maybeExtendLeft() {
+    if (extending || atDataStart || !chartData || chartData.t.length < 2 || !lwChart) return;
+    var vr = null;
+    try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) { return; }
+    if (!vr || vr.from > 8) return; // not near the left edge yet
+    var spanSec = chartData.t[chartData.t.length - 1] - chartData.t[0];
+    if (spanSec >= MAX_SPAN_SEC) { atDataStart = true; return; }
+    extendLeft();
+  }
+
+  function extendLeft() {
+    extending = true;
+    var spanSec = chartData.t[chartData.t.length - 1] - chartData.t[0];
+    var chunk = extensionChunk(chartRange, spanSec);
+    var toTs = chartData.t[0] - 1; // no overlap with what we have
+    var fromTs = Math.max(0, chartData.t[0] - chunk);
+    var url = WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) +
+      '&from=' + fromTs + '&to=' + toTs;
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        extending = false;
+        if (!d || !d.c || d.c.length < 2) { atDataStart = true; return; }
+        var first = chartData.t[0];
+        var nt = [], no = [], nh = [], nl = [], nc = [], nv = [];
+        for (var i = 0; i < d.t.length; i++) {
+          if (d.t[i] < first) {
+            nt.push(d.t[i]); no.push(d.o[i]); nh.push(d.h[i]);
+            nl.push(d.l[i]); nc.push(d.c[i]); nv.push(d.v[i]);
+          }
+        }
+        if (nt.length < 2) { atDataStart = true; return; } // nothing new — we're at the start
+        var vr = null;
+        try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) {}
+        chartData.t = nt.concat(chartData.t);
+        chartData.o = no.concat(chartData.o);
+        chartData.h = nh.concat(chartData.h);
+        chartData.l = nl.concat(chartData.l);
+        chartData.c = nc.concat(chartData.c);
+        chartData.v = nv.concat(chartData.v);
+        setMainSeriesData();
+        // keep the view stable: shift the window right by the prepended bars
+        if (vr) {
+          try {
+            lwChart.timeScale().setVisibleLogicalRange({
+              from: vr.from + nt.length, to: vr.to + nt.length
+            });
+          } catch (e) {}
+        }
+        updateRangeChange();
+        extendOverlay(fromTs, toTs);
+      })
+      .catch(function () { extending = false; });
   }
 
 /* ---------- wiring ---------- */
