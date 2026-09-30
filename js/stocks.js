@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var WORKER_URL = ''; // <-- paste your worker URL here (no trailing slash)
+  var WORKER_URL = 'https://willtran-stocks-proxy.willtran98.workers.dev'; // <-- paste your worker URL here (no trailing slash)
 
   var $ = function (id) { return document.getElementById(id); };
   var searchInput = $('stocks-search'), goBtn = $('stocks-go');
