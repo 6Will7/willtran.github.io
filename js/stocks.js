@@ -129,7 +129,7 @@
     }
     var now = Math.floor(Date.now() / 1000);
     // Price charts come from Yahoo Finance via the worker (Finnhub free tier blocks candles)
-    fetch(WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSym) + '&range=' + range)
+    fetch(WORKER_URL + '/chart?symbol=' + encodeURIComponent(currentSymbol) + '&range=' + range)
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d || !d.c || !d.c.length) throw new Error('no chart data');
