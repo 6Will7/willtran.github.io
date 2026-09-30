@@ -430,15 +430,16 @@
     var box = $('q-estimates');
     box.hidden = true;
     box.innerHTML = '';
-    var to = new Date(), from = new Date();
-    from.setDate(from.getDate() - 450); // ~15 months back, covers 5 quarters
+    var now = new Date(), future = new Date();
+    future.setDate(future.getDate() + 150); // upcoming earnings live in a future window
     function iso(d) { return d.toISOString().slice(0, 10); }
     Promise.all([
       api('recommendation').catch(function () { return null; }),
       api('earnings').catch(function () { return null; }),
-      api('earnings-calendar', { from: iso(from), to: iso(to) }).catch(function () { return null; })
+      api('earnings-calendar', { from: iso(now), to: iso(future) }).catch(function () { return null; }),
+      api('financials', { freq: 'quarterly' }).catch(function () { return null; })
     ]).then(function (res) {
-      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2]);
+      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2], res[3]);
     });
   }
 
@@ -451,7 +452,7 @@
     return '$' + Number(n).toFixed(0);
   }
 
-  function renderEstimates(rec, earn, calData) {
+  function renderEstimates(rec, earn, calData, finData) {
     var box = $('q-estimates');
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var html = '';
@@ -483,31 +484,44 @@
     }
 
     if (earn && earn.length) {
-      // Revenue actuals/estimates from the earnings calendar, keyed by fiscal quarter+year.
-      // If the worker hasn't been redeployed with the new route yet, calData is null
-      // and the table falls back to EPS-only.
-      var revMap = {};
-      var cal = (calData && calData.earningsCalendar) || [];
-      cal.forEach(function (c) {
-        if (c && c.quarter != null && c.year != null) revMap[c.year + 'Q' + c.quarter] = c;
-      });
-      function revFor(e) { return revMap[e.year + 'Q' + e.quarter] || null; }
-      // Next upcoming earnings date from the same calendar feed.
-      var nextEarn = null, todayIso = new Date().toISOString().slice(0, 10);
-      cal.forEach(function (c) {
-        if (c && c.date && c.date >= todayIso && (!nextEarn || c.date < nextEarn.date)) nextEarn = c;
+      // Revenue actuals come from Finnhub's as-reported quarterly financials
+      // (revenue estimates for past quarters are a premium-only endpoint, so no
+      // estimate/surprise columns — actuals only). Matched to EPS rows by quarter end date.
+      var REV_CONCEPTS = ['Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax',
+        'SalesRevenueNet', 'SalesRevenueGoodsNet', 'RevenuesNetOfInterestExpense'];
+      var finList = (finData && finData.data) || [];
+      function revenueFor(periodIso) {
+        if (!periodIso) return null;
+        var target = new Date(periodIso + 'T00:00:00').getTime();
+        var best = null, bestDiff = 20 * 864e5; // within 20 days
+        finList.forEach(function (f) {
+          if (!f || !f.endDate || !f.report || !f.report.ic) return;
+          var diff = Math.abs(new Date(f.endDate + 'T00:00:00').getTime() - target);
+          if (diff > bestDiff) return;
+          for (var i = 0; i < f.report.ic.length; i++) {
+            var item = f.report.ic[i];
+            if (item && REV_CONCEPTS.indexOf(item.concept) !== -1 && item.value != null) {
+              best = item.value; bestDiff = diff; break;
+            }
+          }
+        });
+        return best;
+      }
+      // Next upcoming earnings from the calendar feed (future window), with estimates.
+      var nextEarn = null;
+      ((calData && calData.earningsCalendar) || []).forEach(function (c) {
+        if (c && c.date && (!nextEarn || c.date < nextEarn.date)) nextEarn = c;
       });
       var nextTxt = '';
       if (nextEarn) {
         var nd = nextEarn.date.split('-');
         nextTxt = ' · Next: ' + months[parseInt(nd[1], 10) - 1] + ' ' +
                   parseInt(nd[2], 10) + ', ' + nd[0];
+        if (nextEarn.epsEstimate != null) nextTxt += ' · Est. EPS $' + Number(nextEarn.epsEstimate).toFixed(2);
+        if (nextEarn.revenueEstimate != null) nextTxt += ' · Est. Rev ' + fmtMoney(nextEarn.revenueEstimate);
       }
       var rows4 = earn.slice(0, 4);
-      var showRev = rows4.some(function (e) {
-        var rc = revFor(e);
-        return rc && (rc.revenueActual != null || rc.revenueEstimate != null);
-      });
+      var showRev = rows4.some(function (e) { return revenueFor(e.period) != null; });
       var rows = '';
       rows4.forEach(function (e) {
         var sp = e.surprisePercent;
@@ -517,21 +531,13 @@
         var act = (e.actual == null || e.actual === 0) ? '—' : '$' + Number(e.actual).toFixed(2);
         var cells = '<tr><td>Q' + e.quarter + ' ' + e.year + '</td><td>' + est + '</td><td>' + act +
                 '</td><td class="' + cls + '">' + spTxt + '</td>';
-        if (showRev) {
-          var rc = revFor(e);
-          var rEst = rc ? rc.revenueEstimate : null, rAct = rc ? rc.revenueActual : null;
-          var rsp = (rEst && rAct != null) ? (rAct - rEst) / Math.abs(rEst) * 100 : null;
-          var rspTxt = (rsp == null || isNaN(rsp)) ? '—' : (rsp >= 0 ? '+' : '−') + Math.abs(rsp).toFixed(2) + '%';
-          var rCls = (rsp == null || isNaN(rsp)) ? '' : (rsp >= 0 ? 'up' : 'down');
-          cells += '<td>' + fmtMoney(rEst) + '</td><td>' + fmtMoney(rAct) +
-                   '</td><td class="' + rCls + '">' + rspTxt + '</td>';
-        }
+        if (showRev) cells += '<td>' + fmtMoney(revenueFor(e.period)) + '</td>';
         rows += cells + '</tr>';
       });
       var head = '<tr><th>Quarter</th><th>Est. EPS</th><th>Actual EPS</th><th>EPS Surprise</th>' +
-        (showRev ? '<th>Est. Rev</th><th>Actual Rev</th><th>Rev Surprise</th>' : '') + '</tr>';
+        (showRev ? '<th>Revenue</th>' : '') + '</tr>';
       html += '<div class="est-block"><div class="est-head"><h3>Earnings surprises</h3>' +
-        '<span class="est-sub">' + (showRev ? 'EPS & revenue vs estimates' : 'EPS estimate vs actual') + nextTxt + '</span></div>' +
+        '<span class="est-sub">' + (showRev ? 'EPS vs estimates · revenue actuals' : 'EPS estimate vs actual') + nextTxt + '</span></div>' +
         '<div class="earn-table-wrap"><table class="earn-table"><thead>' + head + '</thead>' +
         '<tbody>' + rows + '</tbody></table></div></div>';
     }
