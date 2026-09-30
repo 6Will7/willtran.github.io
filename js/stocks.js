@@ -1021,9 +1021,10 @@
       api('earnings').catch(function () { return null; }),
       api('earnings-calendar', { from: iso(now), to: iso(future) }).catch(function () { return null; }),
       api('financials', { freq: 'quarterly' }).catch(function () { return null; }),
-      api('financials').catch(function () { return null; }) // annual 10-Ks (Q4 revenue)
+      api('financials').catch(function () { return null; }), // annual 10-Ks (Q4 revenue)
+      api('analyst/eps-forecast').catch(function () { return null; }) // Nasdaq consensus EPS outlook
     ]).then(function (res) {
-      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2], res[3], res[4]);
+      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2], res[3], res[4], res[5]);
     });
   }
 
@@ -1089,7 +1090,7 @@
     return out;
   }
 
-  function renderEstimates(rec, earn, calData, finQ, finA) {
+  function renderEstimates(rec, earn, calData, finQ, finA, epsOutlook) {
     // Merge quarterly 10-Qs and annual 10-Ks (Q4 only exists in the 10-K).
     var finData = { data: ((finQ && finQ.data) || []).concat((finA && finA.data) || []) };
     var box = $('q-estimates');
@@ -1120,6 +1121,34 @@
           '<div class="rec-score">' + label + ' <span class="rec-score-num">' + score.toFixed(2) + ' / 5</span></div>' +
           '<div class="rec-bar">' + bar + '</div><div class="rec-legend">' + legend + '</div></div>';
       }
+    }
+
+    // Consensus EPS outlook: Nasdaq analyst forecasts for coming fiscal years
+    // (consensus, high/low range, analyst count, implied YoY growth). Free and
+    // keyless via the worker; skipped quietly if the worker predates the route.
+    var yf = epsOutlook && epsOutlook.yearlyForecast;
+    var yrows = (yf && yf.rows) || [];
+    if (yrows.length) {
+      var ybody = '';
+      yrows.forEach(function (r, i) {
+        var cons = r.consensusEPSForecast, prev = i > 0 ? yrows[i - 1].consensusEPSForecast : null;
+        var yoy = (cons != null && prev != null && prev !== 0)
+          ? ((cons / prev - 1) * 100) : null;
+        var yoyTxt = yoy == null ? '—' : (yoy >= 0 ? '+' : '−') + Math.abs(yoy).toFixed(1) + '%';
+        var yoyCls = yoy == null ? '' : (yoy >= 0 ? 'up' : 'down');
+        ybody += '<tr><td>' + esc(String(r.fiscalEnd || '—')) + '</td>' +
+          '<td><strong>' + (cons == null ? '—' : '$' + Number(cons).toFixed(2)) + '</strong></td>' +
+          '<td>' + (r.highEPSForecast == null ? '—' : '$' + Number(r.highEPSForecast).toFixed(2)) + '</td>' +
+          '<td>' + (r.lowEPSForecast == null ? '—' : '$' + Number(r.lowEPSForecast).toFixed(2)) + '</td>' +
+          '<td>' + (r.noOfEstimates == null ? '—' : r.noOfEstimates) + '</td>' +
+          '<td class="' + yoyCls + '">' + yoyTxt + '</td></tr>';
+      });
+      html += '<div class="est-block">' + blockHead('Consensus EPS outlook',
+        'Fiscal-year analyst estimates · via Nasdaq') +
+        '<div class="earn-table-wrap"><table class="earn-table"><thead><tr>' +
+        '<th>Fiscal year</th><th>Consensus EPS</th><th>High</th><th>Low</th>' +
+        '<th>Analysts</th><th>YoY growth</th>' +
+        '</tr></thead><tbody>' + ybody + '</tbody></table></div></div>';
     }
 
     if (earn && earn.length) {
