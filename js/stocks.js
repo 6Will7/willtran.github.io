@@ -355,15 +355,28 @@
     var box = $('q-estimates');
     box.hidden = true;
     box.innerHTML = '';
+    var to = new Date(), from = new Date();
+    from.setDate(from.getDate() - 450); // ~15 months back, covers 5 quarters
+    function iso(d) { return d.toISOString().slice(0, 10); }
     Promise.all([
       api('recommendation').catch(function () { return null; }),
-      api('earnings').catch(function () { return null; })
+      api('earnings').catch(function () { return null; }),
+      api('earnings-calendar', { from: iso(from), to: iso(to) }).catch(function () { return null; })
     ]).then(function (res) {
-      if (currentSymbol === sym) renderEstimates(res[0], res[1]);
+      if (currentSymbol === sym) renderEstimates(res[0], res[1], res[2]);
     });
   }
 
-  function renderEstimates(rec, earn) {
+  function fmtMoney(n) {
+    if (n == null || isNaN(n)) return '—';
+    var a = Math.abs(n);
+    if (a >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+    if (a >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+    if (a >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+    return '$' + Number(n).toFixed(0);
+  }
+
+  function renderEstimates(rec, earn, calData) {
     var box = $('q-estimates');
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var html = '';
@@ -395,20 +408,46 @@
     }
 
     if (earn && earn.length) {
+      // Revenue actuals/estimates from the earnings calendar, keyed by fiscal quarter+year.
+      // If the worker hasn't been redeployed with the new route yet, calData is null
+      // and the table falls back to EPS-only.
+      var revMap = {};
+      var cal = (calData && calData.earningsCalendar) || [];
+      cal.forEach(function (c) {
+        if (c && c.quarter != null && c.year != null) revMap[c.year + 'Q' + c.quarter] = c;
+      });
+      function revFor(e) { return revMap[e.year + 'Q' + e.quarter] || null; }
+      var rows4 = earn.slice(0, 4);
+      var showRev = rows4.some(function (e) {
+        var rc = revFor(e);
+        return rc && (rc.revenueActual != null || rc.revenueEstimate != null);
+      });
       var rows = '';
-      earn.slice(0, 4).forEach(function (e) {
+      rows4.forEach(function (e) {
         var sp = e.surprisePercent;
         var spTxt = (sp == null || isNaN(sp)) ? '—' : (sp >= 0 ? '+' : '−') + Math.abs(sp).toFixed(2) + '%';
         var cls = (sp == null || isNaN(sp)) ? '' : (sp >= 0 ? 'up' : 'down');
         var est = (e.estimate == null) ? '—' : '$' + Number(e.estimate).toFixed(2);
         var act = (e.actual == null || e.actual === 0) ? '—' : '$' + Number(e.actual).toFixed(2);
-        rows += '<tr><td>Q' + e.quarter + ' ' + e.year + '</td><td>' + est + '</td><td>' + act +
-                '</td><td class="' + cls + '">' + spTxt + '</td></tr>';
+        var cells = '<tr><td>Q' + e.quarter + ' ' + e.year + '</td><td>' + est + '</td><td>' + act +
+                '</td><td class="' + cls + '">' + spTxt + '</td>';
+        if (showRev) {
+          var rc = revFor(e);
+          var rEst = rc ? rc.revenueEstimate : null, rAct = rc ? rc.revenueActual : null;
+          var rsp = (rEst && rAct != null) ? (rAct - rEst) / Math.abs(rEst) * 100 : null;
+          var rspTxt = (rsp == null || isNaN(rsp)) ? '—' : (rsp >= 0 ? '+' : '−') + Math.abs(rsp).toFixed(2) + '%';
+          var rCls = (rsp == null || isNaN(rsp)) ? '' : (rsp >= 0 ? 'up' : 'down');
+          cells += '<td>' + fmtMoney(rEst) + '</td><td>' + fmtMoney(rAct) +
+                   '</td><td class="' + rCls + '">' + rspTxt + '</td>';
+        }
+        rows += cells + '</tr>';
       });
+      var head = '<tr><th>Quarter</th><th>Est. EPS</th><th>Actual EPS</th><th>EPS Surprise</th>' +
+        (showRev ? '<th>Est. Rev</th><th>Actual Rev</th><th>Rev Surprise</th>' : '') + '</tr>';
       html += '<div class="est-block"><div class="est-head"><h3>Earnings surprises</h3>' +
-        '<span class="est-sub">EPS estimate vs actual</span></div>' +
-        '<table class="earn-table"><thead><tr><th>Quarter</th><th>Est. EPS</th><th>Actual</th><th>Surprise</th></tr></thead>' +
-        '<tbody>' + rows + '</tbody></table></div>';
+        '<span class="est-sub">' + (showRev ? 'EPS & revenue vs estimates' : 'EPS estimate vs actual') + '</span></div>' +
+        '<div class="earn-table-wrap"><table class="earn-table"><thead>' + head + '</thead>' +
+        '<tbody>' + rows + '</tbody></table></div></div>';
     }
 
     if (html) { box.innerHTML = html; box.hidden = false; }

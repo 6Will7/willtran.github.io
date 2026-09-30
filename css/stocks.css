@@ -193,7 +193,8 @@
 .rec-seg { display: block; height: 100%; }
 .rec-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 0.9rem; margin-top: 0.55rem; font-size: 0.8rem; color: var(--color-text-muted); }
 .rec-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 0.3rem; }
-.earn-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; }
+.earn-table-wrap { overflow-x: auto; margin: 0 -0.15rem; padding: 0 0.15rem; }
+.earn-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 560px; }
 .earn-table th, .earn-table td { text-align: right; padding: 0.35rem 0.15rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; }
 .earn-table th:first-child, .earn-table td:first-child { text-align: left; }
 .earn-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
