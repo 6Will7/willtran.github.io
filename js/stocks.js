@@ -11,7 +11,8 @@
   var chartEl = $('stocks-chart');
   var rangeChangeEl = $('range-change');
 
-  var lwChart = null, lwSeries = null, lwMsg = null, priceLines = [];
+  var lwChart = null, lwMsg = null, priceLines = [];
+  var areaSeries = null, candleSeries = null, volSeries = null;
 
   var currentSymbol = '', chartData = null, chartRange = '1D', prevClose = null;
 
@@ -82,6 +83,7 @@
       loadChart(chartRange);
       loadFilings(sym);
       loadEstimates(sym);
+      loadNews(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -129,6 +131,8 @@
   }
 
   /* ---------- chart (TradingView Lightweight Charts) ---------- */
+
+  var chartType = 'line'; // 'line' | 'candles'
 
   function loadChart(range, from, to) {
     chartRange = range;
@@ -184,6 +188,10 @@
     };
   }
 
+  function hasOHLC() {
+    return !!(chartData && chartData.o && chartData.o.length === chartData.c.length);
+  }
+
   function ensureChart() {
     if (lwChart || typeof LightweightCharts === 'undefined') return;
     var p = chartPalette();
@@ -209,12 +217,17 @@
       timeScale: { borderColor: p.border, timeVisible: true, secondsVisible: false },
       localization: { locale: 'en-US' }
     });
-    lwSeries = lwChart.addAreaSeries({
-      lineWidth: 2,
-      priceLineVisible: false,
-      lastValueVisible: true,
-      crosshairMarkerVisible: true
+    areaSeries = lwChart.addAreaSeries({
+      lineWidth: 2, priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true
     });
+    candleSeries = lwChart.addCandlestickSeries({
+      priceLineVisible: false, lastValueVisible: true, borderVisible: false
+    });
+    volSeries = lwChart.addHistogramSeries({
+      priceScaleId: 'vol', priceFormat: { type: 'volume' },
+      lastValueVisible: false, priceLineVisible: false
+    });
+    lwChart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
     lwMsg = document.createElement('div');
     lwMsg.className = 'stocks-chart-msg';
     lwMsg.hidden = true;
@@ -249,6 +262,7 @@
       timeScale: { borderColor: p.border }
     });
     paintSeries();
+    if (chartData && hasOHLC()) volSeries.setData(buildVolData());
   }
 
   function hexA(hex, alpha) {
@@ -257,49 +271,110 @@
   }
 
   function paintSeries() {
-    if (!lwSeries || !chartData) return;
+    if (!lwChart || !chartData) return;
     var p = chartPalette();
     var closes = chartData.c;
     var up = closes[closes.length - 1] >= closes[0];
     var line = up ? p.up : p.down;
-    lwSeries.applyOptions({
+    areaSeries.applyOptions({
       lineColor: line,
       topColor: hexA(line, 0.28),
       bottomColor: hexA(line, 0)
     });
+    candleSeries.applyOptions({
+      upColor: line, downColor: p.down,
+      wickUpColor: line, wickDownColor: p.down
+    });
+  }
+
+  function volColor(open, close) {
+    var p = chartPalette();
+    return hexA(close >= open ? p.up : p.down, 0.45);
+  }
+
+  function buildVolData() {
+    var vols = [];
+    for (var i = 0; i < chartData.t.length; i++) {
+      vols.push({
+        time: chartData.t[i],
+        value: chartData.v[i] || 0,
+        color: volColor(chartData.o[i], chartData.c[i])
+      });
+    }
+    return vols;
+  }
+
+  function clearPriceLines() {
+    for (var i = 0; i < priceLines.length; i++) {
+      try { priceLines[i].s.removePriceLine(priceLines[i].l); } catch (e) {}
+    }
+    priceLines = [];
+  }
+
+  function addPrevCloseLine() {
+    if (chartRange !== '1D' || !prevClose || !lwChart) return;
+    var s = (chartType === 'candles' && hasOHLC()) ? candleSeries : areaSeries;
+    var p = chartPalette();
+    priceLines.push({ s: s, l: s.createPriceLine({
+      price: prevClose,
+      color: p.text,
+      lineWidth: 1,
+      lineStyle: LightweightCharts.LineStyle.Dashed,
+      axisLabelVisible: true,
+      title: 'prev close'
+    }) });
+  }
+
+  function refreshSeriesVisibility() {
+    if (!lwChart) return;
+    var candles = chartType === 'candles' && hasOHLC();
+    areaSeries.applyOptions({ visible: !candles });
+    candleSeries.applyOptions({ visible: candles });
+    volSeries.applyOptions({ visible: candles });
+  }
+
+  function updateTypeToggle() {
+    var wrap = $('chart-type-toggle');
+    if (!wrap) return;
+    var show = hasOHLC();
+    wrap.style.display = show ? '' : 'none';
+    if (!show && chartType === 'candles') chartType = 'line';
+    var btns = wrap.querySelectorAll('[data-chart-type]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('active', btns[i].getAttribute('data-chart-type') === chartType);
+    }
   }
 
   function drawChart(empty) {
     ensureChart();
     if (!lwChart) return; // library failed to load; chart area stays blank
+    clearPriceLines();
     if (empty || !chartData || chartData.c.length < 2) {
-      lwSeries.setData([]);
-      for (var i = 0; i < priceLines.length; i++) lwSeries.removePriceLine(priceLines[i]);
-      priceLines = [];
+      [areaSeries, candleSeries, volSeries].forEach(function (s) { s.setData([]); });
+      refreshSeriesVisibility();
       lwMsg.hidden = false;
       lwMsg.textContent = empty ? 'Chart unavailable' : 'Loading…';
       return;
     }
     lwMsg.hidden = true;
-    var data = [];
-    for (var j = 0; j < chartData.t.length; j++) {
-      data.push({ time: chartData.t[j], value: chartData.c[j] });
-    }
     paintSeries();
-    lwSeries.setData(data);
-    for (var k = 0; k < priceLines.length; k++) lwSeries.removePriceLine(priceLines[k]);
-    priceLines = [];
-    if (chartRange === '1D' && prevClose) {
-      var p = chartPalette();
-      priceLines.push(lwSeries.createPriceLine({
-        price: prevClose,
-        color: p.text,
-        lineWidth: 1,
-        lineStyle: LightweightCharts.LineStyle.Dashed,
-        axisLabelVisible: true,
-        title: 'prev close'
-      }));
+    var n = chartData.t.length, i;
+    var area = [], candles = [], ohlc = hasOHLC();
+    for (i = 0; i < n; i++) {
+      area.push({ time: chartData.t[i], value: chartData.c[i] });
+      if (ohlc) {
+        candles.push({
+          time: chartData.t[i], open: chartData.o[i],
+          high: chartData.h[i], low: chartData.l[i], close: chartData.c[i]
+        });
+      }
     }
+    areaSeries.setData(area);
+    candleSeries.setData(candles);
+    volSeries.setData(ohlc ? buildVolData() : []);
+    updateTypeToggle();
+    addPrevCloseLine();
+    refreshSeriesVisibility();
     lwChart.timeScale().fitContent();
   }
 
@@ -417,6 +492,17 @@
         if (c && c.quarter != null && c.year != null) revMap[c.year + 'Q' + c.quarter] = c;
       });
       function revFor(e) { return revMap[e.year + 'Q' + e.quarter] || null; }
+      // Next upcoming earnings date from the same calendar feed.
+      var nextEarn = null, todayIso = new Date().toISOString().slice(0, 10);
+      cal.forEach(function (c) {
+        if (c && c.date && c.date >= todayIso && (!nextEarn || c.date < nextEarn.date)) nextEarn = c;
+      });
+      var nextTxt = '';
+      if (nextEarn) {
+        var nd = nextEarn.date.split('-');
+        nextTxt = ' · Next: ' + months[parseInt(nd[1], 10) - 1] + ' ' +
+                  parseInt(nd[2], 10) + ', ' + nd[0];
+      }
       var rows4 = earn.slice(0, 4);
       var showRev = rows4.some(function (e) {
         var rc = revFor(e);
@@ -445,12 +531,41 @@
       var head = '<tr><th>Quarter</th><th>Est. EPS</th><th>Actual EPS</th><th>EPS Surprise</th>' +
         (showRev ? '<th>Est. Rev</th><th>Actual Rev</th><th>Rev Surprise</th>' : '') + '</tr>';
       html += '<div class="est-block"><div class="est-head"><h3>Earnings surprises</h3>' +
-        '<span class="est-sub">' + (showRev ? 'EPS & revenue vs estimates' : 'EPS estimate vs actual') + '</span></div>' +
+        '<span class="est-sub">' + (showRev ? 'EPS & revenue vs estimates' : 'EPS estimate vs actual') + nextTxt + '</span></div>' +
         '<div class="earn-table-wrap"><table class="earn-table"><thead>' + head + '</thead>' +
         '<tbody>' + rows + '</tbody></table></div></div>';
     }
 
     if (html) { box.innerHTML = html; box.hidden = false; }
+  }
+
+  /* ---------- company news ---------- */
+
+  function loadNews(sym) {
+    var box = $('q-news');
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = '';
+    // Finnhub /company-news is free; last 7 days of headlines.
+    // If the worker predates the news route, this fails quietly and the block stays hidden.
+    var now = new Date(), from = new Date();
+    from.setDate(from.getDate() - 7);
+    function iso(d) { return d.toISOString().slice(0, 10); }
+    api('news', { from: iso(from), to: iso(now) }).then(function (list) {
+      if (currentSymbol !== sym || !list || !list.length) return;
+      var items = list.slice(0, 8);
+      var html = '';
+      items.forEach(function (n) {
+        var d = new Date((n.datetime || 0) * 1000);
+        var date = (d.getMonth() + 1) + '/' + d.getDate();
+        html += '<a class="news-item" href="' + (n.url || '#') + '" target="_blank" rel="noopener">' +
+                '<span class="news-head">' + esc(n.headline || '') + '</span>' +
+                '<span class="news-meta">' + esc(n.source || '') + ' · ' + date + '</span></a>';
+      });
+      box.innerHTML = '<div class="est-head"><h3>Latest news</h3>' +
+        '<span class="est-sub">past 7 days</span></div>' + html;
+      box.hidden = false;
+    }).catch(function () { /* no news route / no data — block stays hidden */ });
   }
 
   function loadFilings(sym) {
@@ -495,6 +610,18 @@
     if (!(to > from)) return;
     loadChart('CUSTOM', from, to);
   });
+
+  /* chart type toggle (Line | Candles) */
+  var typeBtns = document.querySelectorAll('#chart-type-toggle [data-chart-type]');
+  for (var ty = 0; ty < typeBtns.length; ty++) {
+    typeBtns[ty].addEventListener('click', function () {
+      chartType = this.getAttribute('data-chart-type');
+      updateTypeToggle();
+      clearPriceLines();
+      addPrevCloseLine();
+      refreshSeriesVisibility();
+    });
+  }
   var chips = document.querySelectorAll('.stocks-chips [data-sym]');
   for (var c = 0; c < chips.length; c++) {
     chips[c].addEventListener('click', function () {

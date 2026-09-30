@@ -128,6 +128,35 @@
 }
 [data-theme="dark"] .stocks-custom-range input[type="date"] { color-scheme: dark; }
 
+/* chart type toggle + ticker comparison */
+.stocks-chart-controls {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.55rem 0 0.7rem;
+}
+.chart-type-toggle { display: flex; gap: 0.3rem; }
+
+/* company news */
+.stocks-news { margin-top: 1.2rem; }
+.news-item {
+  display: block;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+}
+.news-item:last-child { border-bottom: none; }
+.news-head {
+  display: block;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.news-item:hover .news-head { color: var(--color-accent); }
+.news-meta { font-size: 0.78rem; color: var(--color-text-muted); }
+
 .stocks-tab {
   border: 1px solid var(--color-border);
   background: transparent;
