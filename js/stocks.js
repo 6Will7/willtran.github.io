@@ -368,10 +368,12 @@
     new MutationObserver(function () { applyChartTheme(); })
       .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     // keep the % label in sync with the visible window as the user pans/zooms,
-    // and load earlier history when they pan past the left edge
+    // load earlier history when they pan past the left edge, and mirror the
+    // view into any indicator panes
     lwChart.timeScale().subscribeVisibleLogicalRangeChange(function () {
       updateRangeChange();
       maybeExtendLeft();
+      syncIndCharts();
     });
     // keep the chart sized to its container
     if (window.ResizeObserver) {
@@ -401,6 +403,23 @@
     if (overlaySeries) {
       try { lwChart.priceScale('overlay').applyOptions({ borderColor: p.border }); } catch (e) {}
     }
+    // re-theme indicator panes (MACD histogram colors depend on the palette)
+    Object.keys(indPanes).forEach(function (k) {
+      var pane = indPanes[k];
+      try {
+        pane.chart.applyOptions({
+          layout: { background: { type: 'solid', color: p.bg }, textColor: p.text },
+          grid: { vertLines: { color: p.grid }, horzLines: { color: p.grid } },
+          crosshair: {
+            vertLine: { color: p.crosshair, labelBackgroundColor: p.crosshair },
+            horzLine: { color: p.crosshair, labelBackgroundColor: p.crosshair }
+          },
+          rightPriceScale: { borderColor: p.border },
+          timeScale: { borderColor: p.border }
+        });
+      } catch (e) {}
+    });
+    refreshIndicators();
     paintSeries();
     if (chartData && hasOHLC()) volSeries.setData(buildVolData());
   }
@@ -492,6 +511,7 @@
     if (empty || !chartData || chartData.c.length < 2) {
       [areaSeries, candleSeries, volSeries].forEach(function (s) { s.setData([]); });
       refreshSeriesVisibility();
+      clearIndicatorData();
       lwMsg.hidden = false;
       lwMsg.textContent = empty ? 'Chart unavailable' : 'Loading…';
       return;
@@ -499,6 +519,7 @@
     lwMsg.hidden = true;
     paintSeries();
     setMainSeriesData();
+    refreshIndicators();
     updateTypeToggle();
     addPrevCloseLine();
     refreshSeriesVisibility();
@@ -541,6 +562,298 @@
         drawOverlay();
       })
       .catch(function () {});
+  }
+
+  /* ---------- technical indicators ---------- */
+
+  var INDICATORS = {
+    ema20: { on: false }, ema50: { on: false }, ema200: { on: false },
+    rsi: { on: false }, macd: { on: false }, obv: { on: false }
+  };
+  var EMA_DEFS = {
+    ema20: { p: 20, color: '#38bdf8' },
+    ema50: { p: 50, color: '#fb923c' },
+    ema200: { p: 200, color: '#f472b6' }
+  };
+  var PANE_DEFS = {
+    rsi: { title: 'RSI (14)', height: 120 },
+    macd: { title: 'MACD (12, 26, 9)', height: 140 },
+    obv: { title: 'On-Balance Volume', height: 110 }
+  };
+  var PANE_ORDER = ['rsi', 'macd', 'obv'];
+  var emaSeries = {}; // ema20/50/200 -> line series on the main chart
+  var indPanes = {}; // rsi/macd/obv -> { wrap, chart, ...series }
+
+  function ema(values, period) {
+    var out = new Array(values.length).fill(null);
+    if (values.length < 2 || period < 1) return out;
+    var seedN = Math.min(period, values.length); // seed with what's available on short ranges
+    var k = 2 / (period + 1), sum = 0, i;
+    for (i = 0; i < seedN; i++) sum += values[i];
+    var prev = sum / seedN; // seed with SMA
+    out[seedN - 1] = prev;
+    for (i = seedN; i < values.length; i++) {
+      prev = values[i] * k + prev * (1 - k);
+      out[i] = prev;
+    }
+    return out;
+  }
+
+  function rsi(values, period) {
+    var out = new Array(values.length).fill(null);
+    if (values.length <= period) return out;
+    var gain = 0, loss = 0, i, ch;
+    for (i = 1; i <= period; i++) {
+      ch = values[i] - values[i - 1];
+      if (ch > 0) gain += ch; else loss -= ch;
+    }
+    var ag = gain / period, al = loss / period;
+    out[period] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+    for (i = period + 1; i < values.length; i++) {
+      ch = values[i] - values[i - 1];
+      ag = (ag * (period - 1) + Math.max(ch, 0)) / period;
+      al = (al * (period - 1) + Math.max(-ch, 0)) / period;
+      out[i] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+    }
+    return out;
+  }
+
+  function obv(closes, vols) {
+    var out = new Array(closes.length), v = 0, i;
+    for (i = 0; i < closes.length; i++) {
+      if (i > 0) {
+        if (closes[i] > closes[i - 1]) v += vols[i] || 0;
+        else if (closes[i] < closes[i - 1]) v -= vols[i] || 0;
+      }
+      out[i] = v;
+    }
+    return out;
+  }
+
+  function macd(values) {
+    var ef = ema(values, 12), es = ema(values, 26);
+    var line = new Array(values.length).fill(null);
+    var sig = new Array(values.length).fill(null);
+    var start = -1, i;
+    for (i = 0; i < values.length; i++) {
+      if (ef[i] != null && es[i] != null) {
+        line[i] = ef[i] - es[i];
+        if (start < 0) start = i;
+      }
+    }
+    if (start < 0) return { line: line, signal: sig };
+    var compact = line.slice(start);
+    var eSig = ema(compact, 9);
+    for (i = 0; i < compact.length; i++) {
+      if (eSig[i] != null) sig[start + i] = eSig[i];
+    }
+    return { line: line, signal: sig };
+  }
+
+  function fillEmas() {
+    if (!lwChart || !chartData || !chartData.c) return;
+    var closes = chartData.c, n = closes.length;
+    Object.keys(EMA_DEFS).forEach(function (key) {
+      var s = emaSeries[key];
+      if (!INDICATORS[key].on) {
+        if (s) s.applyOptions({ visible: false });
+        return;
+      }
+      if (!s) {
+        s = lwChart.addLineSeries({
+          color: EMA_DEFS[key].color, lineWidth: 1,
+          priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: false
+        });
+        emaSeries[key] = s;
+      }
+      var e = ema(closes, EMA_DEFS[key].p), pts = [];
+      for (var i = 0; i < n; i++) {
+        if (e[i] != null) pts.push({ time: chartData.t[i], value: e[i] });
+      }
+      s.setData(pts);
+      s.applyOptions({ visible: true });
+    });
+  }
+
+  function ensureIndPane(key) {
+    if (indPanes[key] || typeof LightweightCharts === 'undefined') return indPanes[key] || null;
+    var def = PANE_DEFS[key];
+    var p = chartPalette();
+    var wrap = document.createElement('div');
+    wrap.className = 'ind-pane';
+    var title = document.createElement('div');
+    title.className = 'ind-pane-title';
+    title.textContent = def.title;
+    var el = document.createElement('div');
+    el.className = 'ind-pane-chart';
+    el.style.height = def.height + 'px';
+    wrap.appendChild(title);
+    wrap.appendChild(el);
+    $('indicator-panes').appendChild(wrap);
+    var ch = LightweightCharts.createChart(el, {
+      width: el.clientWidth,
+      height: def.height,
+      layout: {
+        background: { type: 'solid', color: p.bg },
+        textColor: p.text,
+        fontSize: 11,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+      },
+      grid: { vertLines: { color: p.grid }, horzLines: { color: p.grid } },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: p.crosshair, width: 1, style: LightweightCharts.LineStyle.Dashed, labelBackgroundColor: p.crosshair },
+        horzLine: { color: p.crosshair, width: 1, style: LightweightCharts.LineStyle.Dashed, labelBackgroundColor: p.crosshair }
+      },
+      rightPriceScale: { borderColor: p.border },
+      timeScale: { borderColor: p.border, timeVisible: true, secondsVisible: false },
+      handleScroll: false, // panes mirror the main chart; all panning happens there
+      handleScale: false
+    });
+    var pane = { wrap: wrap, el: el, chart: ch };
+    if (key === 'rsi') {
+      pane.rsi = ch.addLineSeries({
+        color: '#2dd4bf', lineWidth: 2,
+        priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true
+      });
+      [70, 30].forEach(function (lv) {
+        pane.rsi.createPriceLine({
+          price: lv, color: p.text, lineWidth: 1,
+          lineStyle: LightweightCharts.LineStyle.Dashed,
+          axisLabelVisible: true, title: ''
+        });
+      });
+    } else if (key === 'macd') {
+      pane.macdHist = ch.addHistogramSeries({ lastValueVisible: false, priceLineVisible: false });
+      pane.macdLine = ch.addLineSeries({
+        color: '#38bdf8', lineWidth: 2,
+        priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true
+      });
+      pane.macdSig = ch.addLineSeries({
+        color: '#fb923c', lineWidth: 1,
+        priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: false
+      });
+    } else if (key === 'obv') {
+      pane.obv = ch.addLineSeries({
+        color: '#4ade80', lineWidth: 2,
+        priceLineVisible: false, lastValueVisible: true, crosshairMarkerVisible: true
+      });
+    }
+    indPanes[key] = pane;
+    layoutIndPanes();
+    return pane;
+  }
+
+  function destroyIndPane(key) {
+    var pane = indPanes[key];
+    if (!pane) return;
+    try { pane.chart.remove(); } catch (e) {}
+    if (pane.wrap.parentNode) pane.wrap.parentNode.removeChild(pane.wrap);
+    delete indPanes[key];
+    layoutIndPanes();
+  }
+
+  function layoutIndPanes() {
+    // fixed visual order + time axis only on the bottom pane
+    var holder = $('indicator-panes');
+    var keys = PANE_ORDER.filter(function (k) { return indPanes[k]; });
+    keys.forEach(function (k) { holder.appendChild(indPanes[k].wrap); });
+    keys.forEach(function (k, i) {
+      try { indPanes[k].chart.applyOptions({ timeScale: { visible: i === keys.length - 1 } }); }
+      catch (e) {}
+    });
+    // keep pane widths in step with the main chart
+    keys.forEach(function (k) {
+      try { indPanes[k].chart.applyOptions({ width: indPanes[k].el.clientWidth }); }
+      catch (e) {}
+    });
+  }
+
+  function fillIndPanes() {
+    var keys = Object.keys(indPanes);
+    if (!keys.length) return;
+    if (!chartData || !chartData.c || !chartData.c.length) {
+      keys.forEach(function (k) {
+        var pane = indPanes[k];
+        ['rsi', 'macdLine', 'macdSig', 'macdHist', 'obv'].forEach(function (sn) {
+          if (pane[sn]) { try { pane[sn].setData([]); } catch (e) {} }
+        });
+      });
+      return;
+    }
+    var closes = chartData.c, n = closes.length, i;
+    var p = chartPalette();
+    keys.forEach(function (k) {
+      var pane = indPanes[k];
+      if (k === 'rsi') {
+        var r = rsi(closes, 14), pts = [];
+        for (i = 0; i < n; i++) {
+          if (r[i] != null) pts.push({ time: chartData.t[i], value: r[i] });
+        }
+        pane.rsi.setData(pts);
+      } else if (k === 'macd') {
+        var m = macd(closes), ml = [], sg = [], hg = [];
+        for (i = 0; i < n; i++) {
+          if (m.line[i] == null) continue;
+          ml.push({ time: chartData.t[i], value: m.line[i] });
+          if (m.signal[i] != null) {
+            sg.push({ time: chartData.t[i], value: m.signal[i] });
+            var hv = m.line[i] - m.signal[i];
+            hg.push({
+              time: chartData.t[i], value: hv,
+              color: hv >= 0 ? hexA(p.up, 0.55) : hexA(p.down, 0.55)
+            });
+          }
+        }
+        pane.macdLine.setData(ml);
+        pane.macdSig.setData(sg);
+        pane.macdHist.setData(hg);
+      } else if (k === 'obv') {
+        var o = obv(closes, chartData.v), pts2 = [];
+        for (i = 0; i < n; i++) pts2.push({ time: chartData.t[i], value: o[i] });
+        pane.obv.setData(pts2);
+      }
+    });
+  }
+
+  function refreshIndicators() {
+    fillEmas();
+    fillIndPanes();
+  }
+
+  function clearIndicatorData() {
+    Object.keys(emaSeries).forEach(function (k) {
+      try { emaSeries[k].setData([]); } catch (e) {}
+    });
+    fillIndPanes(); // empties pane series when there is no chart data
+  }
+
+  // Mirror the main chart's visible window into the indicator panes.
+  function syncIndCharts() {
+    if (!lwChart) return;
+    var vr = null;
+    try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) {}
+    if (!vr) return;
+    Object.keys(indPanes).forEach(function (k) {
+      try { indPanes[k].chart.timeScale().setVisibleLogicalRange(vr); } catch (e) {}
+    });
+  }
+
+  function setIndicator(key, on) {
+    if (!INDICATORS[key]) return;
+    INDICATORS[key].on = on;
+    var btns = document.querySelectorAll('[data-ind]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('active', !!INDICATORS[btns[i].getAttribute('data-ind')].on);
+    }
+    if (key.indexOf('ema') === 0) {
+      if (on) { ensureChart(); fillEmas(); }
+      else if (emaSeries[key]) emaSeries[key].applyOptions({ visible: false });
+    } else {
+      if (on) {
+        if (ensureIndPane(key)) { fillIndPanes(); syncIndCharts(); }
+      } else destroyIndPane(key);
+    }
   }
 
   /* ---------- infinite scroll: load earlier history when panning left ---------- */
@@ -602,6 +915,7 @@
         chartData.c = nc.concat(chartData.c);
         chartData.v = nv.concat(chartData.v);
         setMainSeriesData();
+        refreshIndicators(); // indicator data must be full-length before the view shifts
         // keep the view stable: shift the window right by the prepended bars
         if (vr) {
           try {
@@ -915,6 +1229,21 @@
     clearOverlay();
     var input = $('overlay-input');
     if (input) input.value = '';
+  });
+
+  /* indicator toggles */
+  var indBtns = document.querySelectorAll('[data-ind]');
+  for (var ib = 0; ib < indBtns.length; ib++) {
+    indBtns[ib].addEventListener('click', function () {
+      var key = this.getAttribute('data-ind');
+      setIndicator(key, !INDICATORS[key].on);
+    });
+  }
+  window.addEventListener('resize', function () {
+    Object.keys(indPanes).forEach(function (k) {
+      try { indPanes[k].chart.applyOptions({ width: indPanes[k].el.clientWidth }); }
+      catch (e) {}
+    });
   });
 
   /* chart type toggle (Line | Candles) */
