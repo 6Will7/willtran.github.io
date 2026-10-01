@@ -194,17 +194,21 @@
     } catch (e) { /* tile stays gray */ }
   }
 
-  // limited-concurrency pool so we stay well under the Finnhub rate limit
-  async function pool(items, n, fn) {
-    var i = 0;
-    var workers = [];
-    for (var k = 0; k < n; k++) {
-      workers.push((async function () {
-        while (i < items.length) { var it = items[i++]; await fn(it); }
-      })());
+  // Sequential, throttled quotes: Finnhub free allows 60/min, so one
+  // request per ~1.1s keeps us safely under. Tiles fill in progressively,
+  // biggest holdings first (list is weight-sorted).
+  async function quoteLoop(items) {
+    for (var i = 0; i < items.length; i++) {
+      var t0 = Date.now();
+      await quoteFor(items[i]);
+      var wait = 1100 - (Date.now() - t0);
+      if (wait > 0 && i < items.length - 1) {
+        await new Promise(function (r) { setTimeout(r, wait); });
+      }
     }
-    await Promise.all(workers);
   }
+
+  var MAX_TILES = 150; // SPY has 500+ holdings; show the top 150 by weight
 
   async function load(etf) {
     setActive(etf);
@@ -224,6 +228,19 @@
         meta = 'Nasdaq 100 · ' + j.holdings.length + ' holdings · sized by market cap' +
                (j.asOf ? ' · ' + j.asOf : '');
         render(holdings);
+      } else if (typeof ETF_HOLDINGS !== 'undefined' && ETF_HOLDINGS[etf]) {
+        var full = ETF_HOLDINGS[etf];
+        var list = full.holdings.slice(0, MAX_TILES);
+        holdings = list.map(function (h) {
+          return { s: h.s, name: null, w: h.w, pct: null };
+        });
+        meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
+               ' · index weights as of ' + full.asOf + ' · loading live prices…';
+        metaEl.textContent = meta;
+        render(holdings);
+        await quoteLoop(holdings);
+        meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
+               ' · index weights as of ' + full.asOf;
       } else {
         var r2 = await fetch(WORKER_URL + '/etf/holdings?symbol=' + encodeURIComponent(etf));
         var j2 = await r2.json();
@@ -236,7 +253,7 @@
         meta = etf + ' · top ' + holdings.length + ' holdings by index weight · fetching live prices…';
         metaEl.textContent = meta;
         render(holdings);
-        await pool(holdings, 6, quoteFor);
+        await quoteLoop(holdings);
         meta = etf + ' · top ' + holdings.length + ' holdings by index weight';
       }
       metaEl.textContent = meta;
