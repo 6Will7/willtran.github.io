@@ -1148,7 +1148,7 @@
           '<td>' + (r.noOfEstimates == null ? '—' : r.noOfEstimates) + '</td>' +
           '<td class="' + yoyCls + '">' + yoyTxt + '</td></tr>';
       });
-      html += '<div class="est-block">' + blockHead('Consensus EPS outlook',
+      html += '<div class="est-block est-wide">' + blockHead('Consensus EPS outlook',
         'Fiscal-year analyst estimates · via Nasdaq') +
         '<div class="earn-table-wrap"><table class="earn-table"><thead><tr>' +
         '<th>Fiscal year</th><th>Consensus EPS</th><th>High</th><th>Low</th>' +
@@ -1333,6 +1333,174 @@
   searchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') search(searchInput.value);
   });
+
+  /* ---------- watchlist with cross-device sync ----------
+   * Backend: Cloudflare Worker + D1 (see workspace/stocks-worker/).
+   * No passwords: this browser holds a random 128-bit account token in
+   * localStorage; devices link via short-lived pairing codes. The token is
+   * the ONLY thing in localStorage — the list itself lives server-side. */
+  var WL_KEY = 'wt_sync_token';
+  var wlToken = null, wlTickers = [], wlCodeTimer = null;
+  try { wlToken = localStorage.getItem(WL_KEY); } catch (e) { wlToken = null; }
+
+  function wlMsg(text, cls) {
+    var m = $('wl-msg');
+    m.textContent = text || '';
+    m.className = 'wl-msg' + (cls ? ' ' + cls : '');
+  }
+  function wlAuthHeaders() {
+    return wlToken ? { 'Authorization': 'Bearer ' + wlToken } : {};
+  }
+  async function wlEnsureToken() {
+    if (wlToken) return wlToken;
+    var r = await fetch(WORKER_URL + '/sync/new', { method: 'POST' });
+    if (!r.ok) throw new Error(r.status === 501 ? 'sync is not set up yet' : 'could not reach sync server');
+    var j = await r.json();
+    if (!j.token) throw new Error('bad sync response');
+    wlToken = j.token;
+    try { localStorage.setItem(WL_KEY, wlToken); } catch (e) {}
+    return wlToken;
+  }
+  function renderWatchlist() {
+    var box = $('wl-chips');
+    box.innerHTML = '';
+    wlTickers.forEach(function (t) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'wl-chip';
+      var label = document.createElement('span');
+      label.textContent = t;
+      var x = document.createElement('i');
+      x.textContent = '×';
+      x.title = 'Remove ' + t;
+      x.addEventListener('click', function (ev) { ev.stopPropagation(); wlRemove(t); });
+      chip.appendChild(label);
+      chip.appendChild(x);
+      chip.addEventListener('click', function () { search(t); });
+      box.appendChild(chip);
+    });
+    var addSym = $('wl-add-sym');
+    if (addSym) addSym.textContent = currentSymbol || '';
+    $('watchlist-bar').hidden = false;
+  }
+  async function wlLoad() {
+    if (!wlToken || !WORKER_URL) return;
+    try {
+      var r = await fetch(WORKER_URL + '/sync/watchlist', { headers: wlAuthHeaders() });
+      if (r.status === 401) { // token unknown server-side (fresh D1) — start over
+        try { localStorage.removeItem(WL_KEY); } catch (e) {}
+        wlToken = null; wlTickers = [];
+        renderWatchlist();
+        return;
+      }
+      if (!r.ok) return;
+      var j = await r.json();
+      wlTickers = Array.isArray(j.tickers) ? j.tickers : [];
+      renderWatchlist();
+    } catch (e) { /* offline — bar stays as-is */ }
+  }
+  async function wlSave() {
+    await wlEnsureToken();
+    var r = await fetch(WORKER_URL + '/sync/watchlist', {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, wlAuthHeaders()),
+      body: JSON.stringify({ tickers: wlTickers })
+    });
+    if (!r.ok) {
+      var j = {}; try { j = await r.json(); } catch (e) {}
+      throw new Error(j.error || ('save failed (' + r.status + ')'));
+    }
+  }
+  async function wlAdd(sym) {
+    sym = String(sym || '').toUpperCase().trim();
+    if (!sym || wlTickers.indexOf(sym) !== -1) return;
+    if (wlTickers.length >= 50) { wlMsg('Watchlist is full (50).', 'err'); return; }
+    var prev = wlTickers.slice();
+    wlTickers.push(sym);
+    renderWatchlist();
+    try { await wlSave(); wlMsg(''); }
+    catch (e) { wlTickers = prev; renderWatchlist(); wlMsg(e.message, 'err'); }
+  }
+  async function wlRemove(sym) {
+    var prev = wlTickers.slice();
+    wlTickers = wlTickers.filter(function (t) { return t !== sym; });
+    renderWatchlist();
+    try { await wlSave(); }
+    catch (e) { wlTickers = prev; renderWatchlist(); wlMsg(e.message, 'err'); }
+  }
+  function wlStopTimer() {
+    if (wlCodeTimer) { clearInterval(wlCodeTimer); wlCodeTimer = null; }
+  }
+  $('wl-add').addEventListener('click', function () {
+    if (!currentSymbol) { wlMsg('Search a ticker first, then add it.', 'err'); return; }
+    wlMsg('');
+    wlAdd(currentSymbol);
+  });
+  $('wl-sync-btn').addEventListener('click', function () {
+    var p = $('wl-panel');
+    p.hidden = !p.hidden;
+    if (p.hidden) { wlStopTimer(); $('wl-code-out').hidden = true; }
+  });
+  $('wl-panel-close').addEventListener('click', function () {
+    $('wl-panel').hidden = true;
+    wlStopTimer();
+    $('wl-code-out').hidden = true;
+  });
+  $('wl-gen-code').addEventListener('click', async function () {
+    wlMsg('');
+    try {
+      await wlEnsureToken();
+      var r = await fetch(WORKER_URL + '/sync/pair-code', { method: 'POST', headers: wlAuthHeaders() });
+      var j = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(j.error || ('failed (' + r.status + ')'));
+      $('wl-code-val').textContent = j.code;
+      $('wl-code-out').hidden = false;
+      wlStopTimer();
+      var left = j.expires_in || 600;
+      var tick = function () {
+        var m = Math.floor(left / 60), s = left % 60;
+        $('wl-code-timer').textContent = 'expires in ' + m + ':' + (s < 10 ? '0' : '') + s;
+        if (left <= 0) {
+          wlStopTimer();
+          $('wl-code-out').hidden = true;
+          wlMsg('Code expired — get a new one.', 'err');
+        }
+        left--;
+      };
+      tick();
+      wlCodeTimer = setInterval(tick, 1000);
+      wlMsg('Enter this code on your other device.', 'ok');
+    } catch (e) { wlMsg(e.message, 'err'); }
+  });
+  $('wl-redeem').addEventListener('click', async function () {
+    var code = $('wl-code-in').value;
+    if (!code.trim()) { wlMsg('Enter the code first.', 'err'); return; }
+    wlMsg('Pairing…');
+    var hadLocal = wlTickers.slice(); // merge, don't clobber, if this device had its own list
+    try {
+      var r = await fetch(WORKER_URL + '/sync/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
+      });
+      var j = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(j.error || ('failed (' + r.status + ')'));
+      wlToken = j.token;
+      try { localStorage.setItem(WL_KEY, wlToken); } catch (e) {}
+      await wlLoad();
+      var merged = wlTickers.slice();
+      hadLocal.forEach(function (t) { if (merged.indexOf(t) === -1 && merged.length < 50) merged.push(t); });
+      if (merged.length !== wlTickers.length) {
+        wlTickers = merged;
+        renderWatchlist();
+        try { await wlSave(); } catch (e2) {}
+      }
+      $('wl-code-in').value = '';
+      wlMsg('Paired — this device now shares the watchlist.', 'ok');
+    } catch (e) { wlMsg(e.message, 'err'); }
+  });
+
+  if (WORKER_URL) { renderWatchlist(); wlLoad(); }
 
   if (!WORKER_URL) setupBox.hidden = false;
 })();
