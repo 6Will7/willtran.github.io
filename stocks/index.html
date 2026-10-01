@@ -64,6 +64,11 @@
                     <p class="wl-hint">Wipe your browser often? Save this code in your password manager — enter it above anytime to get your watchlist back.</p>
                     <button id="wl-gen-recovery" class="btn-primary" type="button">Show recovery code</button>
                     <div id="wl-recovery-out" class="wl-code small" hidden><span id="wl-recovery-val"></span></div>
+                    <p class="wl-hint" style="margin-top:0.8rem">Or set your own — 12+ characters. Case and spacing matter, type it exactly the same on every device.</p>
+                    <div class="wl-code-row">
+                        <input id="wl-custom-in" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. correct horse battery staple" maxlength="64" aria-label="Custom recovery code">
+                        <button id="wl-custom-set" class="btn-primary" type="button">Set my code</button>
+                    </div>
                 </div>
                 <div id="wl-msg" class="wl-msg" role="status"></div>
             </div>

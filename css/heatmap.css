@@ -1,0 +1,70 @@
+/* Market heat map — treemap of ETF holdings */
+
+.hm-controls {
+  display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center;
+  margin: 1rem 0 0.4rem;
+}
+.hm-presets { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.hm-preset.active { outline: 2px solid var(--color-accent); }
+.hm-custom { display: flex; gap: 0.5rem; margin-left: auto; }
+.hm-custom input {
+  width: 11rem; padding: 0.55rem 0.7rem; border-radius: 8px;
+  border: 1px solid var(--color-border); background: var(--color-bg);
+  color: var(--color-text); font-size: 0.95rem; text-transform: uppercase;
+}
+
+.hm-meta { color: var(--color-muted); font-size: 0.9rem; min-height: 1.4em; margin: 0.4rem 0; }
+
+.hm-map {
+  position: relative; width: 100%; height: 72vh; min-height: 480px;
+  border: 1px solid var(--color-border); border-radius: 12px;
+  overflow: hidden; background: var(--color-card, transparent);
+  touch-action: pan-y;
+}
+.hm-sector {
+  position: absolute; box-sizing: border-box;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  background: rgba(128, 128, 128, 0.06);
+  overflow: hidden;
+}
+.hm-sector-label {
+  position: absolute; top: 2px; left: 6px; z-index: 2;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--color-muted); text-transform: uppercase;
+  pointer-events: none; white-space: nowrap;
+}
+.hm-tile {
+  position: absolute; box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.28);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; text-decoration: none;
+  transition: filter 0.15s ease;
+}
+.hm-tile:hover { filter: brightness(1.18); z-index: 3; }
+.hm-tile .t {
+  color: #fff; font-weight: 800; line-height: 1.1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); pointer-events: none;
+}
+.hm-tile .p {
+  color: rgba(255, 255, 255, 0.92); line-height: 1.1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); pointer-events: none;
+}
+.hm-tile.loading { cursor: wait; }
+
+.hm-legend {
+  display: flex; align-items: center; gap: 0.6rem;
+  margin-top: 0.7rem; color: var(--color-muted); font-size: 0.85rem;
+}
+.hm-gradient {
+  flex: 0 1 220px; height: 10px; border-radius: 5px;
+  background: linear-gradient(to right, #dc2626, #6b7280 50%, #16a34a);
+}
+.hm-legend-note { margin-left: auto; }
+.hm-note { color: var(--color-muted); font-size: 0.8rem; margin-top: 0.5rem; }
+.hm-error { color: #e5484d; margin: 1rem 0; }
+
+@media (max-width: 640px) {
+  .hm-custom { margin-left: 0; width: 100%; }
+  .hm-custom input { flex: 1; }
+  .hm-map { height: 78vh; min-height: 420px; }
+}

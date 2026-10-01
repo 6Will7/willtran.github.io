@@ -1333,6 +1333,11 @@
   searchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') search(searchInput.value);
   });
+  // Deep link: /stocks/?symbol=NVDA loads that ticker on arrival
+  try {
+    var qsym = new URLSearchParams(location.search).get('symbol');
+    if (qsym) { searchInput.value = qsym; search(qsym); }
+  } catch (e) {}
 
   /* ---------- watchlist with cross-device sync ----------
    * Backend: Cloudflare Worker + D1 (see workspace/stocks-worker/).
@@ -1508,6 +1513,22 @@
       $('wl-recovery-val').textContent = j.code;
       $('wl-recovery-out').hidden = false;
       wlMsg('Save this somewhere safe — it replaces any previous recovery code.', 'ok');
+    } catch (e) { wlMsg(e.message, 'err'); }
+  });
+  $('wl-custom-set').addEventListener('click', async function () {
+    wlMsg('');
+    var code = $('wl-custom-in').value;
+    if (code.trim().length < 12) { wlMsg('Use at least 12 characters.', 'err'); return; }
+    try {
+      await wlEnsureToken();
+      var h = wlAuthHeaders(); h['Content-Type'] = 'application/json';
+      var r = await fetch(WORKER_URL + '/sync/recovery-custom', {
+        method: 'POST', headers: h, body: JSON.stringify({ code: code })
+      });
+      var j = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(j.error || ('failed (' + r.status + ')'));
+      $('wl-custom-in').value = '';
+      wlMsg('Custom code set — it replaced any previous recovery code.', 'ok');
     } catch (e) { wlMsg(e.message, 'err'); }
   });
 

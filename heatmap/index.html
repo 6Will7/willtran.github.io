@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+    <meta name="description" content="Market heat map — ETF holdings sized by weight, colored by today's performance. By Will Tran.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Heat Map | Will Tran</title>
+
+    <link rel="stylesheet" href="/css/variables.css?v=20260929t">
+    <link rel="stylesheet" href="/css/main.css?v=20260929t">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/heatmap.css?v=20261001a">
+</head>
+<body>
+
+    <!-- Shared Navigation Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>Market Heat Map</h2>
+            <p>Holdings sized by weight, colored by today's change. Click any tile to open it in Stocks.</p>
+
+            <div class="hm-controls">
+                <div class="hm-presets" role="group" aria-label="Benchmark presets">
+                    <button class="calc-chip hm-preset" type="button" data-etf="SPY">S&amp;P 500</button>
+                    <button class="calc-chip hm-preset" type="button" data-etf="QQQ">Nasdaq 100</button>
+                    <button class="calc-chip hm-preset" type="button" data-etf="DIA">Dow 30</button>
+                    <button class="calc-chip hm-preset" type="button" data-etf="IWM">Russell 2000</button>
+                </div>
+                <div class="hm-custom">
+                    <input id="hm-etf" type="text" autocomplete="off" spellcheck="false"
+                           placeholder="Any ETF ticker — e.g. XLF" aria-label="ETF ticker" maxlength="5">
+                    <button id="hm-go" class="btn-primary" type="button">Map it</button>
+                </div>
+            </div>
+
+            <p id="hm-meta" class="hm-meta"></p>
+            <div id="hm-map" class="hm-map" aria-label="Heat map"></div>
+            <div class="hm-legend">
+                <span>-3%</span>
+                <span class="hm-gradient" aria-hidden="true"></span>
+                <span>+3%</span>
+                <span class="hm-legend-note">today's change</span>
+            </div>
+            <p class="hm-note">Weights: Nasdaq 100 by live market cap; other ETFs show top 25 holdings by index weight.
+            Data for informational purposes only — verify before investing.</p>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/gics.js?v=20260929b"></script>
+    <script src="/js/heatmap.js?v=20261001a"></script>
+</body>
+</html>
