@@ -1472,8 +1472,7 @@
       wlMsg('Enter this code on your other device.', 'ok');
     } catch (e) { wlMsg(e.message, 'err'); }
   });
-  $('wl-redeem').addEventListener('click', async function () {
-    var code = $('wl-code-in').value;
+  $('wl-redeem').addEventListener('click', async function () {    var code = $('wl-code-in').value;
     if (!code.trim()) { wlMsg('Enter the code first.', 'err'); return; }
     wlMsg('Pairing…');
     var hadLocal = wlTickers.slice(); // merge, don't clobber, if this device had its own list
@@ -1497,6 +1496,18 @@
       }
       $('wl-code-in').value = '';
       wlMsg('Paired — this device now shares the watchlist.', 'ok');
+    } catch (e) { wlMsg(e.message, 'err'); }
+  });
+  $('wl-gen-recovery').addEventListener('click', async function () {
+    wlMsg('');
+    try {
+      await wlEnsureToken();
+      var r = await fetch(WORKER_URL + '/sync/recovery-code', { method: 'POST', headers: wlAuthHeaders() });
+      var j = await r.json().catch(function () { return {}; });
+      if (!r.ok) throw new Error(j.error || ('failed (' + r.status + ')'));
+      $('wl-recovery-val').textContent = j.code;
+      $('wl-recovery-out').hidden = false;
+      wlMsg('Save this somewhere safe — it replaces any previous recovery code.', 'ok');
     } catch (e) { wlMsg(e.message, 'err'); }
   });
 

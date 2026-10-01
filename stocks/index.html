@@ -51,10 +51,17 @@
                 </div>
                 <div class="wl-panel-sec">
                     <strong>Enter a code from another device</strong>
+                    <p class="wl-hint">Pairing codes and recovery codes both work here.</p>
                     <div class="wl-code-row">
                         <input id="wl-code-in" type="text" autocomplete="off" spellcheck="false" placeholder="ABC123" maxlength="12" aria-label="Pairing code">
                         <button id="wl-redeem" class="btn-primary" type="button">Pair</button>
                     </div>
+                </div>
+                <div class="wl-panel-sec">
+                    <strong>Recovery code</strong>
+                    <p class="wl-hint">Wipe your browser often? Save this code in your password manager — enter it above anytime to get your watchlist back.</p>
+                    <button id="wl-gen-recovery" class="btn-primary" type="button">Show recovery code</button>
+                    <div id="wl-recovery-out" class="wl-code small" hidden><span id="wl-recovery-val"></span></div>
                 </div>
                 <div id="wl-msg" class="wl-msg" role="status"></div>
             </div>
@@ -158,6 +165,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/gics.js?v=20260929b"></script>
     <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="/js/stocks.js?v=20260929x"></script>
+    <script src="/js/stocks.js?v=20260929y"></script>
 </body>
 </html>

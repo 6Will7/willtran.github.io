@@ -325,6 +325,7 @@
   margin-top: 0.7rem; display: flex; align-items: baseline; gap: 0.8rem;
   font-size: 1.9rem; font-weight: 800; letter-spacing: 0.35em; color: var(--color-accent);
 }
+.wl-code.small { font-size: 1.2rem; letter-spacing: 0.18em; }
 .wl-timer { font-size: 0.85rem; font-weight: 600; letter-spacing: normal; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 .wl-code-row { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
 .wl-code-row input {
