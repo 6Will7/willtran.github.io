@@ -309,7 +309,8 @@
     var pct = (last - first) / first * 100;
     var rangeLabels = {
       '1D': 'today', '1W': 'past week', '1M': 'past month', 'YTD': 'YTD',
-      '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs', 'CUSTOM': 'selected range'
+      '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs',
+      '10Y': 'past 10 yrs', 'MAX': 'all time', 'CUSTOM': 'selected range'
     };
     var label = full ? (rangeLabels[chartRange] || 'selected range') : 'visible range';
     rangeChangeEl.textContent = (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(2) + '% ' + label;
@@ -898,6 +899,8 @@
     if (range === '1D' || range === '1W') return 6 * day; // 1h bars (closest available)
     if (range === '1M' || range === 'YTD' || range === '1Y') return 100 * day; // 1d bars
     if (range === '3Y' || range === '5Y') return Math.floor(2.5 * 366 * day); // 1wk bars
+    if (range === '10Y') return Math.floor(2.5 * 366 * day); // 1wk bars, matches main
+    if (range === 'MAX') return 10 * 366 * day; // 1mo bars, matches main
     if (spanSec <= 7 * day) return 6 * day;
     if (spanSec <= 120 * day) return 100 * day;
     if (spanSec <= 3 * 366 * day) return Math.floor(2.5 * 366 * day);
@@ -910,7 +913,9 @@
     try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) { return; }
     if (!vr || vr.from > 8) return; // not near the left edge yet
     var spanSec = chartData.t[chartData.t.length - 1] - chartData.t[0];
-    if (spanSec >= MAX_SPAN_SEC) { atDataStart = true; return; }
+    // MAX ("all time") has no span cap — Yahoo stops at the IPO and the
+    // no-new-bars check ends extension naturally
+    if (chartRange !== 'MAX' && spanSec >= MAX_SPAN_SEC) { atDataStart = true; return; }
     extendLeft();
   }
 
