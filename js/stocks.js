@@ -1242,17 +1242,19 @@
       var buys = 0, sells = 0;
       var html = '<table class="insider-table"><thead><tr>' +
         '<th>Date</th><th>Insider</th><th>Type</th>' +
-        '<th class="num">Shares</th><th class="num">Price</th></tr></thead><tbody>';
+        '<th class="num">Shares</th><th class="num">% of ownership</th><th class="num">Price</th></tr></thead><tbody>';
       rows.forEach(function (t) {
         var code = String(t.transactionCode || '').toUpperCase();
         var isBuy = code === 'P', isSell = code === 'S';
         if (isBuy) buys++; if (isSell) sells++;
         var shares = Math.abs(t.change || 0);
+        var ownPct = (t.share > 0 && shares > 0) ? (shares / t.share * 100) : 0;
         html += '<tr><td>' + esc(t.transactionDate || '') + '</td>' +
           '<td>' + esc(t.name || '—') + '</td>' +
           '<td><span class="insider-badge ' + (isBuy ? 'buy' : isSell ? 'sell' : '') + '">' +
           (isBuy ? 'Buy' : isSell ? 'Sell' : esc(code || '—')) + '</span></td>' +
           '<td class="num">' + (shares ? shares.toLocaleString('en-US') : '—') + '</td>' +
+          '<td class="num">' + (ownPct ? ownPct.toFixed(1) + '%' : '—') + '</td>' +
           '<td class="num">' + (t.transactionPrice ? '$' + Number(t.transactionPrice).toFixed(2) : '—') + '</td></tr>';
       });
       html += '</tbody></table>';
