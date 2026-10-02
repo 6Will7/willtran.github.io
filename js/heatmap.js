@@ -152,6 +152,22 @@
       });
       return { key: sk, w: sumW(inds), children: inds };
     });
+    // Merge dust sectors (<1.2% of displayed weight) into "Other" — otherwise
+    // the long tail collapses into illegible hairline strips along one edge.
+    var totalW = sumW(sItems), kept = [], otherW = 0, otherKids = [];
+    sItems.forEach(function (s) {
+      if (s.key !== 'Other' && s.w / totalW < 0.012) {
+        otherW += s.w;
+        otherKids = otherKids.concat(s.children);
+      } else kept.push(s);
+    });
+    if (otherW > 0) {
+      var ex = null, k;
+      for (k = 0; k < kept.length; k++) if (kept[k].key === 'Other') ex = kept[k];
+      if (ex) { ex.w += otherW; ex.children = ex.children.concat(otherKids); }
+      else kept.push({ key: 'Other', w: otherW, children: otherKids });
+    }
+    sItems = kept;
 
     squarify(sItems, 0, 0, W, H).forEach(function (sr) {
       var sec = document.createElement('div');
