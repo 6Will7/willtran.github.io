@@ -439,13 +439,27 @@
 
 /* SEC financials (as-reported quarterly) */
 .stocks-financials { margin-top: 1.2rem; overflow-x: auto; }
-.fin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 720px; font-variant-numeric: tabular-nums; }
-.fin-table th, .fin-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
-.fin-table tbody th { font-weight: 600; white-space: nowrap; color: var(--color-text); }
+.fin-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.88rem; margin-top: 0.5rem; min-width: 760px; font-variant-numeric: tabular-nums; }
+.fin-table th, .fin-table td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: middle; }
+.fin-table tbody th {
+    font-weight: 600; white-space: nowrap; color: var(--color-text);
+    position: sticky; left: 0; background: var(--color-bg); z-index: 1;
+    box-shadow: 1px 0 0 var(--color-border);
+}
 .fin-table th.num, .fin-table td.num { text-align: right; }
-.fin-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
-.fin-val { font-weight: 600; }
-.fin-yoy { font-size: 0.72rem; margin-top: 0.1rem; }
+.fin-table thead th {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--color-text-muted); font-weight: 600; white-space: nowrap;
+}
+.fin-table td.fin-latest, .fin-table th.fin-latest {
+    background: color-mix(in srgb, var(--color-accent, #FCDD09) 8%, transparent);
+}
+.fin-table thead th.fin-latest { border-bottom: 2px solid var(--color-accent, #FCDD09); }
+.fin-val { font-weight: 700; font-size: 0.95rem; }
+.fin-yoy { font-size: 0.72rem; margin-top: 0.15rem; white-space: nowrap; }
 .fin-up { color: #16a34a; }
 .fin-dn { color: #dc2626; }
 .fin-flat { color: var(--color-text-muted); }
+.fin-table td.spark { width: 84px; }
+.spark-svg { width: 76px; height: 28px; display: block; margin-left: auto; }
+.fin-table th.spark-head { font-size: 0.72rem; }

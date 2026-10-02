@@ -1296,23 +1296,55 @@
         return '<div class="fin-yoy ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '% YoY</div>';
       }
       function finRow(label, arr, isEps) {
+        var any = false, i, v;
+        for (i = 0; i < show; i++) {
+          v = arr[off + i];
+          if (v != null && !isNaN(v)) { any = true; break; }
+        }
+        if (!any) return ''; // company doesn't report this metric — hide the row
         var html = '<tr><th>' + label + '</th>';
+        for (i = 0; i < show; i++) {
+          v = arr[off + i];
+          var val = (v == null || isNaN(v)) ? '—' : (isEps ? '$' + Number(v).toFixed(2) : money(v));
+          var latest = (i === show - 1) ? ' fin-latest' : '';
+          html += '<td class="num' + latest + '"><div class="fin-val">' + val + '</div>' + yoy(arr, i) + '</td>';
+        }
+        return html + '<td class="spark">' + sparkline(arr, off, show) + '</td></tr>';
+      }
+      function sparkline(arr, off, show) {
+        var pts = [];
         for (var i = 0; i < show; i++) {
           var v = arr[off + i];
-          var val = (v == null || isNaN(v)) ? '—' : (isEps ? '$' + Number(v).toFixed(2) : money(v));
-          html += '<td class="num"><div class="fin-val">' + val + '</div>' + yoy(arr, i) + '</td>';
+          if (v != null && !isNaN(v)) pts.push({ i: i, v: v });
         }
-        return html + '</tr>';
+        if (pts.length < 2) return '';
+        var vs = pts.map(function (p) { return p.v; });
+        var mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+        var W = 76, H = 28, pad = 3;
+        var rng = (mx - mn) || 1;
+        var step = (W - pad * 2) / (show - 1);
+        var d = pts.map(function (p, j) {
+          var x = (pad + p.i * step).toFixed(1);
+          var y = (H - pad - (p.v - mn) / rng * (H - pad * 2)).toFixed(1);
+          return (j ? 'L' : 'M') + x + ' ' + y;
+        }).join(' ');
+        var up = vs[vs.length - 1] >= vs[0];
+        return '<svg class="spark-svg" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' +
+          '<path d="' + d + '" fill="none" stroke="' + (up ? '#16a34a' : '#dc2626') +
+          '" stroke-width="1.6" stroke-linecap="round"/></svg>';
       }
       var html = '<table class="fin-table"><thead><tr><th></th>';
-      for (var i = 0; i < show; i++) html += '<th class="num">' + qlabel(res.quarters[off + i]) + '</th>';
-      html += '</tr></thead><tbody>' +
+      for (var i = 0; i < show; i++) {
+        html += '<th class="num' + (i === show - 1 ? ' fin-latest' : '') + '">' + qlabel(res.quarters[off + i]) + '</th>';
+      }
+      html += '<th class="num spark-head">Trend</th></tr></thead><tbody>' +
         finRow('Revenue', res.revenue) +
         finRow('Gross profit', res.grossProfit) +
         finRow('Operating income', res.opIncome) +
         finRow('Net income', res.netIncome) +
         finRow('Diluted EPS', res.eps, true) +
         '</tbody></table>';
+      if (html.indexOf('<tbody></tbody>') !== -1) return; // nothing reportable
       box.innerHTML = blockHead('Financials', 'as-reported quarterly · SEC companyfacts') + html;
       box.hidden = false;
     }).catch(function () { /* no SEC data — block stays hidden */ });
