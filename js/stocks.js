@@ -85,6 +85,7 @@
       loadFilings(sym);
       loadEstimates(sym);
       loadNews(sym);
+      loadInsider(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -1223,6 +1224,43 @@
   }
 
   /* ---------- company news ---------- */
+
+  function loadInsider(sym) {
+    var box = $('q-insider');
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = '';
+    // Finnhub /stock/insider-transactions, last 180 days via the worker.
+    // If the endpoint is premium-gated this 403s and the block stays hidden.
+    api('insider').then(function (res) {
+      if (currentSymbol !== sym || !res || !res.data || !res.data.length) return;
+      var rows = res.data
+        .filter(function (t) { return t.transactionDate; })
+        .sort(function (a, b) { return b.transactionDate < a.transactionDate ? -1 : 1; })
+        .slice(0, 10);
+      if (!rows.length) return;
+      var buys = 0, sells = 0;
+      var html = '<table class="insider-table"><thead><tr>' +
+        '<th>Date</th><th>Insider</th><th>Type</th>' +
+        '<th class="num">Shares</th><th class="num">Price</th></tr></thead><tbody>';
+      rows.forEach(function (t) {
+        var code = String(t.transactionCode || '').toUpperCase();
+        var isBuy = code === 'P', isSell = code === 'S';
+        if (isBuy) buys++; if (isSell) sells++;
+        var shares = Math.abs(t.change || 0);
+        html += '<tr><td>' + esc(t.transactionDate || '') + '</td>' +
+          '<td>' + esc(t.name || '—') + '</td>' +
+          '<td><span class="insider-badge ' + (isBuy ? 'buy' : isSell ? 'sell' : '') + '">' +
+          (isBuy ? 'Buy' : isSell ? 'Sell' : esc(code || '—')) + '</span></td>' +
+          '<td class="num">' + (shares ? shares.toLocaleString('en-US') : '—') + '</td>' +
+          '<td class="num">' + (t.transactionPrice ? '$' + Number(t.transactionPrice).toFixed(2) : '—') + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      var sub = 'last 180 days' + (buys || sells ? ' · ' + buys + ' buys, ' + sells + ' sells' : '');
+      box.innerHTML = blockHead('Insider trades', sub) + html;
+      box.hidden = false;
+    }).catch(function () { /* premium-gated or no data — block stays hidden */ });
+  }
 
   function loadNews(sym) {
     var box = $('q-news');

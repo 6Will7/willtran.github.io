@@ -426,3 +426,13 @@
   .stocks-price { font-size: 1.6rem; }
   #stocks-chart { height: 220px; }
 }
+
+/* Insider trades */
+.stocks-insider { margin-top: 1.2rem; overflow-x: auto; }
+.insider-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 520px; }
+.insider-table th, .insider-table td { padding: 0.35rem 0.15rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; text-align: left; }
+.insider-table th.num, .insider-table td.num { text-align: right; }
+.insider-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
+.insider-badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--color-border); color: var(--color-text-muted); }
+.insider-badge.buy { background: rgba(22, 163, 74, 0.18); color: #16a34a; }
+.insider-badge.sell { background: rgba(220, 38, 38, 0.16); color: #dc2626; }
