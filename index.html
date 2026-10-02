@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/main.css?v=608f1f84">
   <link rel="stylesheet" href="css/gallery.css?v=21ff396f">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/apod.css">
 </head>
 <body>
 
@@ -64,6 +65,18 @@
         <a class="btn btn-primary" href="gallery.html">View the gallery</a>
         <a class="btn btn-secondary" href="recipes.html">Browse recipes</a>
       </div>
+    </section>
+
+    <section class="apod" id="apod" hidden>
+      <a class="apod-link" href="https://apod.nasa.gov/apod/astropix.html" target="_blank" rel="noopener">
+        <img class="apod-img" id="apod-img" alt="NASA Astronomy Picture of the Day">
+        <div class="apod-overlay">
+          <p class="apod-kicker">Space photo of the day · <span id="apod-date"></span></p>
+          <h2 class="apod-title" id="apod-title"></h2>
+          <p class="apod-desc" id="apod-desc"></p>
+          <span class="apod-credit">NASA APOD &rarr;</span>
+        </div>
+      </a>
     </section>
 
     <section class="section reveal">
@@ -122,5 +135,6 @@
 
   <script src="js/main.js" defer></script>
   <script src="js/gallery.js" defer></script>
+  <script src="js/apod.js" defer></script>
 </body>
 </html>
