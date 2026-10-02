@@ -35,14 +35,15 @@
 
   fetch(WORKER_URL + '/treasury')
     .then(function (r) {
-      if (r.status === 501) throw new Error('setup');
       if (!r.ok) throw new Error('http ' + r.status);
       return r.json();
     })
     .then(function (d) {
       var rows = (d && d.rows) || [];
       if (!rows.length) throw new Error('empty');
-      meta.textContent = 'Yields as of ' + fmtDate(d.asOf) + ' · Source: FRED';
+      meta.innerHTML = d.live
+        ? '<span class="rates-live-dot" aria-hidden="true"></span>Live · ' + esc(d.asOf || '') + ' · Source: CNBC'
+        : 'Yields as of ' + fmtDate(d.asOf) + ' · Source: FRED';
       body.innerHTML = rows.map(function (t) {
         return '<tr>' +
           '<td class="sym">' + esc(t.label) + '</td>' +
@@ -57,9 +58,6 @@
     .catch(function (e) {
       meta.textContent = 'U.S. Treasury yields';
       body.innerHTML = '<tr><td colspan="6"><div class="rates-error">' +
-        (e && e.message === 'setup'
-          ? 'Yields are not configured yet — the worker needs its FRED API key.'
-          : 'Could not load yields right now. Please try again later.') +
-        '</div></td></tr>';
+        'Could not load yields right now. Please try again later.</div></td></tr>';
     });
 })();

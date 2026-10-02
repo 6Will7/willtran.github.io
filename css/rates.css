@@ -53,4 +53,19 @@
     max-width: 46rem;
 }
 
+.rates-live-dot {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: #16a34a;
+    margin-right: 0.4em;
+    animation: rates-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rates-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
 .rates-error { color: var(--color-text-muted); padding: 1rem 0; }
