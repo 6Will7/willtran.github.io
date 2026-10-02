@@ -1,0 +1,167 @@
+/* Recipes page — theme-aware, matches the site design system. */
+
+.recipes-intro {
+    color: var(--color-text-muted);
+    max-width: 44rem;
+}
+
+.recipe-disclaimer {
+    background: color-mix(in srgb, #ffc107 12%, transparent);
+    border: 1px solid color-mix(in srgb, #ffc107 45%, transparent);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+.recipe-disclaimer strong { display: block; margin-bottom: 0.3rem; }
+
+.recipe-toc {
+    background: var(--color-card-bg-alt);
+    border: 1px solid var(--color-card-border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0 2.5rem;
+}
+.recipe-toc h2 { margin: 0 0 1rem; font-size: 1.25rem; }
+
+.section-nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.nav-item { position: relative; display: inline-block; }
+
+.nav-item > a {
+    display: inline-block;
+    padding: 0.55rem 1.2rem;
+    background: transparent;
+    border: 1.5px solid var(--color-accent);
+    border-radius: 999px;
+    text-decoration: none;
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.92rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.nav-item > a:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+    transform: translateY(-1px);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-card-bg);
+    min-width: 210px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    border-radius: 10px;
+    padding: 0.4rem 0;
+    margin-top: 10px;
+    z-index: 10;
+    border: 1px solid var(--color-card-border);
+}
+.dropdown-content::before {
+    content: "";
+    position: absolute;
+    top: -14px;
+    left: 0;
+    width: 100%;
+    height: 14px;
+    background: transparent;
+}
+.nav-item:hover .dropdown-content { display: block; }
+.dropdown-content a {
+    display: block;
+    padding: 0.55rem 1.2rem;
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.92rem;
+}
+.dropdown-content a:hover {
+    background: var(--color-card-bg-alt);
+    color: var(--color-accent);
+}
+.dropdown-empty {
+    padding: 0.55rem 1.2rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.recipe-section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 2.75rem 0 1.25rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid var(--color-border);
+}
+.recipe-section-head h2 { margin: 0; font-size: 1.6rem; }
+.recipe-section-icon { font-size: 1.6rem; }
+
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.recipe-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 10px;
+    padding: 1.4rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    scroll-margin-top: 90px;
+}
+.recipe-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+}
+.recipe-card h3 { margin: 0; font-size: 1.3rem; }
+
+.recipe-meta {
+    display: flex;
+    gap: 1.25rem;
+    margin: 0.8rem 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+.recipe-meta strong { color: var(--color-text); font-weight: 600; }
+
+.recipe-card ul, .recipe-card ol { margin: 0.8rem 0; padding-left: 1.25rem; }
+.recipe-card li { margin: 0.3rem 0; line-height: 1.6; }
+.recipe-card p { margin: 0.8rem 0 0.3rem; }
+
+details.recipe-accordion summary {
+    cursor: pointer;
+    color: var(--color-accent);
+    font-weight: 600;
+    margin-top: 0.6rem;
+    list-style: none;
+}
+details.recipe-accordion summary::-webkit-details-marker { display: none; }
+details.recipe-accordion summary:hover { text-decoration: underline; }
+details.recipe-accordion[open] summary {
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.6rem;
+}
+
+.empty-section {
+    text-align: center;
+    color: var(--color-text-muted);
+    margin: 2.5rem 0;
+    font-style: italic;
+}
+
+.back-link { text-align: center; margin-top: 1.5rem; }
+.back-link a { color: var(--color-accent); text-decoration: none; font-size: 0.92rem; }
+.back-link a:hover { text-decoration: underline; }

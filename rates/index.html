@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=20260929t">
     <link rel="stylesheet" href="/css/main.css?v=20260929t">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/rates.css?v=20261001b">
+    <link rel="stylesheet" href="/css/rates.css?v=20261001c">
 </head>
 <body>
 
@@ -22,6 +22,14 @@
         <section class="section reveal">
             <h2>U.S. Treasurys</h2>
             <p id="rates-meta" class="rates-meta">Loading yields…</p>
+
+            <div class="rates-curve-controls">
+                <span class="rates-curve-label">Overlay:</span>
+                <button class="rates-chip" data-hist="w1" type="button" aria-pressed="false">1W ago</button>
+                <button class="rates-chip" data-hist="m1" type="button" aria-pressed="false">1M ago</button>
+                <button class="rates-chip" data-hist="y1" type="button" aria-pressed="false">1Y ago</button>
+            </div>
+            <div id="rates-curve" class="rates-curve" role="img" aria-label="Yield curve chart"></div>
 
             <div class="rates-wrap">
                 <table class="rates-table" aria-label="U.S. Treasury yields">
@@ -48,6 +56,6 @@
     <div id="footer-placeholder"></div>
 
     <script src="/js/main.js"></script>
-    <script src="/js/rates.js?v=20261001b"></script>
+    <script src="/js/rates.js?v=20261001c"></script>
 </body>
 </html>
