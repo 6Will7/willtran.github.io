@@ -4,19 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
     <meta name="description" content="Live US stock quotes with charts and key stats. By Will Tran.">
+    <meta property="og:title" content="Stocks | Will Tran">
+    <meta property="og:description" content="Live quotes, charts, earnings, SEC financials, filings and insider trades.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/stocks/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
       <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <title>Stocks | Will Tran</title>
 
-    <link rel="stylesheet" href="/css/variables.css?v=20260929t">
-    <link rel="stylesheet" href="/css/main.css?v=20260929t">
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=608f1f84">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/stocks.css?v=20261001b">
+    <link rel="stylesheet" href="/css/stocks.css?v=4497b217">
 </head>
 <body>
 
     <!-- Shared Navigation Placeholder -->
-    <div id="header-placeholder"></div>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li><a href="/stocks/" class="active">Stocks</a></li>
+        <li><a href="/heatmap/">Heat Map</a></li>
+        <li><a href="/rates/">Rates</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
 
     <main class="container">
         <section class="section reveal">
@@ -173,11 +200,16 @@
     </main>
 
     <!-- Shared Footer Placeholder -->
-    <div id="footer-placeholder"></div>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
 
     <script src="/js/main.js"></script>
-    <script src="/js/gics.js?v=20260929b"></script>
+    <script src="/js/gics.js?v=a5a85f5a"></script>
     <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="/js/stocks.js?v=20261001d"></script>
+    <script src="/js/stocks.js?v=88769026"></script>
 </body>
 </html>

@@ -4,19 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
     <meta name="description" content="A calculator that understands plain English — percentages, unit conversions, equations, and bond math. By Will Tran.">
+    <meta property="og:title" content="Calculator | Will Tran">
+    <meta property="og:description" content="Natural-language calculator with bond math.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/calculator/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
       <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <title>Calculator | Will Tran</title>
 
-    <link rel="stylesheet" href="/css/variables.css?v=20260929t">
-    <link rel="stylesheet" href="/css/main.css?v=20260929t">
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=608f1f84">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/calculator.css">
 </head>
 <body>
 
     <!-- Shared Navigation Placeholder -->
-    <div id="header-placeholder"></div>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/" class="active">Calculator</a></li>
+        <li><a href="/stocks/">Stocks</a></li>
+        <li><a href="/heatmap/">Heat Map</a></li>
+        <li><a href="/rates/">Rates</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
 
     <main class="container">
         <section class="section reveal">
@@ -68,7 +95,12 @@
     </main>
 
     <!-- Shared Footer Placeholder -->
-    <div id="footer-placeholder"></div>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
 
     <script src="/js/main.js" defer></script>
     <script src="/js/calc-engine.js" defer></script>
