@@ -1,0 +1,56 @@
+/* U.S. Treasury yields table — CNBC-style, theme-aware. */
+
+.rates-meta {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0.25rem 0 1rem;
+}
+
+.rates-wrap { overflow-x: auto; }
+
+.rates-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    min-width: 640px;
+    font-variant-numeric: tabular-nums;
+}
+
+.rates-table thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.rates-table tbody td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.rates-table tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--color-text) 3%, transparent);
+}
+
+.rates-table th.num,
+.rates-table td.num { text-align: right; }
+
+.rates-table td.sym { font-weight: 700; white-space: nowrap; }
+.rates-table td.yld { font-weight: 700; }
+
+.rates-chg-up { color: #16a34a; font-weight: 600; white-space: nowrap; }
+.rates-chg-dn { color: #dc2626; font-weight: 600; white-space: nowrap; }
+.rates-chg-flat { color: var(--color-text-muted); white-space: nowrap; }
+
+.rates-note {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    margin-top: 1rem;
+    max-width: 46rem;
+}
+
+.rates-error { color: var(--color-text-muted); padding: 1rem 0; }

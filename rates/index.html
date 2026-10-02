@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+    <meta name="description" content="U.S. Treasury yields — today, last week, last month, last year. By Will Tran.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Rates | Will Tran</title>
+
+    <link rel="stylesheet" href="/css/variables.css?v=20260929t">
+    <link rel="stylesheet" href="/css/main.css?v=20260929t">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/rates.css?v=20261001a">
+</head>
+<body>
+
+    <!-- Shared Navigation Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>U.S. Treasurys</h2>
+            <p id="rates-meta" class="rates-meta">Loading yields…</p>
+
+            <div class="rates-wrap">
+                <table class="rates-table" aria-label="U.S. Treasury yields">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th class="num">Yield</th>
+                            <th class="num">1 wk ago</th>
+                            <th class="num">1 mo ago</th>
+                            <th class="num">1 yr ago</th>
+                            <th class="num">Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rates-body"></tbody>
+                </table>
+            </div>
+
+            <p class="rates-note">Par yields via FRED (Federal Reserve Bank of St. Louis),
+            updated once daily; historical columns use the nearest trading day.
+            Data for informational purposes only — verify before investing.</p>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/rates.js?v=20261001a"></script>
+</body>
+</html>
