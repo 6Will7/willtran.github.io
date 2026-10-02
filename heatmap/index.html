@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=20260929t">
     <link rel="stylesheet" href="/css/main.css?v=20260929t">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/heatmap.css?v=20261001a">
+    <link rel="stylesheet" href="/css/heatmap.css?v=20261001b">
 </head>
 <body>
 
@@ -40,6 +40,7 @@
             </div>
 
             <p id="hm-meta" class="hm-meta"></p>
+            <p id="hm-fresh" class="hm-fresh"></p>
             <div id="hm-map" class="hm-map" aria-label="Heat map"></div>
             <div class="hm-legend">
                 <span>-3%</span>
@@ -49,8 +50,8 @@
             </div>
             <p class="hm-note">Full holdings for SPY, DIA, XLF, and XBI come straight from State Street's
             published daily files (refreshed weekly); Nasdaq 100 is live from Nasdaq. Any other
-            ticker shows its top 25 holdings.
-            Data for informational purposes only — verify before investing.</p>
+            ticker shows its top 25 holdings. Colors show today's % change vs. the previous close;
+            gray tiles had no price data. Data for informational purposes only — verify before investing.</p>
         </section>
     </main>
 
@@ -59,6 +60,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/gics.js?v=20260929b"></script>
     <script src="/js/etf-holdings.js?v=20261001a"></script>
-    <script src="/js/heatmap.js?v=20261001b"></script>
+    <script src="/js/heatmap.js?v=20261001c"></script>
 </body>
 </html>

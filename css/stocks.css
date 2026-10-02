@@ -58,6 +58,7 @@
 
 .stocks-name { font-size: 1.35rem; font-weight: 650; color: var(--color-text); }
 .stocks-sym { color: var(--color-text-muted); font-size: 0.95rem; margin-top: 0.15rem; }
+.stocks-asof { color: var(--color-text-muted); font-size: 0.78rem; margin-top: 0.2rem; }
 
 .stocks-priceblock { text-align: right; }
 .stocks-price { font-size: 2rem; font-weight: 700; color: var(--color-text); font-variant-numeric: tabular-nums; }

@@ -8,6 +8,7 @@
 
   var mapEl = document.getElementById('hm-map');
   var metaEl = document.getElementById('hm-meta');
+  var freshEl = document.getElementById('hm-fresh');
   var input = document.getElementById('hm-etf');
   var goBtn = document.getElementById('hm-go');
   var presets = document.querySelectorAll('.hm-preset');
@@ -171,6 +172,54 @@
     if (p) p.textContent = fmtPct(h.pct);
   }
 
+  /* ---------- freshness: when are these prices actually from? ---------- */
+  // ET wall-clock helpers (the toLocaleString round-trip is the standard trick;
+  // we only read wall-clock fields, never absolute time)
+  function etParts(d) {
+    var s = d.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    return new Date(s);
+  }
+  function marketOpenNow() {
+    var e = etParts(new Date());
+    var day = e.getDay();
+    if (day === 0 || day === 6) return false;
+    var mins = e.getHours() * 60 + e.getMinutes();
+    return mins >= 570 && mins < 960; // 9:30am–4:00pm ET
+  }
+  var fmtET = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+  });
+  // Status line: "Prices as of Oct 1, 4:32 PM ET · Market open — live"
+  // or "· Market closed", which makes weekend/stale views obvious.
+  function freshnessLine(maxT, loaded, total) {
+    var bits = [];
+    if (maxT) bits.push('Prices as of ' + fmtET.format(new Date(maxT * 1000)) + ' ET');
+    bits.push(marketOpenNow() ? 'Market open — live' : 'Market closed');
+    if (total) bits.push(loaded + '/' + total + ' prices loaded');
+    return bits.join(' · ');
+  }
+  function markMissing(holdings) {
+    holdings.forEach(function (h) {
+      if (h.pct === null || h.pct === undefined) {
+        var a = tileBySym[h.s];
+        if (a) {
+          a.classList.remove('loading');
+          var r = a.getBoundingClientRect();
+          if (r.height > 46 && !a.querySelector('.p')) {
+            var p = document.createElement('span');
+            p.className = 'p';
+            var t = a.querySelector('.t');
+            p.style.fontSize = (t ? parseFloat(t.style.fontSize) * 0.72 : 10).toFixed(1) + 'px';
+            p.textContent = 'n/a';
+            a.appendChild(p);
+            a.title = (h.name || h.s) + ' — no price data';
+          }
+        }
+      }
+    });
+  }
+
   function setActive(etf) {
     for (var i = 0; i < presets.length; i++) {
       presets[i].classList.toggle('active', presets[i].getAttribute('data-etf') === etf);
@@ -180,6 +229,7 @@
   function err(msg) {
     mapEl.innerHTML = '';
     metaEl.textContent = '';
+    freshEl.textContent = '';
     var d = document.createElement('p');
     d.className = 'hm-error';
     d.textContent = msg;
@@ -190,8 +240,12 @@
     try {
       var r = await fetch(WORKER_URL + '/quote?symbol=' + encodeURIComponent(h.s));
       var j = await r.json();
-      if (r.ok && typeof j.dp === 'number') { h.pct = j.dp; updateTile(h); }
-    } catch (e) { /* tile stays gray */ }
+      if (r.ok && typeof j.dp === 'number') {
+        h.pct = j.dp;
+        if (typeof j.t === 'number') h.t = j.t;
+        updateTile(h);
+      }
+    } catch (e) { /* tile stays gray, marked n/a at the end */ }
   }
 
   // Sequential, throttled quotes: Finnhub free allows 60/min, so one
@@ -213,6 +267,7 @@
   async function load(etf) {
     setActive(etf);
     metaEl.textContent = 'Loading ' + etf + '…';
+    freshEl.textContent = '';
     mapEl.innerHTML = '';
     try {
       var holdings, meta;
@@ -227,7 +282,14 @@
         });
         meta = 'Nasdaq 100 · ' + j.holdings.length + ' holdings · sized by market cap' +
                (j.asOf ? ' · ' + j.asOf : '');
+        metaEl.textContent = meta;
         render(holdings);
+        var qmiss = holdings.filter(function (h) { return h.pct === null || h.pct === undefined; }).length;
+        markMissing(holdings);
+        // Nasdaq gives a date but no intraday timestamp; show it as the price date
+        freshEl.textContent = 'Prices as of ' + (j.asOf || 'today') + ' (Nasdaq) · ' +
+          (marketOpenNow() ? 'Market open — live' : 'Market closed') +
+          ' · ' + (holdings.length - qmiss) + '/' + holdings.length + ' prices loaded';
       } else if (typeof ETF_HOLDINGS !== 'undefined' && ETF_HOLDINGS[etf]) {
         var full = ETF_HOLDINGS[etf];
         var list = full.holdings.slice(0, MAX_TILES);
@@ -239,6 +301,15 @@
         metaEl.textContent = meta;
         render(holdings);
         await quoteLoop(holdings);
+        var maxT = 0, loaded = 0;
+        holdings.forEach(function (h) {
+          if (h.pct !== null && h.pct !== undefined) {
+            loaded++;
+            if (h.t && h.t > maxT) maxT = h.t;
+          }
+        });
+        markMissing(holdings);
+        freshEl.textContent = freshnessLine(maxT, loaded, holdings.length);
         meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
                ' · index weights as of ' + full.asOf;
       } else {
@@ -254,6 +325,15 @@
         metaEl.textContent = meta;
         render(holdings);
         await quoteLoop(holdings);
+        var maxT2 = 0, loaded2 = 0;
+        holdings.forEach(function (h) {
+          if (h.pct !== null && h.pct !== undefined) {
+            loaded2++;
+            if (h.t && h.t > maxT2) maxT2 = h.t;
+          }
+        });
+        markMissing(holdings);
+        freshEl.textContent = freshnessLine(maxT2, loaded2, holdings.length);
         meta = etf + ' · top ' + holdings.length + ' holdings by index weight';
       }
       metaEl.textContent = meta;

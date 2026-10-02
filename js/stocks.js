@@ -99,6 +99,16 @@
     chg.textContent = fmtSigned(q.d) + ' (' + (q.dp >= 0 ? '+' : '−') +
       Math.abs(q.dp).toFixed(2) + '%)';
     chg.className = 'stocks-change ' + (q.d >= 0 ? 'up' : 'down');
+    // Quote timestamp: Finnhub's t is the price time (unix seconds).
+    // Makes it obvious when you're looking at a closed market / stale quote.
+    var asof = $('q-asof');
+    if (q.t) {
+      var qt = new Date(q.t * 1000);
+      asof.textContent = 'as of ' + new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+      }).format(qt) + ' ET';
+    } else { asof.textContent = ''; }
 
     $('q-low').textContent = fmtPrice(q.l);
     $('q-high').textContent = fmtPrice(q.h);
