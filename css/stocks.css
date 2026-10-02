@@ -436,3 +436,16 @@
 .insider-badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--color-border); color: var(--color-text-muted); }
 .insider-badge.buy { background: rgba(22, 163, 74, 0.18); color: #16a34a; }
 .insider-badge.sell { background: rgba(220, 38, 38, 0.16); color: #dc2626; }
+
+/* SEC financials (as-reported quarterly) */
+.stocks-financials { margin-top: 1.2rem; overflow-x: auto; }
+.fin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 720px; font-variant-numeric: tabular-nums; }
+.fin-table th, .fin-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
+.fin-table tbody th { font-weight: 600; white-space: nowrap; color: var(--color-text); }
+.fin-table th.num, .fin-table td.num { text-align: right; }
+.fin-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
+.fin-val { font-weight: 600; }
+.fin-yoy { font-size: 0.72rem; margin-top: 0.1rem; }
+.fin-up { color: #16a34a; }
+.fin-dn { color: #dc2626; }
+.fin-flat { color: var(--color-text-muted); }

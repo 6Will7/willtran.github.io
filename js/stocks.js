@@ -84,6 +84,7 @@
       loadChart(chartRange);
       loadFilings(sym);
       loadEstimates(sym);
+      loadFinancials(sym);
       loadNews(sym);
       loadInsider(sym);
     }).catch(function (e) {
@@ -1262,6 +1263,59 @@
       box.innerHTML = blockHead('Insider trades', sub) + html;
       box.hidden = false;
     }).catch(function () { /* premium-gated or no data — block stays hidden */ });
+  }
+
+  function loadFinancials(sym) {
+    var box = $('q-financials');
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = '';
+    // SEC companyfacts via the worker — as-reported quarterly financials.
+    api('sec/facts').then(function (res) {
+      if (currentSymbol !== sym || !res || !res.quarters || !res.quarters.length) return;
+      var n = res.quarters.length;      // up to 12 quarter ends
+      var show = Math.min(8, n);        // display the last 8
+      var off = n - show;
+      function qlabel(iso) {
+        var p = iso.split('-');
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return months[Number(p[1]) - 1] + " '" + p[0].slice(2);
+      }
+      function money(v) {
+        if (v == null || isNaN(v)) return '—';
+        var a = Math.abs(v);
+        if (a >= 1e9) return '$' + (v / 1e9).toFixed(1) + 'B';
+        if (a >= 1e6) return '$' + (v / 1e6).toFixed(0) + 'M';
+        return '$' + Math.round(v).toLocaleString('en-US');
+      }
+      function yoy(arr, i) {
+        var v = arr[off + i], p = arr[off + i - 4];
+        if (v == null || p == null || p === 0) return '';
+        var pct = (v - p) / Math.abs(p) * 100;
+        var cls = pct > 0.05 ? 'fin-up' : pct < -0.05 ? 'fin-dn' : 'fin-flat';
+        return '<div class="fin-yoy ' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(1) + '% YoY</div>';
+      }
+      function finRow(label, arr, isEps) {
+        var html = '<tr><th>' + label + '</th>';
+        for (var i = 0; i < show; i++) {
+          var v = arr[off + i];
+          var val = (v == null || isNaN(v)) ? '—' : (isEps ? '$' + Number(v).toFixed(2) : money(v));
+          html += '<td class="num"><div class="fin-val">' + val + '</div>' + yoy(arr, i) + '</td>';
+        }
+        return html + '</tr>';
+      }
+      var html = '<table class="fin-table"><thead><tr><th></th>';
+      for (var i = 0; i < show; i++) html += '<th class="num">' + qlabel(res.quarters[off + i]) + '</th>';
+      html += '</tr></thead><tbody>' +
+        finRow('Revenue', res.revenue) +
+        finRow('Gross profit', res.grossProfit) +
+        finRow('Operating income', res.opIncome) +
+        finRow('Net income', res.netIncome) +
+        finRow('Diluted EPS', res.eps, true) +
+        '</tbody></table>';
+      box.innerHTML = blockHead('Financials', 'as-reported quarterly · SEC companyfacts') + html;
+      box.hidden = false;
+    }).catch(function () { /* no SEC data — block stays hidden */ });
   }
 
   function loadNews(sym) {
