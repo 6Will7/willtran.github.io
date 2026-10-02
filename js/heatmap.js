@@ -315,7 +315,7 @@
     setActive(etf);
     metaEl.textContent = 'Loading ' + etf + '…';
     freshEl.textContent = '';
-    mapEl.innerHTML = '';
+    mapEl.innerHTML = '<div class="loader-center"><div class="spinner" role="status" aria-label="Loading heat map"></div></div>';
     try {
       var holdings, meta;
       if (etf === 'QQQ') {

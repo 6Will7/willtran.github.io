@@ -555,7 +555,8 @@
       refreshSeriesVisibility();
       clearIndicatorData();
       lwMsg.hidden = false;
-      lwMsg.textContent = empty ? 'Chart unavailable' : 'Loading…';
+      if (empty) { lwMsg.textContent = 'Chart unavailable'; }
+      else { lwMsg.innerHTML = '<div class="loader-center"><div class="spinner spinner-sm" role="status" aria-label="Loading chart"></div></div>'; }
       return;
     }
     lwMsg.hidden = true;
@@ -1378,7 +1379,7 @@
 
   function loadFilings(sym) {
     allFilings = [];
-    filingsList.innerHTML = '<div class="filings-empty">Loading filings…</div>';
+    filingsList.innerHTML = '<div class="loader-center"><div class="spinner spinner-sm" role="status" aria-label="Loading filings"></div><span>Loading filings…</span></div>';
     var tabs = document.querySelectorAll('.filing-tab');
     for (var i = 0; i < tabs.length; i++) {
       tabs[i].classList.toggle('active', tabs[i].getAttribute('data-form') === 'ALL');

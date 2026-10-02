@@ -1,0 +1,87 @@
+/* Shared loading indicators.
+   Customize site-wide with:
+     --loader-accent : spinner / accent color (default: theme accent)
+     --loader-speed  : shimmer & spin duration (default: 1.4s)
+   Shimmer adapts to light/dark theme automatically. Honors
+   prefers-reduced-motion (static placeholders, no animation). */
+
+:root {
+  --loader-accent: var(--color-accent);
+  --loader-speed: 1.4s;
+}
+
+/* --- Shimmer skeleton block ----------------------------------- */
+.sk {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  border-radius: 6px;
+  min-height: 1em;
+}
+.sk::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, var(--color-text) 12%, transparent) 50%,
+    transparent 80%
+  );
+  animation: sk-shimmer var(--loader-speed) infinite;
+}
+@keyframes sk-shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* Skeleton table row — drop <td><div class="sk"></div></td> cells inside */
+tr.sk-row td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+tr.sk-row .sk {
+  height: 0.95em;
+}
+tr.sk-row td.num .sk {
+  margin-left: auto;
+  max-width: 4.5em;
+}
+
+/* --- Ring spinner ---------------------------------------------- */
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+  border-top-color: var(--loader-accent);
+  animation: spin var(--loader-speed) linear infinite;
+}
+.spinner-sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Centered loader wrapper */
+.loader-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk::after,
+  .spinner {
+    animation: none;
+  }
+  .spinner {
+    border-top-color: color-mix(in srgb, var(--color-text) 15%, transparent);
+  }
+}
