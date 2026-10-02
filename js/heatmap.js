@@ -69,9 +69,12 @@
     }
 
     for (i = 0; i < nodes.length; i++) {
-      var side = Math.min(cw, ch);
+      // The strip is always laid across the LONGEST side of the remaining
+      // rect (see flushRow) — worst() must evaluate that same geometry,
+      // otherwise single items flush alone and the map degenerates into bands.
+      var L = Math.max(cw, ch);
       var na = nodes[i].w * scale;
-      if (row.length && worst(row.concat([nodes[i]]), rowArea + na, side) > worst(row, rowArea, side)) {
+      if (row.length && worst(row.concat([nodes[i]]), rowArea + na, L) > worst(row, rowArea, L)) {
         flushRow();
       }
       row.push(nodes[i]); rowArea += na;
