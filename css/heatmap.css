@@ -25,14 +25,24 @@
 }
 .hm-sector {
   position: absolute; box-sizing: border-box;
-  border: 1px solid rgba(128, 128, 128, 0.25);
-  background: rgba(128, 128, 128, 0.06);
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  background: rgba(0, 0, 0, 0.18);
   overflow: hidden;
 }
 .hm-sector-label {
   position: absolute; top: 2px; left: 6px; z-index: 2;
   font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
   color: var(--color-muted); text-transform: uppercase;
+  pointer-events: none; white-space: nowrap;
+}
+.hm-industry {
+  position: absolute; box-sizing: border-box;
+  overflow: hidden;
+}
+.hm-industry-label {
+  position: absolute; top: 1px; left: 4px; z-index: 2;
+  font-size: 0.58rem; font-weight: 600; letter-spacing: 0.03em;
+  color: var(--color-muted); text-transform: uppercase; opacity: 0.85;
   pointer-events: none; white-space: nowrap;
 }
 .hm-tile {

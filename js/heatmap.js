@@ -16,13 +16,13 @@
 
   function $(id) { return document.getElementById(id); }
 
-  /* ---------- color: diverging red -> gray -> green on day % change ---------- */
+  /* ---------- colors: vivid Finviz-style diverging scale ---------- */
   function tileColor(pct) {
-    if (pct === null || pct === undefined || isNaN(pct)) return '#55575f';
+    if (pct === null || pct === undefined || isNaN(pct)) return '#3a3b40';
     var t = Math.max(-1, Math.min(1, pct / 3)); // clamp at +/-3%
-    var a = 0.28 + 0.72 * Math.abs(t);
-    if (t >= 0) return 'rgba(22,163,74,' + a.toFixed(2) + ')';
-    return 'rgba(220,38,38,' + a.toFixed(2) + ')';
+    var a = (0.35 + 0.65 * Math.abs(t)).toFixed(2);
+    if (t >= 0) return 'rgba(56,142,60,' + a + ')';
+    return 'rgba(211,47,47,' + a + ')';
   }
 
   /* ---------- squarified treemap (Bruls et al.) ---------- */
@@ -80,12 +80,21 @@
     return out;
   }
 
-  function sectorOf(sym) {
+  function sectorIndOf(sym) {
     var g = (typeof GICS !== 'undefined' && GICS[sym]) || null;
-    return g ? g.s : 'Other';
+    return { s: g ? g.s : 'Other', i: (g && g.i) ? g.i : 'Other' };
   }
 
   function px(n) { return Math.max(0, n).toFixed(1) + 'px'; }
+
+  function groupLabel(parent, text, cls, minW, minH) {
+    var r = parent.getBoundingClientRect();
+    if (r.height < minH || r.width < minW) return;
+    var lab = document.createElement('span');
+    lab.className = cls;
+    lab.textContent = text;
+    parent.appendChild(lab);
+  }
 
   function makeTile(h, r) {
     var a = document.createElement('a');
@@ -95,17 +104,17 @@
     a.style.left = px(r.x); a.style.top = px(r.y);
     a.style.width = px(r.w); a.style.height = px(r.h);
     a.style.background = tileColor(h.pct);
-    var showT = r.w > 34 && r.h > 24;
+    var showT = r.w > 26 && r.h > 18;
     if (showT) {
-      var fs = Math.max(8, Math.min(15, r.w / (h.s.length * 0.72), r.h / 3.2));
+      var fs = Math.max(7.5, Math.min(22, r.w / (h.s.length * 0.62), r.h / 2.6));
       var t = document.createElement('span');
       t.className = 't'; t.textContent = h.s;
       t.style.fontSize = fs.toFixed(1) + 'px';
       a.appendChild(t);
-      if (r.h > 46 && h.pct !== null && h.pct !== undefined) {
+      if (r.h > fs * 2.5 && h.pct !== null && h.pct !== undefined) {
         var p = document.createElement('span');
         p.className = 'p'; p.textContent = fmtPct(h.pct);
-        p.style.fontSize = (fs * 0.72).toFixed(1) + 'px';
+        p.style.fontSize = (fs * 0.78).toFixed(1) + 'px';
         a.appendChild(p);
       }
     }
@@ -115,42 +124,59 @@
 
   function fmtPct(p) { return (p >= 0 ? '+' : '') + p.toFixed(2) + '%'; }
 
+  // Three-level treemap: sector -> industry -> ticker, Finviz-style.
+  // Tighter packing and bigger type than the old two-level version.
   function render(holdings) {
     mapEl.innerHTML = '';
     tileBySym = {};
     var W = mapEl.clientWidth, H = mapEl.clientHeight;
     if (!W || !H) return;
-    var sectors = {};
+
+    var tree = {};
     holdings.forEach(function (h) {
-      var s = sectorOf(h.s);
-      (sectors[s] = sectors[s] || []).push(h);
+      var gi = sectorIndOf(h.s);
+      tree[gi.s] = tree[gi.s] || {};
+      (tree[gi.s][gi.i] = tree[gi.s][gi.i] || []).push(h);
     });
-    var sItems = Object.keys(sectors).map(function (k) {
-      var ws = 0, i;
-      for (i = 0; i < sectors[k].length; i++) ws += sectors[k][i].w;
-      return { key: k, w: ws, children: sectors[k] };
+    function sumW(items) {
+      var s = 0, i;
+      for (i = 0; i < items.length; i++) s += items[i].w;
+      return s;
+    }
+    var sItems = Object.keys(tree).map(function (sk) {
+      var inds = Object.keys(tree[sk]).map(function (ik) {
+        return { key: ik, w: sumW(tree[sk][ik]), children: tree[sk][ik] };
+      });
+      return { key: sk, w: sumW(inds), children: inds };
     });
-    var pad = 3;
+
     squarify(sItems, 0, 0, W, H).forEach(function (sr) {
       var sec = document.createElement('div');
       sec.className = 'hm-sector';
       sec.style.left = px(sr.x); sec.style.top = px(sr.y);
       sec.style.width = px(sr.w); sec.style.height = px(sr.h);
-      var showLabel = sr.h > 34 && sr.w > 110;
-      if (showLabel) {
-        var lab = document.createElement('span');
-        lab.className = 'hm-sector-label';
-        lab.textContent = sr.item.key;
-        sec.appendChild(lab);
-      }
-      var topPad = showLabel ? 18 : pad;
-      squarify(sr.item.children, pad, topPad, sr.w - pad * 2, sr.h - topPad - pad)
-        .forEach(function (hr) {
-          sec.appendChild(makeTile(hr.item, {
-            x: hr.x, y: hr.y, w: Math.max(0, hr.w - 2), h: Math.max(0, hr.h - 2)
-          }));
-        });
       mapEl.appendChild(sec);
+      groupLabel(sec, sr.item.key, 'hm-sector-label', 90, 30);
+
+      var sp = 2, stop = sec.querySelector('.hm-sector-label') ? 17 : sp;
+      squarify(sr.item.children, sp, stop, sr.w - sp * 2, sr.h - stop - sp)
+        .forEach(function (ir) {
+          var ind = document.createElement('div');
+          ind.className = 'hm-industry';
+          ind.style.left = px(ir.x); ind.style.top = px(ir.y);
+          ind.style.width = px(ir.w); ind.style.height = px(ir.h);
+          sec.appendChild(ind);
+          groupLabel(ind, ir.item.key, 'hm-industry-label', 60, 24);
+
+          var ip = 1, itop = ind.querySelector('.hm-industry-label') ? 13 : ip;
+          squarify(ir.item.children, ip, itop, ir.w - ip * 2, ir.h - itop - ip)
+            .forEach(function (hr) {
+              ind.appendChild(makeTile(hr.item, {
+                x: hr.x, y: hr.y,
+                w: Math.max(0, hr.w - 1), h: Math.max(0, hr.h - 1)
+              }));
+            });
+        });
     });
   }
 
@@ -161,12 +187,13 @@
     a.style.background = tileColor(h.pct);
     a.title = (h.name || h.s) + ' ' + fmtPct(h.pct);
     var p = a.querySelector('.p');
+    var t = a.querySelector('.t');
     var r = a.getBoundingClientRect();
-    if (!p && r.height > 46) {
+    var fs0 = t ? parseFloat(t.style.fontSize) : 10;
+    if (!p && t && r.height > fs0 * 2.5) {
       p = document.createElement('span');
       p.className = 'p';
-      var t = a.querySelector('.t');
-      p.style.fontSize = (parseFloat(t.style.fontSize) * 0.72).toFixed(1) + 'px';
+      p.style.fontSize = (fs0 * 0.78).toFixed(1) + 'px';
       a.appendChild(p);
     }
     if (p) p.textContent = fmtPct(h.pct);
@@ -205,12 +232,13 @@
         var a = tileBySym[h.s];
         if (a) {
           a.classList.remove('loading');
-          var r = a.getBoundingClientRect();
-          if (r.height > 46 && !a.querySelector('.p')) {
+          var t2 = a.querySelector('.t');
+          var r2 = a.getBoundingClientRect();
+          var fs2 = t2 ? parseFloat(t2.style.fontSize) : 10;
+          if (t2 && r2.height > fs2 * 2.5 && !a.querySelector('.p')) {
             var p = document.createElement('span');
             p.className = 'p';
-            var t = a.querySelector('.t');
-            p.style.fontSize = (t ? parseFloat(t.style.fontSize) * 0.72 : 10).toFixed(1) + 'px';
+            p.style.fontSize = (fs2 * 0.78).toFixed(1) + 'px';
             p.textContent = 'n/a';
             a.appendChild(p);
             a.title = (h.name || h.s) + ' — no price data';
