@@ -318,9 +318,14 @@
     }
     var first = chartData.c[from], last = chartData.c[to];
     if (!first) { rangeChangeEl.textContent = ''; return; }
+    // On 1D with the full session visible, measure from the previous close
+    // (the dashed line) so the label matches the quoted day change. The
+    // first chart bar is the open, which is a different reference point.
+    if (full && chartRange === '1D' && prevClose) first = prevClose;
     var pct = (last - first) / first * 100;
     var rangeLabels = {
-      '1D': 'today', '1W': 'past week', '1M': 'past month', 'YTD': 'YTD',
+      '1D': 'today', '1W': 'past week', '1M': 'past month', 'T3M': 'past 3 mos',
+      'T6M': 'past 6 mos', 'YTD': 'YTD',
       '1Y': 'past year', '3Y': 'past 3 yrs', '5Y': 'past 5 yrs',
       '10Y': 'past 10 yrs', 'MAX': 'all time', 'CUSTOM': 'selected range'
     };
@@ -910,7 +915,7 @@
   function extensionChunk(range, spanSec) {
     var day = 86400;
     if (range === '1D' || range === '1W') return 6 * day; // 1h bars (closest available)
-    if (range === '1M' || range === 'YTD' || range === '1Y') return 100 * day; // 1d bars
+    if (range === '1M' || range === 'T3M' || range === 'T6M' || range === 'YTD' || range === '1Y') return 100 * day; // 1d bars
     if (range === '3Y' || range === '5Y') return Math.floor(2.5 * 366 * day); // 1wk bars
     if (range === '10Y') return Math.floor(2.5 * 366 * day); // 1wk bars, matches main
     if (range === 'MAX') return 10 * 366 * day; // 1mo bars, matches main
