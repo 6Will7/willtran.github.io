@@ -308,10 +308,12 @@
         var vr = lwChart.timeScale().getVisibleLogicalRange();
         if (vr) {
           var vf = Math.max(0, Math.floor(vr.from));
-          var vt = Math.min(n - 1, Math.ceil(vr.to) - 1);
+          var vt = Math.min(n - 1, Math.floor(vr.to));
           if (vt > vf) {
             from = vf; to = vt;
-            full = (vf <= 0 && vt >= n - 1);
+            // fitContent() can end the range exactly at the last bar, so
+            // compare the raw edge with a small epsilon instead of ceil()-1.
+            full = (vf <= 0 && vr.to >= n - 1 - 1e-9);
           }
         }
       } catch (e) {}
