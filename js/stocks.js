@@ -291,6 +291,7 @@
         chartData = shiftIntraday(d, range);
         extending = false;
         atDataStart = false; // fresh range — earlier history may exist again
+        viewTouched = false; // fresh range — wait for a real user gesture before extending
         drawChart();
         updateRangeChange();
         if (overlaySymbol) loadOverlay(overlaySymbol); // keep overlay in sync with range
@@ -299,6 +300,7 @@
   }
 
   function updateRangeChange() {
+    if (extending) return; // mid-extension the data and view are briefly out of sync
     if (!chartData || chartData.c.length < 2) { rangeChangeEl.textContent = ''; return; }
     // % is computed over the visible window, so dragging/zooming the chart
     // updates the timeframe it describes.
@@ -423,6 +425,11 @@
       updateRangeChange();
       maybeExtendLeft();
       syncIndCharts();
+    });
+    // mark real user gestures — history extension only runs after one of these,
+    // never from the initial fitContent() which also sits at the left edge
+    ['pointerdown', 'wheel', 'touchstart'].forEach(function (ev) {
+      chartEl.addEventListener(ev, function () { viewTouched = true; }, { passive: true });
     });
     // keep the chart sized to its container
     if (window.ResizeObserver) {
@@ -910,6 +917,7 @@
   /* ---------- infinite scroll: load earlier history when panning left ---------- */
 
   var extending = false, atDataStart = false;
+  var viewTouched = false; // true once the user pans/zooms — extension never auto-fires on load
   var MAX_SPAN_SEC = 40 * 366 * 86400; // stop extending past ~40 years
 
   // Chunk size (seconds) chosen so the worker returns the same bar interval
@@ -928,6 +936,7 @@
   }
 
   function maybeExtendLeft() {
+    if (!viewTouched) return; // only extend after a real user pan/zoom, never on initial load
     if (extending || atDataStart || !chartData || chartData.t.length < 2 || !lwChart) return;
     var vr = null;
     try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) { return; }
@@ -950,9 +959,8 @@
     fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        extending = false;
         d = shiftIntraday(d, chartRange);
-        if (!d || !d.c || d.c.length < 2) { atDataStart = true; return; }
+        if (!d || !d.c || d.c.length < 2) { atDataStart = true; extending = false; return; }
         var first = chartData.t[0];
         var nt = [], no = [], nh = [], nl = [], nc = [], nv = [];
         for (var i = 0; i < d.t.length; i++) {
@@ -961,7 +969,7 @@
             nl.push(d.l[i]); nc.push(d.c[i]); nv.push(d.v[i]);
           }
         }
-        if (nt.length < 2) { atDataStart = true; return; } // nothing new — we're at the start
+        if (nt.length < 2) { atDataStart = true; extending = false; return; } // nothing new — we're at the start
         var vr = null;
         try { vr = lwChart.timeScale().getVisibleLogicalRange(); } catch (e) {}
         chartData.t = nt.concat(chartData.t);
@@ -981,6 +989,7 @@
           } catch (e) {}
         }
         updateRangeChange();
+        extending = false; // release only after the view + label have settled
         extendOverlay(fromTs, toTs);
       })
       .catch(function () { extending = false; });
