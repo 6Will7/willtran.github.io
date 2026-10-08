@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+    <meta name="description" content="Will Tran's favorite Bay Area restaurants — plus reader suggestions.">
+    <meta property="og:title" content="Restaurants | Will Tran">
+    <meta property="og:description" content="My favorite Bay Area restaurants, with a map and reader suggestions.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/restaurants/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Restaurants | Will Tran</title>
+
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=608f1f84">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/restaurants.css">
+</head>
+<body>
+
+    <!-- Shared Navigation Placeholder -->
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li><a href="/stocks/">Stocks</a></li>
+        <li><a href="/heatmap/">Heat Map</a></li>
+        <li><a href="/rates/">Rates</a></li>
+        <li><a href="/restaurants/" class="active">Restaurants</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>Restaurants</h2>
+            <p class="rest-sub">My Bay Area favorites. Know a great spot? Suggest it below — new entries go live once I approve them.</p>
+
+            <div class="rest-map-wrap">
+                <iframe id="rest-map" title="Restaurant map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps?q=Bay%20Area%20restaurants&output=embed"></iframe>
+            </div>
+
+            <div id="rest-filters" class="rest-filters" role="group" aria-label="Filter by cuisine"></div>
+
+            <div id="rest-list" class="rest-grid" aria-live="polite">
+                <div class="loader-center"><div class="spinner" role="status" aria-label="Loading restaurants"></div></div>
+            </div>
+        </section>
+
+        <section class="section reveal">
+            <h2>Suggest a restaurant</h2>
+            <form id="rest-form" class="rest-form" novalidate>
+                <div class="rest-form-row">
+                    <label>Restaurant name *
+                        <input type="text" name="name" required maxlength="80" autocomplete="off">
+                    </label>
+                    <label>Cuisine *
+                        <input type="text" name="cuisine" required maxlength="40" placeholder="e.g. Japanese, Tacos" autocomplete="off">
+                    </label>
+                </div>
+                <div class="rest-form-row">
+                    <label>Neighborhood / City *
+                        <input type="text" name="neighborhood" required maxlength="60" placeholder="e.g. Japantown, San Jose" autocomplete="off">
+                    </label>
+                    <label>Price
+                        <select name="price">
+                            <option value="1">$</option>
+                            <option value="2" selected>$$</option>
+                            <option value="3">$$$</option>
+                            <option value="4">$$$$</option>
+                        </select>
+                    </label>
+                </div>
+                <label>Why do you recommend it?
+                    <textarea name="notes" rows="3" maxlength="500" placeholder="The thing to order, the vibe, whatever sells it."></textarea>
+                </label>
+                <div class="rest-form-row">
+                    <label>Your name (optional)
+                        <input type="text" name="submitted_by" maxlength="40" autocomplete="off">
+                    </label>
+                    <label>Google Maps link (optional)
+                        <input type="url" name="maps_url" maxlength="300" placeholder="https://…" autocomplete="off">
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit suggestion</button>
+                <p id="rest-form-msg" class="rest-form-msg" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+
+    <script src="/js/main.js" defer></script>
+    <script src="/js/restaurants.js" defer></script>
+</body>
+</html>

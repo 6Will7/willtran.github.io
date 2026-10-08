@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Restaurant Admin | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=608f1f84">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/restaurants.css">
+    <style>
+      .admin-wrap { max-width: 720px; }
+      .admin-pending { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0 2rem; }
+      .admin-item { border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1rem; background: var(--color-card-bg); }
+      .admin-item h4 { margin: 0 0 0.2rem; }
+      .admin-item p { margin: 0.15rem 0; font-size: 0.88rem; color: var(--color-text-muted); }
+      .admin-item .notes { color: var(--color-text); }
+      .admin-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+      .btn-approve { background: #1a7f37; color: #fff; border: 0; border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      .btn-reject { background: transparent; color: var(--color-danger, #DA121A); border: 1px solid var(--color-danger, #DA121A); border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      #admin-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li><a href="/stocks/">Stocks</a></li>
+        <li><a href="/heatmap/">Heat Map</a></li>
+        <li><a href="/rates/">Rates</a></li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container admin-wrap">
+        <section class="section reveal">
+            <h2>Restaurant admin</h2>
+            <p class="rest-sub">Not linked anywhere public. Enter your admin token to review the suggestion queue or add spots directly.</p>
+            <input id="admin-token" type="password" placeholder="Admin token" autocomplete="off">
+            <h3>Pending suggestions</h3>
+            <div id="admin-pending" class="admin-pending"><div class="loader-center"><div class="spinner spinner-sm"></div></div></div>
+            <h3>Add directly</h3>
+            <form id="admin-add" class="rest-form" novalidate>
+                <div class="rest-form-row">
+                    <label>Name *<input name="name" required maxlength="80"></label>
+                    <label>Cuisine *<input name="cuisine" required maxlength="40"></label>
+                </div>
+                <div class="rest-form-row">
+                    <label>Neighborhood *<input name="neighborhood" required maxlength="60"></label>
+                    <label>Price
+                        <select name="price">
+                            <option value="1">$</option><option value="2" selected>$$</option>
+                            <option value="3">$$$</option><option value="4">$$$$</option>
+                        </select>
+                    </label>
+                </div>
+                <label>Notes<textarea name="notes" rows="2" maxlength="500"></textarea></label>
+                <label>Google Maps link<input name="maps_url" maxlength="300" placeholder="https://…"></label>
+                <button type="submit" class="btn btn-primary">Add to the list</button>
+                <p id="admin-msg" class="rest-form-msg" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js" defer></script>
+    <script>
+    (function () {
+      'use strict';
+      var WORKER_URL = 'https://willtran-stocks-proxy.willtran98.workers.dev';
+      var tokEl = document.getElementById('admin-token');
+      var pendEl = document.getElementById('admin-pending');
+      var msgEl = document.getElementById('admin-msg');
+      tokEl.value = sessionStorage.getItem('rest_admin') || '';
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      function token() { return tokEl.value.trim(); }
+
+      function loadPending() {
+        if (!token()) { pendEl.innerHTML = '<div class="rest-empty">Enter your admin token above.</div>'; return; }
+        pendEl.innerHTML = '<div class="loader-center"><div class="spinner spinner-sm"></div></div>';
+        fetch(WORKER_URL + '/restaurants/review?token=' + encodeURIComponent(token()))
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (r) {
+            if (!r.ok) { pendEl.innerHTML = '<div class="rest-empty">' + esc((r.j && r.j.error) || 'Failed to load.') + '</div>'; return; }
+            var p = r.j.pending || [];
+            if (!p.length) { pendEl.innerHTML = '<div class="rest-empty">Queue is empty. Nice.</div>'; return; }
+            pendEl.innerHTML = p.map(function (x) {
+              return '<div class="admin-item" data-id="' + x.id + '"><h4>' + esc(x.name) + '</h4>' +
+                '<p>' + esc(x.cuisine) + ' · ' + esc(x.neighborhood) + ' · ' + '$'.repeat(x.price || 2) +
+                (x.submitted_by ? ' · by ' + esc(x.submitted_by) : '') + '</p>' +
+                (x.notes ? '<p class="notes">' + esc(x.notes) + '</p>' : '') +
+                '<div class="admin-actions"><button class="btn-approve" data-act="approve">Approve</button>' +
+                '<button class="btn-reject" data-act="reject">Reject</button></div></div>';
+            }).join('');
+          })
+          .catch(function () { pendEl.innerHTML = '<div class="rest-empty">Failed to load.</div>'; });
+      }
+
+      tokEl.addEventListener('change', function () {
+        sessionStorage.setItem('rest_admin', token());
+        loadPending();
+      });
+      pendEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-act]');
+        if (!btn) return;
+        var item = e.target.closest('.admin-item');
+        fetch(WORKER_URL + '/restaurants/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token(), id: item.getAttribute('data-id'), action: btn.getAttribute('data-act') })
+        }).then(function () { loadPending(); });
+      });
+
+      document.getElementById('admin-add').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var f = e.target;
+        msgEl.className = 'rest-form-msg';
+        msgEl.textContent = 'Adding…';
+        fetch(WORKER_URL + '/restaurants/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token(), action: 'add',
+            name: f.name.value.trim(), cuisine: f.cuisine.value.trim(),
+            neighborhood: f.neighborhood.value.trim(), price: f.price.value,
+            notes: f.notes.value.trim(), maps_url: f.maps_url.value.trim() })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (r) {
+            if (r.ok) { msgEl.classList.add('ok'); msgEl.textContent = 'Added.'; f.reset(); }
+            else { msgEl.classList.add('err'); msgEl.textContent = (r.j && r.j.error) || 'Failed.'; }
+          })
+          .catch(function () { msgEl.classList.add('err'); msgEl.textContent = 'Failed.'; });
+      });
+
+      if (token()) loadPending();
+      else pendEl.innerHTML = '<div class="rest-empty">Enter your admin token above.</div>';
+    })();
+    </script>
+</body>
+</html>
