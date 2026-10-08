@@ -57,6 +57,7 @@
             <h3>Pending suggestions</h3>
             <div id="admin-pending" class="admin-pending"><div class="loader-center"><div class="spinner spinner-sm"></div></div></div>
             <h3>Add directly</h3>
+            <p id="admin-add-hint" class="rest-sub">Enter your admin token above to unlock this form.</p>
             <form id="admin-add" class="rest-form" novalidate>
                 <div class="rest-form-row">
                     <label>Name *<input name="name" required maxlength="80"></label>
@@ -96,8 +97,17 @@
       function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
       function token() { return tokEl.value.trim(); }
 
+      function setAddEnabled(on) {
+        var f = document.getElementById('admin-add');
+        Array.prototype.forEach.call(f.querySelectorAll('input, select, textarea, button'), function (el) {
+          el.disabled = !on;
+        });
+        document.getElementById('admin-add-hint').style.display = on ? 'none' : '';
+      }
+      setAddEnabled(false);
+
       function loadPending() {
-        if (!token()) { pendEl.innerHTML = '<div class="rest-empty">Enter your admin token above.</div>'; return; }
+        if (!token()) { pendEl.innerHTML = '<div class="rest-empty">Enter your admin token above.</div>'; setAddEnabled(false); return; }
         pendEl.innerHTML = '<div class="loader-center"><div class="spinner spinner-sm"></div></div>';
         fetch(WORKER_URL + '/restaurants/review', {
           method: 'POST',
@@ -106,7 +116,12 @@
         })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
           .then(function (r) {
-            if (!r.ok) { pendEl.innerHTML = '<div class="rest-empty">' + esc((r.j && r.j.error) || 'Failed to load.') + '</div>'; return; }
+            if (!r.ok) {
+              pendEl.innerHTML = '<div class="rest-empty">' + esc((r.j && r.j.error) || 'Failed to load.') + '</div>';
+              setAddEnabled(false);
+              return;
+            }
+            setAddEnabled(true);
             var p = r.j.pending || [];
             if (!p.length) { pendEl.innerHTML = '<div class="rest-empty">Queue is empty. Nice.</div>'; return; }
             pendEl.innerHTML = p.map(function (x) {
