@@ -99,7 +99,11 @@
       function loadPending() {
         if (!token()) { pendEl.innerHTML = '<div class="rest-empty">Enter your admin token above.</div>'; return; }
         pendEl.innerHTML = '<div class="loader-center"><div class="spinner spinner-sm"></div></div>';
-        fetch(WORKER_URL + '/restaurants/review?token=' + encodeURIComponent(token()))
+        fetch(WORKER_URL + '/restaurants/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token(), action: 'list' })
+        })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
           .then(function (r) {
             if (!r.ok) { pendEl.innerHTML = '<div class="rest-empty">' + esc((r.j && r.j.error) || 'Failed to load.') + '</div>'; return; }
