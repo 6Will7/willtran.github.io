@@ -112,6 +112,55 @@
       if (e.key === 'Enter') doCalculate();
     });
 
+    /* ---------- voice input (Web Speech API; button stays hidden if unsupported) ---------- */
+    (function initVoice() {
+      var micBtn = $('calc-mic');
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR || !micBtn) return;
+      micBtn.hidden = false;
+      var rec = null;
+
+      function setListening(on) {
+        micBtn.classList.toggle('listening', on);
+        micBtn.setAttribute('aria-label', on ? 'Stop listening' : 'Voice input');
+      }
+
+      micBtn.addEventListener('click', function () {
+        if (rec) { try { rec.stop(); } catch (e) {} return; } // tap again to stop early
+        rec = new SR();
+        rec.lang = 'en-US';
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        rec.onresult = function (ev) {
+          var t = (ev.results[0][0].transcript || '').trim().replace(/\s+/g, ' ');
+          rec = null;
+          setListening(false);
+          if (t) {
+            input.value = t;
+            doCalculate(t);
+            input.focus();
+          }
+        };
+        rec.onerror = function (ev) {
+          rec = null;
+          setListening(false);
+          var msg = 'Voice input failed — try again.';
+          if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+            msg = 'Microphone is blocked — allow mic access for this site and try again.';
+          } else if (ev.error === 'no-speech') {
+            msg = "Didn't catch that — tap the mic and speak again.";
+          }
+          interpEl.textContent = '';
+          valueEl.textContent = msg;
+          valueEl.classList.add('calc-error');
+          valueEl.classList.remove('calc-idle');
+        };
+        rec.onend = function () { rec = null; setListening(false); };
+        try { rec.start(); setListening(true); }
+        catch (e) { rec = null; setListening(false); }
+      });
+    })();
+
     document.querySelectorAll('.calc-chip').forEach(function (chip) {
       chip.addEventListener('click', function () {
         var q = chip.getAttribute('data-q');
