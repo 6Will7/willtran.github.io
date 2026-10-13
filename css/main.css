@@ -113,6 +113,80 @@ nav a.active {
   padding-bottom: 4px;
 }
 
+/* Markets dropdown */
+.nav-drop {
+  position: relative;
+}
+
+.nav-dropbtn {
+  background: none;
+  border: 0;
+  padding: 0 0 4px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-nav-text);
+  transition: color 0.2s ease;
+}
+
+.nav-dropbtn:hover {
+  color: var(--color-accent);
+}
+
+.nav-dropbtn.active {
+  color: var(--color-nav-text-active);
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.nav-dropbtn::after {
+  content: " ▾";
+  font-size: 0.7em;
+}
+
+.nav-dropmenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: -0.5rem;
+  z-index: 50;
+  min-width: 11rem;
+  margin: 0.4rem 0 0;
+  padding: 0.4rem 0;
+  list-style: none;
+  flex-direction: column;
+  gap: 0;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(3, 7, 30, 0.12);
+}
+
+.nav-drop.open .nav-dropmenu {
+  display: flex;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-drop:hover .nav-dropmenu {
+    display: flex;
+  }
+}
+
+.nav-dropmenu a {
+  display: block;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.nav-dropmenu a.active {
+  border-bottom: 0;
+  padding-bottom: 0.55rem;
+}
+
 /* --- Sections & Cards --- */
 .section {
   margin: 2.5rem 0;
@@ -398,4 +472,7 @@ footer .container { padding-top: 0; padding-bottom: 0; }
   .nav-container { flex-wrap: wrap; gap: 0.75rem; row-gap: 0.5rem; }
   nav ul { flex-wrap: wrap; gap: 0.9rem; row-gap: 0.4rem; }
   nav a { font-size: 0.8rem; }
+  .nav-dropbtn { font-size: 0.8rem; }
+  .nav-dropmenu { position: static; box-shadow: none; margin: 0.3rem 0 0; min-width: 0; }
+  .nav-dropmenu a { padding: 0.4rem 0.2rem; }
 }

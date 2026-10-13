@@ -23,10 +23,34 @@ document.addEventListener("DOMContentLoaded", function () {
   initReveal();
   initBackToTop();
 
+  /* ----- Markets dropdown (works for build-inlined and runtime-fetched header) ----- */
+  function initNavDropdown() {
+    var drop = document.querySelector(".nav-drop");
+    if (!drop || drop.dataset.init) return;
+    drop.dataset.init = "1";
+    var btn = drop.querySelector(".nav-dropbtn");
+    if (drop.querySelector(".nav-dropmenu a.active")) btn.classList.add("active");
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var open = drop.classList.toggle("open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("click", function () {
+      drop.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        drop.classList.remove("open");
+        btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
   /* ----- 2. Header injection ----- */
   function loadHeader() {
     var placeholder = document.getElementById("header-placeholder");
-    if (!placeholder) { initThemeToggle(); return; } // page has its own hardcoded header
+    if (!placeholder) { initThemeToggle(); initNavDropdown(); return; } // page has its own hardcoded header
     fetch("/header.html")
       .then(function (response) {
         if (!response.ok) throw new Error("Header file not found");
@@ -44,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         initThemeToggle();
+        initNavDropdown();
       })
       .catch(function (error) {
         console.error("Error loading header:", error);

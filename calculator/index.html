@@ -14,7 +14,7 @@
   <title>Calculator | Will Tran</title>
 
     <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
-    <link rel="stylesheet" href="/css/main.css?v=608f1f84">
+    <link rel="stylesheet" href="/css/main.css?v=5f888520">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/calculator.css?v=19e36eb1">
 </head>
@@ -36,9 +36,15 @@
         <li><a href="/recipes.html">Recipes</a></li>
         <li><a href="/videos.html">Videos</a></li>
         <li><a href="/calculator/" class="active">Calculator</a></li>
-        <li><a href="/stocks/">Stocks</a></li>
-        <li><a href="/heatmap/">Heat Map</a></li>
-        <li><a href="/rates/">Rates</a></li>
+        <li class="nav-drop">
+          <button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true">Markets</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
         <li><a href="/restaurants/">Restaurants</a></li>
       </ul>
     </nav>
@@ -106,7 +112,7 @@
 </footer>
 
 
-    <script src="/js/main.js?v=ac46f0cd" defer></script>
+    <script src="/js/main.js?v=25d2f75c" defer></script>
     <script src="/js/calc-engine.js?v=8017a5c6" defer></script>
     <script src="/js/calculator.js?v=030b2793" defer></script>
 </body>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+    <meta name="description" content="Full-text search across a company's SEC filings — find every mention of any phrase. By Will Tran.">
+    <meta property="og:title" content="SEC Search | Will Tran">
+    <meta property="og:description" content="Search every SEC filing a company has ever filed, by phrase.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/sec-search/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>SEC Search | Will Tran</title>
+
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=5f888520">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/sec-search.css?v=4b29468c">
+</head>
+<body>
+
+    <!-- Shared Navigation Placeholder -->
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <button type="button" class="nav-dropbtn active" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true">Markets</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/" class="active">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>SEC Filing Search</h2>
+            <p class="secsub">Search the full text of every filing a company has submitted since 2001 — find each mention of a phrase across 10-Ks, 10-Qs, 8-Ks and more.</p>
+
+            <form id="secsearch-form" class="secsearch-bar" novalidate>
+                <label class="secsearch-ticker">Ticker
+                    <input id="secsearch-symbol" type="text" autocomplete="off" spellcheck="false"
+                           placeholder="AAPL" maxlength="12" aria-label="Ticker symbol">
+                </label>
+                <label class="secsearch-query">Search filings for
+                    <input id="secsearch-q" type="text" autocomplete="off" spellcheck="false"
+                           placeholder='e.g. "share repurchase" or AI capex' maxlength="200" aria-label="Search phrase">
+                </label>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <div id="secsearch-filters" class="rest-filters" role="group" aria-label="Filter by filing type">
+                <button type="button" class="rest-chip" data-forms="" aria-pressed="true">All forms</button>
+                <button type="button" class="rest-chip" data-forms="10-K" aria-pressed="false">10-K</button>
+                <button type="button" class="rest-chip" data-forms="10-Q" aria-pressed="false">10-Q</button>
+                <button type="button" class="rest-chip" data-forms="8-K" aria-pressed="false">8-K</button>
+            </div>
+
+            <p id="secsearch-meta" class="secsearch-meta" aria-live="polite"></p>
+            <div id="secsearch-results" class="secsearch-results" aria-live="polite"></div>
+
+            <p class="rates-note">Full-text search via the SEC's public EDGAR search index (2001–present). Results link to the official filing on sec.gov.</p>
+        </section>
+    </main>
+
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+
+    <script src="/js/main.js?v=25d2f75c" defer></script>
+    <script src="/js/sec-search.js?v=81275e9b" defer></script>
+</body>
+</html>

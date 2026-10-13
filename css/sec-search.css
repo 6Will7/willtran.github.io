@@ -1,0 +1,116 @@
+/* SEC filing full-text search page. */
+
+.secsub {
+  color: var(--color-text-muted);
+  max-width: 62ch;
+}
+
+.secsearch-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin: 1.25rem 0 1rem;
+}
+
+.secsearch-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.secsearch-ticker input {
+  width: 7rem;
+  text-transform: uppercase;
+}
+
+.secsearch-query {
+  flex: 1;
+  min-width: 220px;
+}
+
+.secsearch-bar input {
+  font: inherit;
+  font-weight: 400;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-bg);
+  color: var(--color-text);
+}
+
+.secsearch-bar input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.secsearch-meta {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  min-height: 1.4em;
+}
+
+.secsearch-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.secsearch-hit {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-card-bg);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: border-color 0.15s ease;
+}
+
+.secsearch-hit:hover,
+.secsearch-hit:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.secsearch-form-badge {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent);
+}
+
+.secsearch-hit-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.secsearch-hit-company {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.secsearch-hit-date {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.secsearch-arrow {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .secsearch-bar .btn {
+    width: 100%;
+  }
+}

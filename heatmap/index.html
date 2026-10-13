@@ -13,16 +13,45 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>Heat Map | Will Tran</title>
 
-    <link rel="stylesheet" href="/css/variables.css?v=20260929t">
-    <link rel="stylesheet" href="/css/main.css?v=20260929t">
+    <link rel="stylesheet" href="/css/variables.css?v=f46e94d7">
+    <link rel="stylesheet" href="/css/main.css?v=5f888520">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/heatmap.css?v=20261001c">
+    <link rel="stylesheet" href="/css/heatmap.css?v=7d818d0b">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
 
     <!-- Shared Navigation Placeholder -->
-    <div id="header-placeholder"></div>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran</a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <button type="button" class="nav-dropbtn active" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true">Markets</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/" class="active">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
 
     <main class="container">
         <section class="section reveal">
@@ -61,11 +90,16 @@
         </section>
     </main>
 
-    <div id="footer-placeholder"></div>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
 
     <script src="/js/main.js"></script>
-    <script src="/js/gics.js?v=20260929b"></script>
-    <script src="/js/etf-holdings.js?v=20261012a"></script>
-    <script src="/js/heatmap.js?v=20261001f"></script>
+    <script src="/js/gics.js?v=a5a85f5a"></script>
+    <script src="/js/etf-holdings.js?v=ce1bb2ce"></script>
+    <script src="/js/heatmap.js?v=4d6b2aa2"></script>
 </body>
 </html>
