@@ -169,6 +169,17 @@ nav a.active {
   display: flex;
 }
 
+/* invisible bridge over the margin gap — keeps :hover alive while the
+   mouse travels from the button down into the menu */
+.nav-dropmenu::before {
+  content: "";
+  position: absolute;
+  top: -0.4rem;
+  left: 0;
+  right: 0;
+  height: 0.4rem;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .nav-drop:hover .nav-dropmenu {
     display: flex;
