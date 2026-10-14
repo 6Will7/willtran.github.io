@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
     <link rel="stylesheet" href="/css/main.css?v=387c32ab">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/heatmap.css?v=7d818d0b">
+    <link rel="stylesheet" href="/css/heatmap.css?v=0f88bce8">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
@@ -68,8 +68,12 @@
                     <button class="calc-chip hm-preset" type="button" data-etf="IWM">Russell 2000</button>
                 </div>
                 <div class="hm-custom">
-                    <input id="hm-etf" type="text" autocomplete="off" spellcheck="false"
-                           placeholder="Any ETF ticker — e.g. XLF" aria-label="ETF ticker" maxlength="5">
+                    <div class="hm-suggest-wrap">
+                        <input id="hm-etf" type="text" autocomplete="off" spellcheck="false"
+                               placeholder="Any ETF ticker — e.g. XLF" aria-label="ETF ticker" maxlength="5"
+                               role="combobox" aria-expanded="false" aria-controls="hm-suggest" aria-autocomplete="list">
+                        <div id="hm-suggest" class="hm-suggest" role="listbox" hidden></div>
+                    </div>
                     <button id="hm-go" class="btn-primary" type="button">Map it</button>
                 </div>
             </div>
@@ -100,6 +104,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/gics.js?v=a5a85f5a"></script>
     <script src="/js/etf-holdings.js?v=ce1bb2ce"></script>
-    <script src="/js/heatmap.js?v=4d6b2aa2"></script>
+    <script src="/js/heatmap.js?v=ae2506f6"></script>
 </body>
 </html>

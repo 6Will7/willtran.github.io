@@ -394,6 +394,117 @@
       load(this.getAttribute('data-etf'));
     });
   }
+
+  /* ----- ticker suggestions: 11 GICS sector SPDRs first, then benchmarks ----- */
+  var SUGGESTIONS = [
+    { t: 'XLK', label: 'Information Technology' },
+    { t: 'XLV', label: 'Health Care' },
+    { t: 'XLF', label: 'Financials' },
+    { t: 'XLY', label: 'Consumer Discretionary' },
+    { t: 'XLI', label: 'Industrials' },
+    { t: 'XLC', label: 'Communication Services' },
+    { t: 'XLP', label: 'Consumer Staples' },
+    { t: 'XLE', label: 'Energy' },
+    { t: 'XLU', label: 'Utilities' },
+    { t: 'XLRE', label: 'Real Estate' },
+    { t: 'XLB', label: 'Materials' },
+    { t: 'SPY', label: 'S&P 500' },
+    { t: 'QQQ', label: 'Nasdaq 100' },
+    { t: 'DIA', label: 'Dow Jones Industrial' },
+    { t: 'IWM', label: 'Russell 2000' },
+    { t: 'XBI', label: 'Biotech' }
+  ];
+  var suggestEl = document.getElementById('hm-suggest');
+  var suggestOpen = false, suggestActive = -1;
+
+  function escH(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function suggestList() {
+    var q = input.value.trim().toUpperCase();
+    if (!q) return SUGGESTIONS.slice();
+    return SUGGESTIONS.filter(function (s) {
+      return s.t.indexOf(q) >= 0 || s.label.toUpperCase().indexOf(q) >= 0;
+    });
+  }
+
+  function openSuggest() {
+    var list = suggestList();
+    if (!list.length) { closeSuggest(); return; }
+    suggestActive = -1;
+    suggestEl.innerHTML = list.map(function (s, i) {
+      return '<div class="hm-suggest-item" role="option" data-ticker="' + s.t + '" data-i="' + i + '"' +
+        ' id="hm-sug-' + i + '"><strong>' + escH(s.t) + '</strong><span> - ' + escH(s.label) + '</span></div>';
+    }).join('');
+    suggestEl.hidden = false;
+    suggestOpen = true;
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeSuggest() {
+    suggestEl.hidden = true;
+    suggestOpen = false;
+    suggestActive = -1;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+  }
+
+  function pickSuggest(t) {
+    input.value = t;
+    closeSuggest();
+    load(t);
+  }
+
+  suggestEl.addEventListener('mousedown', function (e) {
+    var item = e.target.closest ? e.target.closest('.hm-suggest-item') : null;
+    if (item) { e.preventDefault(); pickSuggest(item.getAttribute('data-ticker')); }
+  });
+
+  function markActive() {
+    var items = suggestEl.querySelectorAll('.hm-suggest-item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('active', i === suggestActive);
+    }
+    if (suggestActive >= 0 && items[suggestActive]) {
+      input.setAttribute('aria-activedescendant', 'hm-sug-' + suggestActive);
+    } else {
+      input.removeAttribute('aria-activedescendant');
+    }
+  }
+
+  input.addEventListener('focus', openSuggest);
+  input.addEventListener('input', openSuggest);
+  input.addEventListener('blur', function () {
+    // small delay so a suggestion mousedown lands first
+    setTimeout(closeSuggest, 120);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (suggestOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      var n = suggestEl.querySelectorAll('.hm-suggest-item').length;
+      if (!n) return;
+      suggestActive = e.key === 'ArrowDown'
+        ? (suggestActive + 1) % n
+        : (suggestActive - 1 + n) % n;
+      markActive();
+    } else if (e.key === 'Enter') {
+      if (suggestOpen && suggestActive >= 0) {
+        var items = suggestEl.querySelectorAll('.hm-suggest-item');
+        if (items[suggestActive]) { e.preventDefault(); pickSuggest(items[suggestActive].getAttribute('data-ticker')); return; }
+      }
+      closeSuggest();
+      goCustom();
+    } else if (e.key === 'Escape' && suggestOpen) {
+      e.preventDefault();
+      closeSuggest();
+    }
+  });
+  document.addEventListener('click', function (e) {
+    if (suggestOpen && !e.target.closest('.hm-suggest-wrap')) closeSuggest();
+  });
   function goCustom() {
     var v = input.value.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5);
     if (!v) return;
@@ -401,7 +512,6 @@
     load(v);
   }
   goBtn.addEventListener('click', goCustom);
-  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') goCustom(); });
 
   var rAF = window.requestAnimationFrame || function (f) { f(); };
   rAF(function () { load('SPY'); });
