@@ -25,7 +25,71 @@
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '&lt;': '&lt;', '&gt;': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var NEW_OPT = '+ New category…';
+  var customCats = []; // session-added category names, shared across items
+
+  function allCats() { return CATS.concat(customCats); }
+
+  // Pull already-used custom categories from the worker so they persist across visits
+  fetch(WORKER_URL + '/gallery/uploads')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (u) {
+      var seen = {};
+      ((u && u.uploads) || []).forEach(function (up) {
+        var c = (up.category || '').trim();
+        if (c && CATS.indexOf(c) < 0 && !seen[c]) { seen[c] = 1; customCats.push(c); }
+      });
+      if (customCats.length) refreshCatOptions();
+    })
+    .catch(function () {});
+
+  function catOptions(selected) {
+    return allCats().map(function (c) {
+      return '<option' + (c === selected ? ' selected' : '') + '>' + esc(c) + '</option>';
+    }).join('') + '<option value="__new">' + esc(NEW_OPT) + '</option>';
+  }
+
+  function refreshCatOptions() {
+    items.forEach(function (it) {
+      if (!it.catEl || it.catEl.value === '__new') return;
+      var cur = it.catEl.value;
+      it.catEl.innerHTML = catOptions(cur);
+    });
+  }
+
+  function wireNewCat(item, div) {
+    var sel = item.catEl;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'New category name';
+    input.maxLength = 40;
+    input.setAttribute('aria-label', 'New category name');
+    input.style.display = 'none';
+    input.style.marginTop = '0.4rem';
+    sel.parentNode.insertBefore(input, sel.nextSibling);
+    item.newCatEl = input;
+    sel.addEventListener('change', function () {
+      input.style.display = sel.value === '__new' ? '' : 'none';
+      if (sel.value === '__new') input.focus();
+    });
+    function commit() {
+      var name = input.value.trim().replace(/[\u0000-\u001f\u007f]/g, '').slice(0, 40);
+      if (!name) return;
+      if (allCats().indexOf(name) < 0) {
+        customCats.push(name);
+        refreshCatOptions();
+      }
+      sel.value = name;
+      input.style.display = 'none';
+      input.value = '';
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); commit(); }
     });
   }
 
@@ -44,19 +108,21 @@
           '<div class="up-row"><span class="up-name">' + esc(f.name) + '</span>' +
           '<span class="up-status waiting">queued</span></div>' +
           '<select aria-label="Category">' +
-            CATS.map(function (c) { return '<option' + (c === 'Details' ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') +
+            catOptions('Details') +
           '</select>' +
           '<input type="text" placeholder="Caption (optional)" maxlength="140" aria-label="Caption">' +
         '</div>';
       div.querySelector('img').src = url;
       queueEl.appendChild(div);
-      items.push({
+      var item = {
         file: f,
         statusEl: div.querySelector('.up-status'),
         catEl: div.querySelector('select'),
-        capEl: div.querySelector('input'),
+        capEl: div.querySelector('input[placeholder^="Caption"]'),
         done: false
-      });
+      };
+      wireNewCat(item, div);
+      items.push(item);
       added++;
     });
     if (added) { setMsg(''); allBtn.disabled = false; }
@@ -80,6 +146,19 @@
   function setStatus(it, cls, text) {
     it.statusEl.className = 'up-status ' + cls;
     it.statusEl.textContent = text;
+  }
+
+  function resolveCat(it) {
+    var v = it.catEl.value;
+    if (v !== '__new') return v;
+    // Custom name typed but not yet committed (Enter/blur) — take it now
+    var name = (it.newCatEl ? it.newCatEl.value : '').trim()
+      .replace(/[\u0000-\u001f\u007f]/g, '').slice(0, 40);
+    if (!name) return null;
+    if (allCats().indexOf(name) < 0) { customCats.push(name); refreshCatOptions(); }
+    it.catEl.value = name;
+    if (it.newCatEl) { it.newCatEl.style.display = 'none'; it.newCatEl.value = ''; }
+    return name;
   }
 
   function signUpload(tok) {
@@ -136,9 +215,14 @@
       pending.forEach(function (it) {
         chain = chain.then(function () {
           setStatus(it, 'uploading', 'uploading…');
+          var cat = resolveCat(it);
+          if (!cat) {
+            setStatus(it, 'error', 'name the new category first');
+            return;
+          }
           return uploadToCloudinary(it.file, sig).then(function (up) {
             setStatus(it, 'uploading', 'saving…');
-            return registerPhoto(tok, up.public_id, it.catEl.value, it.capEl.value.trim());
+            return registerPhoto(tok, up.public_id, cat, it.capEl.value.trim());
           }).then(function () {
             it.done = true;
             setStatus(it, 'done', 'live in gallery ✓');

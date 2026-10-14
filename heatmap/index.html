@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
     <link rel="stylesheet" href="/css/main.css?v=4db6b01e">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/heatmap.css?v=068d8e4e">
+    <link rel="stylesheet" href="/css/heatmap.css?v=f9bf47d8">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
@@ -84,7 +84,11 @@
 
             <p id="hm-meta" class="hm-meta"></p>
             <p id="hm-fresh" class="hm-fresh"></p>
-            <div id="hm-map" class="hm-map" aria-label="Heat map"></div>
+            <p id="hm-zoom-hint" class="hm-zoom-hint" hidden></p>
+            <div class="hm-map-wrap">
+                <button id="hm-back" class="hm-back" hidden>&larr; All sectors</button>
+                <div id="hm-map" class="hm-map" aria-label="Heat map"></div>
+            </div>
             <div class="hm-legend">
                 <span>-3%</span>
                 <span class="hm-gradient" aria-hidden="true"></span>
@@ -92,8 +96,8 @@
                 <span class="hm-legend-note">today's change</span>
             </div>
             <p class="hm-note">Full holdings for SPY, DIA, XLF, XBI, and all 11 Select Sector SPDRs come straight from State Street's
-            published daily files (refreshed weekly); Nasdaq 100 is live from Nasdaq. Any other
-            ticker shows its top 25 holdings. Colors show today's % change vs. the previous close;
+            published daily files (refreshed weekly); Nasdaq 100 is live from Nasdaq.
+            Colors show today's % change vs. the previous close;
             gray tiles had no price data. Data for informational purposes only — verify before investing.</p>
         </section>
     </main>
@@ -108,6 +112,6 @@
     <script src="/js/main.js"></script>
     <script src="/js/gics.js?v=a5a85f5a"></script>
     <script src="/js/etf-holdings.js?v=b12662cf"></script>
-    <script src="/js/heatmap.js?v=64f9bc2f"></script>
+    <script src="/js/heatmap.js?v=e596c327"></script>
 </body>
 </html>

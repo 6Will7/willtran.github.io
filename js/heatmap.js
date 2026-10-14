@@ -133,7 +133,7 @@
     mapEl.innerHTML = '';
     tileBySym = {};
     var W = mapEl.clientWidth, H = mapEl.clientHeight;
-    if (!W || !H) return;
+    if (!W || !H) return {};
 
     var tree = {};
     holdings.forEach(function (h) {
@@ -169,7 +169,15 @@
     }
     sItems = kept;
 
+    // Sector key -> member holdings (for mobile tap-to-zoom); tile elements
+    // also carry data-sector so a tap can find its sector.
+    var sectorMap = {};
     squarify(sItems, 0, 0, W, H).forEach(function (sr) {
+      var members = [];
+      sr.item.children.forEach(function (ind) {
+        ind.children.forEach(function (h) { members.push(h); });
+      });
+      sectorMap[sr.item.key] = members;
       var sec = document.createElement('div');
       sec.className = 'hm-sector';
       sec.style.left = px(sr.x); sec.style.top = px(sr.y);
@@ -190,13 +198,16 @@
           var ip = 1, itop = ind.querySelector('.hm-industry-label') ? 13 : ip;
           squarify(ir.item.children, ip, itop, ir.w - ip * 2, ir.h - itop - ip)
             .forEach(function (hr) {
-              ind.appendChild(makeTile(hr.item, {
+              var tile = makeTile(hr.item, {
                 x: hr.x, y: hr.y,
                 w: Math.max(0, hr.w - 1), h: Math.max(0, hr.h - 1)
-              }));
+              });
+              tile.setAttribute('data-sector', sr.item.key);
+              ind.appendChild(tile);
             });
         });
     });
+    return sectorMap;
   }
 
   function updateTile(h) {
@@ -277,6 +288,12 @@
     mapEl.innerHTML = '';
     metaEl.textContent = '';
     freshEl.textContent = '';
+    zoomSector = null;
+    overviewHoldings = null;
+    displayedHoldings = null;
+    overviewSectorMap = null;
+    if (backBtn) backBtn.hidden = true;
+    if (hintEl) hintEl.hidden = true;
     var d = document.createElement('p');
     d.className = 'hm-error';
     d.textContent = msg;
@@ -309,12 +326,15 @@
     }
   }
 
-  // Fewer, larger tiles on phones: legible labels and ~2.5x faster quote fill
-  // (150 tiles x ~1.1s per quote = ~3 min on desktop; 60 keeps mobile snappy).
-  function maxTiles() {
-    return window.innerWidth < 640 ? 60 : 150;
-  }
-  var lastHoldings = null, lastW = 0, lastH = 0;
+  // Mobile summary + tap-to-zoom: phones see ALL tiles as a weight-sized
+  // overview (quotes for the top 25 only), and tapping a tile zooms into
+  // its sector with full live data. Desktop keeps the full quote loop.
+  function isMobile() { return window.innerWidth < 640; }
+  var overviewHoldings = null, displayedHoldings = null, zoomSector = null;
+  var overviewSectorMap = null, overviewMeta = '', overviewFresh = '';
+  var currentEtf = 'SPY', lastW = 0, lastH = 0;
+  var backBtn = document.getElementById('hm-back');
+  var hintEl = document.getElementById('hm-zoom-hint');
 
   async function load(etf) {
     setActive(etf);
@@ -335,59 +355,173 @@
         meta = 'Nasdaq 100 · ' + j.holdings.length + ' holdings · sized by market cap' +
                (j.asOf ? ' · ' + j.asOf : '');
         metaEl.textContent = meta;
-        render(holdings);
+        currentEtf = etf;
+        zoomSector = null;
+        overviewHoldings = holdings;
+        displayedHoldings = holdings;
+        overviewSectorMap = render(holdings);
+        lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
+        if (backBtn) backBtn.hidden = true;
         var qmiss = holdings.filter(function (h) { return h.pct === null || h.pct === undefined; }).length;
         markMissing(holdings);
         // Nasdaq gives a date but no intraday timestamp; show it as the price date
         freshEl.textContent = 'Prices as of ' + (j.asOf || 'today') + ' (Nasdaq) · ' +
           (marketOpenNow() ? 'Market open — live' : 'Market closed') +
           ' · ' + (holdings.length - qmiss) + '/' + holdings.length + ' prices loaded';
+        overviewMeta = meta;
+        overviewFresh = freshEl.textContent;
+        if (hintEl) {
+          if (isMobile()) {
+            hintEl.hidden = false;
+            hintEl.textContent = 'Tap any tile to zoom into its sector.';
+          } else {
+            hintEl.hidden = true;
+          }
+        }
       } else if (typeof ETF_HOLDINGS !== 'undefined' && ETF_HOLDINGS[etf]) {
         var full = ETF_HOLDINGS[etf];
-        var list = full.holdings.slice(0, maxTiles());
-        holdings = list.map(function (h) {
+        holdings = full.holdings.map(function (h) {
           return { s: h.s, name: null, w: h.w, pct: null };
         });
-        meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
-               ' · index weights as of ' + full.asOf + ' · loading live prices…';
-        metaEl.textContent = meta;
-        render(holdings);
-        await quoteLoop(holdings);
-        var maxT = 0, loaded = 0;
-        holdings.forEach(function (h) {
-          if (h.pct !== null && h.pct !== undefined) {
-            loaded++;
-            if (h.t && h.t > maxT) maxT = h.t;
-          }
-        });
-        markMissing(holdings);
-        freshEl.textContent = freshnessLine(maxT, loaded, holdings.length);
-        meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
+        currentEtf = etf;
+        zoomSector = null;
+        overviewHoldings = holdings;
+        displayedHoldings = holdings;
+        if (backBtn) backBtn.hidden = true;
+        meta = etf + ' · ' + holdings.length + ' of ' + full.count + ' holdings' +
                ' · index weights as of ' + full.asOf;
+        if (isMobile()) {
+          // Summary view: all tiles by weight, live prices for the top 25 only.
+          // Tapping a tile zooms into its sector and loads the rest.
+          overviewSectorMap = render(holdings);
+          lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
+          metaEl.textContent = meta;
+          overviewMeta = meta;
+          if (hintEl) {
+            hintEl.hidden = false;
+            hintEl.textContent = 'Summary view — tap any tile to zoom in and load live prices.';
+          }
+          freshEl.textContent = 'Loading live prices for the top 25…';
+          var top25 = holdings.slice(0, 25);
+          quoteLoop(top25).then(function () {
+            if (zoomSector || currentEtf !== etf) return;
+            var maxT = 0, loaded = 0;
+            holdings.forEach(function (h) {
+              if (h.pct !== null && h.pct !== undefined) {
+                loaded++;
+                if (h.t && h.t > maxT) maxT = h.t;
+              }
+            });
+            markMissing(holdings);
+            overviewFresh = loaded + ' of ' + holdings.length + ' priced (top 25) · ' +
+              (marketOpenNow() ? 'Market open — live' : 'Market closed') +
+              (maxT ? ' · as of ' + fmtET.format(new Date(maxT * 1000)) + ' ET' : '');
+            freshEl.textContent = overviewFresh;
+          });
+        } else {
+          if (hintEl) hintEl.hidden = true;
+          metaEl.textContent = meta + ' · loading live prices…';
+          render(holdings);
+          await quoteLoop(holdings);
+          var maxT = 0, loaded = 0;
+          holdings.forEach(function (h) {
+            if (h.pct !== null && h.pct !== undefined) {
+              loaded++;
+              if (h.t && h.t > maxT) maxT = h.t;
+            }
+          });
+          markMissing(holdings);
+          freshEl.textContent = freshnessLine(maxT, loaded, holdings.length);
+          overviewFresh = freshEl.textContent;
+          overviewMeta = meta;
+          metaEl.textContent = meta;
+          lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
+        }
       } else {
         // Official holdings only (State Street SPDRs + Nasdaq 100) —
         // no third-party scrape fallback. Anything else gets a clean note.
         throw new Error('No official holdings data for ' + etf +
           ' — try SPY, DIA, QQQ, XLF, XBI, or a sector ETF.');
       }
-      metaEl.textContent = meta;
-      lastHoldings = holdings;
-      lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
     } catch (e) {
       err(e.message || 'Could not load holdings.');
     }
   }
 
+  // Mobile tap-to-zoom: drill into a sector, load its live data, back out.
+  function zoomToSector(key) {
+    if (!overviewSectorMap) return;
+    var sub = overviewSectorMap[key];
+    if (!sub || !sub.length) return;
+    zoomSector = key;
+    displayedHoldings = sub;
+    render(sub);
+    lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
+    if (backBtn) backBtn.hidden = false;
+    if (hintEl) hintEl.hidden = true;
+    metaEl.textContent = currentEtf + ' · ' + key + ' · ' + sub.length +
+      ' holdings · loading live prices…';
+    freshEl.textContent = '';
+    mapEl.scrollIntoView({ block: 'nearest' });
+    var need = sub.filter(function (h) { return h.pct === null || h.pct === undefined; });
+    quoteLoop(need).then(function () {
+      if (zoomSector !== key) return; // user went back mid-load
+      var maxT = 0, loaded = 0;
+      sub.forEach(function (h) {
+        if (h.pct !== null && h.pct !== undefined) {
+          loaded++;
+          if (h.t && h.t > maxT) maxT = h.t;
+        }
+      });
+      markMissing(sub);
+      freshEl.textContent = freshnessLine(maxT, loaded, sub.length);
+      metaEl.textContent = currentEtf + ' · ' + key + ' · ' + sub.length + ' holdings';
+    });
+  }
+
+  function backToOverview() {
+    zoomSector = null;
+    displayedHoldings = overviewHoldings;
+    if (overviewHoldings) overviewSectorMap = render(overviewHoldings);
+    lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
+    if (backBtn) backBtn.hidden = true;
+    if (hintEl && isMobile() && overviewHoldings) {
+      hintEl.hidden = false;
+      hintEl.textContent = 'Summary view — tap any tile to zoom in and load live prices.';
+    }
+    if (overviewMeta) metaEl.textContent = overviewMeta;
+    if (overviewFresh) freshEl.textContent = overviewFresh;
+  }
+
+  if (backBtn) backBtn.addEventListener('click', backToOverview);
+
+  // On mobile overview, tapping a tile zooms into its sector instead of
+  // navigating away; once zoomed, tiles link to /stocks/ as usual.
+  mapEl.addEventListener('click', function (e) {
+    if (!isMobile() || zoomSector || !overviewSectorMap) return;
+    var t = e.target && e.target.closest ? e.target.closest('.hm-tile') : null;
+    if (!t) return;
+    var key = t.getAttribute('data-sector');
+    if (!key) return;
+    e.preventDefault();
+    zoomToSector(key);
+  });
+
   // Re-lay out (no refetch) on resize/rotation — debounced, and skipped for
   // tiny iOS scroll-driven size jitters.
   var resizeT = null;
   window.addEventListener('resize', function () {
-    if (!lastHoldings) return;
+    if (!displayedHoldings) return;
     clearTimeout(resizeT);
     resizeT = setTimeout(function () {
       var W = mapEl.clientWidth, H = mapEl.clientHeight;
       if (Math.abs(W - lastW) < 4 && Math.abs(H - lastH) < 4) return;
-      render(lastHoldings);
+      if (zoomSector) {
+        render(displayedHoldings);
+      } else if (overviewHoldings) {
+        overviewSectorMap = render(overviewHoldings);
+        displayedHoldings = overviewHoldings;
+      }
       lastW = W; lastH = H;
     }, 250);
   });

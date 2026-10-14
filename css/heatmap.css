@@ -113,6 +113,27 @@
 .hm-note { color: var(--color-muted); font-size: 0.8rem; margin-top: 0.5rem; }
 .hm-error { color: #e5484d; margin: 1rem 0; }
 
+/* Mobile tap-to-zoom: summary hint + back button */
+.hm-map-wrap { position: relative; }
+.hm-zoom-hint {
+  display: inline-block;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--color-accent-text, #fff);
+  background: var(--color-accent);
+  border-radius: 999px; padding: 0.35rem 0.9rem;
+  margin: 0 0 0.5rem;
+}
+.hm-zoom-hint[hidden] { display: none; }
+.hm-back {
+  position: absolute; top: 0.6rem; left: 0.6rem; z-index: 5;
+  background: rgba(0, 0, 0, 0.6); color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 999px;
+  padding: 0.4rem 0.9rem; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; backdrop-filter: blur(4px);
+}
+.hm-back[hidden] { display: none; }
+.hm-back:hover { background: rgba(0, 0, 0, 0.8); }
+
 @media (max-width: 640px) {
   .hm-custom { margin-left: 0; width: 100%; }
   .hm-custom input { flex: 1; }

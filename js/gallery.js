@@ -564,7 +564,11 @@
                 if (!up.public_id || !up.category) return;
                 var cat = null;
                 data.categories.forEach(function (c) { if (c.title === up.category) cat = c; });
-                if (!cat) return;
+                if (!cat) {
+                  // Custom category from the uploader — new section at the end
+                  cat = { title: up.category, photos: [] };
+                  data.categories.push(cat);
+                }
                 var cap = up.caption || "";
                 cat.photos.unshift({ id: up.public_id, alt: cap || "Gallery photo", caption: cap });
               });
