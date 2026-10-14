@@ -227,13 +227,52 @@
       if (c === p.category) o.selected = true;
       catSel.appendChild(o);
     });
+    var newOpt = document.createElement('option');
+    newOpt.value = '__new';
+    newOpt.textContent = '+ New category…';
+    catSel.appendChild(newOpt);
+    var newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.placeholder = 'New category name';
+    newInput.maxLength = 40;
+    newInput.setAttribute('aria-label', 'New category name');
+    newInput.style.display = 'none';
+    newInput.style.marginTop = '0.3rem';
+    newInput.style.width = '100%';
+    newInput.style.boxSizing = 'border-box';
+    var newCommitted = false;
+    function commitNewCat() {
+      if (newCommitted) return;
+      newCommitted = true;
+      var name = newInput.value.trim().replace(/[ -]/g, '').slice(0, 40);
+      if (!name) { catSel.value = p.category; newInput.style.display = 'none'; return; }
+      if (FIXED_CATS.indexOf(name) < 0 && customCats.indexOf(name) < 0) {
+        customCats.push(name);
+      }
+      saveEdit(p.id, { category: name }, saved).then(function (ok) {
+        if (ok) { p.category = name; render(); }
+        else { catSel.value = p.category; newInput.style.display = 'none'; }
+      });
+    }
+    newInput.addEventListener('blur', commitNewCat);
+    newInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); commitNewCat(); }
+      if (e.key === 'Escape') { catSel.value = p.category; newInput.style.display = 'none'; }
+    });
     catSel.addEventListener('change', function () {
+      if (catSel.value === '__new') {
+        newCommitted = false;
+        newInput.style.display = '';
+        newInput.focus();
+        return;
+      }
       var nc = catSel.value;
       saveEdit(p.id, { category: nc }, saved).then(function (ok) {
         if (ok) { p.category = nc; render(); }
       });
     });
     row.appendChild(catSel);
+    row.appendChild(newInput);
     fields.appendChild(row);
     div.appendChild(fields);
 
