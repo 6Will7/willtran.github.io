@@ -42,11 +42,6 @@
     h = h % 12; if (h === 0) h = 12;
     return h + ':' + m[2] + ' ' + ap;
   }
-  function num(v) {
-    if (v === null || v === undefined || v === '') return null;
-    var n = parseFloat(String(v).replace(/[%$,B]/g, ''));
-    return isNaN(n) ? null : n;
-  }
   function fmtVal(v) {
     if (v === null || v === undefined || v === '') return '—';
     return esc(String(v));
@@ -96,8 +91,7 @@
     parts.push(m + 'm');
     nextEl.innerHTML = '<div><div class="lbl">Next market-moving release</div>' +
       '<div class="ev">' + esc(e.event) + '<span class="impact ' + esc(e.impact) + '">' + esc(e.impact) + '</span></div>' +
-      '<div class="when">' + fmtDay(e.date) + ' · ' + fmtTime(e.time) + ' ET' +
-      (e.estimate !== null ? ' · forecast ' + esc(String(e.estimate)) : '') + '</div></div>' +
+      '<div class="when">' + fmtDay(e.date) + ' · ' + fmtTime(e.time) + ' ET</div></div>' +
       '<div class="count">in ' + parts.join(' ') + '</div>';
     nextEl.hidden = false;
   }
@@ -135,19 +129,13 @@
   function eventRow(e) {
     var d = document.createElement('div');
     d.className = 'econ-ev';
-    var a = num(e.actual), f = num(e.estimate);
-    var surprise = '';
-    if (a !== null && f !== null && a !== f) {
-      var diff = Math.round((a - f) * 100) / 100;
-      surprise = '<span class="surprise">' + (diff > 0 ? '+' : '') + diff + ' vs f\'cast</span>';
-    }
     d.innerHTML =
       '<div class="t">' + fmtTime(e.time) + ' <span class="etz">ET</span></div>' +
       '<div class="name">' + esc(e.event) +
-        (e.impact ? '<span class="impact ' + esc(e.impact) + '">' + esc(e.impact) + '</span>' : '') + '</div>' +
+        (e.impact ? '<span class="impact ' + esc(e.impact) + '">' + esc(e.impact) + '</span>' : '') +
+        (e.period ? ' <span class="etz">' + esc(e.period) + '</span>' : '') + '</div>' +
       '<div class="vals">' +
-        '<div class="v"><span class="k">Forecast</span><span>' + fmtVal(e.estimate) + '</span></div>' +
-        '<div class="v"><span class="k">Actual</span><span class="a">' + fmtVal(e.actual) + '</span>' + surprise + '</div>' +
+        '<div class="v"><span class="k">Actual</span><span class="a">' + fmtVal(e.actual) + '</span></div>' +
         '<div class="v"><span class="k">Previous</span><span>' + fmtVal(e.previous) + '</span></div>' +
       '</div>';
     return d;
