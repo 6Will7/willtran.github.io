@@ -25,6 +25,13 @@
       .portal-card h3 { margin: 0 0 0.3rem; font-size: 1.05rem; }
       .portal-card p { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
       .portal-card .go { float: right; color: var(--color-accent); font-weight: 700; }
+      .portal-card { position: relative; }
+      .portal-badge {
+        position: absolute; top: 0.7rem; right: 2.4rem;
+        min-width: 1.5rem; height: 1.5rem; padding: 0 0.4rem;
+        border-radius: 999px; background: #DA121A; color: #fff;
+        font-size: 0.78rem; font-weight: 700; line-height: 1.5rem; text-align: center;
+      }
     </style>
 </head>
 <body>
@@ -86,11 +93,13 @@
                     </a>
                     <a class="portal-card" href="/restaurants/admin.html">
                         <span class="go">&rarr;</span>
+                        <span class="portal-badge" id="badge-restaurants" hidden></span>
                         <h3>Restaurant admin</h3>
                         <p>Review submitted restaurants and manage your list.</p>
                     </a>
                     <a class="portal-card" href="/guestbook/admin.html">
                         <span class="go">&rarr;</span>
+                        <span class="portal-badge" id="badge-guestbook" hidden></span>
                         <h3>Guestbook admin</h3>
                         <p>Approve or reject guestbook entries.</p>
                     </a>
@@ -125,6 +134,32 @@
         } catch (e) {}
         lockEl.hidden = true;
         linksEl.hidden = false;
+        loadBadges(tok);
+      }
+
+      function setBadge(id, n) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (n > 0) {
+          el.textContent = n > 99 ? '99+' : String(n);
+          el.hidden = false;
+        } else {
+          el.hidden = true;
+        }
+      }
+
+      function loadBadges(tok) {
+        fetch(WORKER_URL + '/admin/pending-counts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: tok })
+        }).then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (!j) return;
+            setBadge('badge-restaurants', j.restaurants | 0);
+            setBadge('badge-guestbook', j.guestbook | 0);
+          })
+          .catch(function () { /* badges stay hidden on failure */ });
       }
       try {
         if (sessionStorage.getItem('portal_unlocked') === '1') {
