@@ -100,6 +100,51 @@
     background: color-mix(in srgb, var(--color-accent) 14%, transparent);
     color: var(--color-text);
 }
+/* "As of" date picker */
+.rates-asof {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--color-card-border);
+}
+.rates-asof[hidden] { display: none; }
+.rates-date {
+    color-scheme: light;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    background: var(--color-card-bg-alt);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.3rem 0.55rem;
+}
+.rates-date:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+@media (prefers-color-scheme: dark) {
+    .rates-date { color-scheme: dark; }
+}
+[data-theme="dark"] .rates-date { color-scheme: dark; }
+[data-theme="light"] .rates-date { color-scheme: light; }
+.rates-snap { color: var(--color-text-muted); font-size: 0.85em; }
+/* Chart legend */
+.rates-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    margin: -1rem 0 1.5rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+.rates-legend-item { display: inline-flex; align-items: center; }
+.rates-legend-item .lg-line {
+    display: inline-block;
+    width: 26px;
+    margin-right: 0.45rem;
+}
 .rates-curve {
     background: var(--color-card-bg);
     border: 1px solid var(--color-card-border);

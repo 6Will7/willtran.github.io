@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
     <link rel="stylesheet" href="/css/main.css?v=07e263d2">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/rates.css?v=aca843de">
+    <link rel="stylesheet" href="/css/rates.css?v=bca94f01">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
@@ -63,8 +63,14 @@
                 <button class="rates-chip" data-hist="w1" type="button" aria-pressed="false">1W ago</button>
                 <button class="rates-chip" data-hist="m1" type="button" aria-pressed="false">1M ago</button>
                 <button class="rates-chip" data-hist="y1" type="button" aria-pressed="false">1Y ago</button>
+                <span id="rates-asof" class="rates-asof" hidden>
+                    <label class="rates-curve-label" for="rates-date">As of</label>
+                    <input type="date" id="rates-date" class="rates-date" />
+                    <button id="rates-latest" class="rates-chip" type="button" hidden>Latest</button>
+                </span>
             </div>
             <div id="rates-curve" class="rates-curve" role="img" aria-label="Yield curve chart"></div>
+            <div id="rates-legend" class="rates-legend" aria-hidden="true"></div>
 
             <div class="rates-wrap">
                 <table class="rates-table" aria-label="U.S. Treasury yields">
@@ -110,6 +116,6 @@
 
 
     <script src="/js/main.js"></script>
-    <script src="/js/rates.js?v=dde72431"></script>
+    <script src="/js/rates.js?v=d4b7e13d"></script>
 </body>
 </html>

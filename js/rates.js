@@ -1,4 +1,4 @@
-/* U.S. Treasury yields — via the worker's /treasury route (FRED). */
+/* U.S. Treasury yields — via the worker's /treasury (live) and /treasury/history (FRED) routes. */
 (function () {
   'use strict';
 
@@ -33,16 +33,23 @@
   var meta = document.getElementById('rates-meta');
   var body = document.getElementById('rates-body');
   var curveEl = document.getElementById('rates-curve');
-  var rateData = null;
+  var legendEl = document.getElementById('rates-legend');
+  var asofWrap = document.getElementById('rates-asof');
+  var dateInput = document.getElementById('rates-date');
+  var latestBtn = document.getElementById('rates-latest');
+
+  var rateData = null;   // /treasury response (live quotes + w1/m1/y1)
+  var histData = null;   // /treasury/history response (full daily FRED series)
+  var asOf = null;       // selected YYYY-MM-DD, or null for live/latest mode
   var showHist = { w1: false, m1: false, y1: false };
 
-  document.querySelectorAll('.rates-chip').forEach(function (chip) {
+  document.querySelectorAll('.rates-chip[data-hist]').forEach(function (chip) {
     chip.addEventListener('click', function () {
       var k = chip.getAttribute('data-hist');
       showHist[k] = !showHist[k];
       chip.classList.toggle('active', showHist[k]);
       chip.setAttribute('aria-pressed', showHist[k] ? 'true' : 'false');
-      drawCurve();
+      renderAll();
     });
   });
 
@@ -51,9 +58,97 @@
     return (v || '#FCDD09').trim();
   }
 
-  function drawCurve() {
-    if (!curveEl || !rateData || !rateData.rows.length) return;
-    var rows = rateData.rows;
+  /* ----- history helpers (pairs are [[date, value], ...] ascending) ----- */
+  function obsIdx(pairs, dateStr) {
+    var lo = 0, hi = pairs.length - 1, ans = -1;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      if (pairs[mid][0] <= dateStr) { ans = mid; lo = mid + 1; }
+      else hi = mid - 1;
+    }
+    return ans;
+  }
+
+  function agoVal(pairs, idx, days) {
+    if (idx < 0) return null;
+    var t = Date.parse(pairs[idx][0] + 'T12:00:00Z') - days * 86400000;
+    for (var i = idx; i >= 0; i--) {
+      if (Date.parse(pairs[i][0] + 'T12:00:00Z') <= t) return pairs[i][1];
+    }
+    return null;
+  }
+
+  // Canonical as-of date: the 10-YR's latest observation on/before the selection
+  // (weekends/holidays snap back to the previous business day).
+  function effectiveDate() {
+    if (!asOf || !histData) return null;
+    var pairs = histData.series['US 10-YR'] || histData.series[Object.keys(histData.series)[0]];
+    if (!pairs) return null;
+    var i = obsIdx(pairs, asOf);
+    return i >= 0 ? pairs[i][0] : null;
+  }
+
+  function currentRows() {
+    if (!rateData) return [];
+    if (!asOf || !histData) return rateData.rows;
+    return rateData.rows.map(function (r) {
+      var pairs = histData.series[r.label];
+      if (!pairs) return { label: r.label, today: null, chg: null, w1: null, m1: null, y1: null };
+      var i = obsIdx(pairs, asOf);
+      var v = i >= 0 ? pairs[i][1] : null;
+      var prev = i > 0 ? pairs[i - 1][1] : null;
+      return {
+        label: r.label,
+        today: v,
+        chg: (v != null && prev != null) ? +((v - prev).toFixed(3)) : null,
+        w1: agoVal(pairs, i, 7),
+        m1: agoVal(pairs, i, 30),
+        y1: agoVal(pairs, i, 365)
+      };
+    });
+  }
+
+  function renderTable(rows) {
+    body.innerHTML = rows.map(function (t) {
+      return '<tr>' +
+        '<td class="sym">' + esc(t.label) + '</td>' +
+        '<td class="num yld">' + fmt(t.today) + '</td>' +
+        '<td class="num">' + fmt(t.w1) + '</td>' +
+        '<td class="num">' + fmt(t.m1) + '</td>' +
+        '<td class="num">' + fmt(t.y1) + '</td>' +
+        '<td class="num">' + chgCell(t.chg) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function renderMeta() {
+    if (asOf && histData) {
+      var eff = effectiveDate();
+      var snapNote = (eff && eff < asOf)
+        ? ' <span class="rates-snap">(no data for ' + fmtDate(asOf) + '; showing latest)</span>' : '';
+      meta.innerHTML = 'Yields as of ' + fmtDate(eff || asOf) + snapNote + ' · Source: FRED';
+    } else if (rateData) {
+      meta.innerHTML = rateData.live
+        ? '<span class="rates-live-dot" aria-hidden="true"></span>Live · ' + esc(rateData.asOf || '') + ' · Source: CNBC'
+        : 'Yields as of ' + fmtDate(rateData.asOf) + ' · Source: FRED';
+    }
+  }
+
+  function renderLegend() {
+    if (!legendEl) return;
+    var mainLabel = (asOf && histData) ? fmtDate(effectiveDate() || asOf) : 'Today';
+    var items = [{ color: accentColor(), dash: false, label: mainLabel }];
+    if (showHist.w1) items.push({ color: '#9aa0a6', dash: true, label: asOf ? '1W before' : '1W ago' });
+    if (showHist.m1) items.push({ color: '#7c8db0', dash: true, label: asOf ? '1M before' : '1M ago' });
+    if (showHist.y1) items.push({ color: '#b08968', dash: true, label: asOf ? '1Y before' : '1Y ago' });
+    legendEl.innerHTML = items.map(function (it) {
+      return '<span class="rates-legend-item"><span class="lg-line" style="border-top:3px ' +
+        (it.dash ? 'dashed' : 'solid') + ' ' + it.color + '"></span>' + esc(it.label) + '</span>';
+    }).join('');
+  }
+
+  function drawCurve(rows) {
+    if (!curveEl || !rows.length) return;
     var W = 720, H = 300, padL = 46, padR = 14, padT = 14, padB = 30;
     var iw = W - padL - padR, ih = H - padT - padB;
     var series = [{ key: 'today', color: accentColor(), width: 2.6, dash: '', dots: true }];
@@ -113,6 +208,38 @@
     curveEl.innerHTML = svg;
   }
 
+  function renderAll() {
+    if (!rateData) return;
+    var rows = currentRows();
+    renderTable(rows);
+    drawCurve(rows);
+    renderMeta();
+    renderLegend();
+    if (latestBtn) latestBtn.hidden = !asOf;
+  }
+
+  /* ----- date picker ----- */
+  if (dateInput) {
+    dateInput.addEventListener('change', function () {
+      var v = dateInput.value;
+      if (v && histData && v >= histData.start && v <= histData.end) {
+        asOf = v;
+      } else {
+        asOf = null;
+        dateInput.value = '';
+      }
+      renderAll();
+    });
+  }
+  if (latestBtn) {
+    latestBtn.addEventListener('click', function () {
+      asOf = null;
+      if (dateInput) dateInput.value = '';
+      renderAll();
+    });
+  }
+
+  /* ----- data ----- */
   fetch(WORKER_URL + '/treasury')
     .then(function (r) {
       if (!r.ok) throw new Error('http ' + r.status);
@@ -121,25 +248,27 @@
     .then(function (d) {
       var rows = (d && d.rows) || [];
       if (!rows.length) throw new Error('empty');
-      meta.innerHTML = d.live
-        ? '<span class="rates-live-dot" aria-hidden="true"></span>Live · ' + esc(d.asOf || '') + ' · Source: CNBC'
-        : 'Yields as of ' + fmtDate(d.asOf) + ' · Source: FRED';
       rateData = d;
-      drawCurve();
-      body.innerHTML = rows.map(function (t) {
-        return '<tr>' +
-          '<td class="sym">' + esc(t.label) + '</td>' +
-          '<td class="num yld">' + fmt(t.today) + '</td>' +
-          '<td class="num">' + fmt(t.w1) + '</td>' +
-          '<td class="num">' + fmt(t.m1) + '</td>' +
-          '<td class="num">' + fmt(t.y1) + '</td>' +
-          '<td class="num">' + chgCell(t.chg) + '</td>' +
-          '</tr>';
-      }).join('');
+      renderAll();
     })
     .catch(function (e) {
       meta.textContent = 'U.S. Treasury yields';
       body.innerHTML = '<tr><td colspan="6"><div class="rates-error">' +
         'Could not load yields right now. Please try again later.</div></td></tr>';
     });
+
+  // Full history enables the "as of" date picker; hidden until it loads.
+  fetch(WORKER_URL + '/treasury/history')
+    .then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    })
+    .then(function (d) {
+      if (!d || !d.series || !d.start || !d.end) throw new Error('empty');
+      histData = d;
+      if (asofWrap) asofWrap.hidden = false;
+      if (dateInput) { dateInput.min = d.start; dateInput.max = d.end; }
+      renderAll();
+    })
+    .catch(function () { /* picker stays hidden; live mode unaffected */ });
 })();
