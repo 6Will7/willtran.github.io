@@ -338,7 +338,7 @@
 
   function photoCard(photo, index) {
     var item = document.createElement("article");
-    item.className = "gallery-item reveal";
+    item.className = "gallery-item"; // no .reveal: cards must be visible even if the scroll observer misfires (mobile Safari)
     item.innerHTML =
       '<div class="thumb-wrap">' +
         '<img class="gallery-image is-loading" ' +

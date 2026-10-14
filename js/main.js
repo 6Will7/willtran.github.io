@@ -126,6 +126,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     els.forEach(function (el) { observer.observe(el); });
 
+    // Failsafe: if the observer never fires (quirky mobile browsers),
+    // don't leave content invisible forever.
+    setTimeout(function () {
+      document.querySelectorAll(".reveal:not(.revealed)").forEach(function (el) {
+        el.classList.add("revealed");
+      });
+    }, 2500);
+
     // Lets dynamically-rendered content (gallery cards) join the reveal
     window.RobitReveal = {
       observeNew: function (scope) {
