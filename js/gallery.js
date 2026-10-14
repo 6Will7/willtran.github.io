@@ -47,7 +47,9 @@
 
   /* ---------- Lightbox ---------- */
   var lightbox, lightboxImage, lightboxCaption, currentPhotoSpan, totalPhotosSpan;
-  var lightboxContainer;
+  var lightboxContainer, likeBtn, likeCountEl;
+  var likeCounts = {}, likedByMe = {};
+  var WORKER = "https://willtran-stocks-proxy.willtran98.workers.dev";
   var allPhotos = [];
   var cloudName = "";
   var currentIndex = 0;
@@ -244,6 +246,118 @@
         zoomStep(btn.getAttribute("data-zoom") === "in" ? 1 : -1);
       });
     });
+
+    // Like + share wiring
+    likeBtn = lightbox.querySelector(".lb-like");
+    likeCountEl = lightbox.querySelector(".lb-like-count");
+    if (likeBtn) likeBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleLike(currentPhotoId());
+    });
+    lightbox.querySelectorAll(".lb-share").forEach(function (btn) {
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        sharePhoto(btn.getAttribute("data-share"), btn);
+      });
+    });
+  }
+
+  function currentPhotoId() {
+    var p = allPhotos[currentIndex];
+    return p ? p.id : null;
+  }
+
+  function photoShareUrl(photoId) {
+    return "https://willtran.org/gallery.html?photo=" + encodeURIComponent(photoId);
+  }
+
+  function sharePhoto(kind, btn) {
+    var pid = currentPhotoId();
+    if (!pid) return;
+    var url = photoShareUrl(pid);
+    var photo = allPhotos[currentIndex];
+    var text = (photo && photo.caption ? photo.caption + " — " : "") + "Photo by Will Tran";
+    if (kind === "x") {
+      window.open("https://twitter.com/intent/tweet?url=" + encodeURIComponent(url) +
+        "&text=" + encodeURIComponent(text), "_blank", "noopener,width=560,height=460");
+    } else if (kind === "facebook") {
+      window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url),
+        "_blank", "noopener,width=560,height=460");
+    } else {
+      // copy link
+      var done = function (ok) {
+        if (!btn) return;
+        var orig = btn.textContent;
+        btn.textContent = ok ? "Copied!" : "Copy failed";
+        setTimeout(function () { btn.textContent = orig; }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        try { done(document.execCommand("copy")); } catch (e) { done(false); }
+        document.body.removeChild(ta);
+      }
+    }
+  }
+
+  function refreshLikeUI() {
+    var pid = currentPhotoId();
+    if (!likeBtn || !pid) return;
+    var n = likeCounts[pid] || 0;
+    likeCountEl.textContent = String(n);
+    var liked = !!likedByMe[pid];
+    likeBtn.classList.toggle("liked", liked);
+    likeBtn.setAttribute("aria-pressed", liked ? "true" : "false");
+    likeBtn.setAttribute("aria-label", liked ? "Unlike this photo" : "Like this photo");
+  }
+
+  function toggleLike(pid) {
+    if (!pid || toggleLike.busy) return;
+    toggleLike.busy = true;
+    fetch(WORKER + "/like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photo_id: pid })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) {
+          likeCounts[pid] = j.count;
+          if (j.liked) likedByMe[pid] = 1; else delete likedByMe[pid];
+          refreshLikeUI();
+          syncBadge(pid);
+        }
+      })
+      .catch(function () {})
+      .then(function () { toggleLike.busy = false; });
+  }
+
+  function syncBadge(pid) {
+    var badge = document.querySelector('.like-badge[data-photo-id="' + CSS.escape(pid) + '"]');
+    if (!badge) return;
+    var n = badge.querySelector(".lb-n");
+    if (n) n.textContent = String(likeCounts[pid] || 0);
+    badge.classList.toggle("liked", !!likedByMe[pid]);
+    badge.setAttribute("aria-pressed", likedByMe[pid] ? "true" : "false");
+  }
+
+  function loadLikeCounts() {
+    if (!allPhotos.length) return;
+    var ids = allPhotos.map(function (p) { return p.id; }).slice(0, 200);
+    fetch(WORKER + "/likes?ids=" + ids.map(encodeURIComponent).join(","))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j) return;
+        likeCounts = j.counts || {};
+        (j.mine || []).forEach(function (id) { likedByMe[id] = 1; });
+        allPhotos.forEach(function (p) { syncBadge(p.id); });
+        refreshLikeUI();
+      })
+      .catch(function () {});
   }
 
   function openLightbox(index) {
@@ -256,6 +370,10 @@
     currentPhotoSpan.textContent = currentIndex + 1;
     lightbox.classList.add("active");
     document.body.style.overflow = "hidden";
+    refreshLikeUI();
+    try {
+      history.replaceState(null, "", "gallery.html?photo=" + encodeURIComponent(photo.id));
+    } catch (e) {}
     preloadNeighbor(1);
     preloadNeighbor(-1);
   }
@@ -271,6 +389,9 @@
     document.body.style.overflow = "";
     lightboxImage.src = "";
     resetZoom();
+    try {
+      history.replaceState(null, "", "gallery.html");
+    } catch (e) {}
   }
 
   function navigateLightbox(direction) {
@@ -309,6 +430,9 @@
           'alt="' + escapeHtml(photo.alt) + '" ' +
           'data-index="' + index + '" ' +
           'loading="lazy" decoding="async">' +
+        '<button class="like-badge" data-photo-id="' + escapeHtml(photo.id) + '" ' +
+          'aria-label="Like this photo"><span class="lb-heart" aria-hidden="true">♥</span> ' +
+          '<span class="lb-n">0</span></button>' +
       "</div>" +
       '<div class="gallery-caption">' + escapeHtml(photo.caption) + "</div>";
     return item;
@@ -356,10 +480,28 @@
 
     container.addEventListener("click", function (e) {
       var t = e.target;
+      var badge = t.classList && t.classList.contains("like-badge") ? t :
+        (t.closest ? t.closest(".like-badge") : null);
+      if (badge && badge.dataset.photoId) {
+        e.stopPropagation();
+        toggleLike(badge.dataset.photoId);
+        return;
+      }
       if (t.classList && t.classList.contains("gallery-image") && t.dataset.index != null) {
         openLightbox(parseInt(t.dataset.index, 10));
       }
     });
+
+    // Deep link: ?photo=<id> opens the lightbox on that photo
+    loadLikeCounts();
+    try {
+      var deepId = new URLSearchParams(window.location.search).get("photo");
+      if (deepId) {
+        for (var di = 0; di < allPhotos.length; di++) {
+          if (allPhotos[di].id === deepId) { openLightbox(di); break; }
+        }
+      }
+    } catch (e) {}
 
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }

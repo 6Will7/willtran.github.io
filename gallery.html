@@ -16,8 +16,8 @@
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
 
     <link rel="stylesheet" href="css/variables.css?v=619d2a45">
-    <link rel="stylesheet" href="css/main.css?v=7feed6b8">
-    <link rel="stylesheet" href="css/gallery.css?v=37acea1b">
+    <link rel="stylesheet" href="css/main.css?v=4db6b01e">
+    <link rel="stylesheet" href="css/gallery.css?v=edba579d">
     <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
@@ -48,6 +48,7 @@
           </ul>
         </li>
         <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
       </ul>
     </nav>
   </div>
@@ -96,6 +97,16 @@
                 <span class="current-photo">1</span> / <span class="total-photos">0</span>
             </div>
             <div class="lightbox-caption"></div>
+            <div class="lightbox-actions">
+                <button class="lb-like" aria-label="Like this photo" aria-pressed="false">
+                    <span class="lb-heart" aria-hidden="true">♥</span>
+                    <span class="lb-like-count">0</span>
+                </button>
+                <span class="lb-sep" aria-hidden="true"></span>
+                <button class="lb-share" data-share="x" aria-label="Share on X">X</button>
+                <button class="lb-share" data-share="facebook" aria-label="Share on Facebook">f</button>
+                <button class="lb-share lb-copy" aria-label="Copy photo link">Copy link</button>
+            </div>
             <div class="lightbox-controls-hint">
                 Pinch or scroll to zoom &middot; double-tap to enlarge &middot; swipe or arrow keys to navigate &middot; ESC to close
             </div>
@@ -103,6 +114,6 @@
     </div>
 
     <script src="js/main.js?v=e2c0a542" defer></script>
-    <script src="js/gallery.js?v=81a19782" defer></script>
+    <script src="js/gallery.js?v=4f8c2257" defer></script>
 </body>
 </html>

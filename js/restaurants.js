@@ -10,6 +10,17 @@
   var all = [];
   var activeCuisine = 'All';
 
+  // Page-level share buttons
+  (function () {
+    var holder = document.getElementById('rest-share');
+    if (holder && window.WTShare) {
+      holder.appendChild(window.WTShare.row(
+        'https://willtran.org/restaurants/',
+        "Will Tran's favorite Bay Area restaurants"
+      ));
+    }
+  })();
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];

@@ -14,7 +14,7 @@
     <title>Recipes | Will Tran</title>
 
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
-    <link rel="stylesheet" href="/css/main.css?v=7feed6b8">
+    <link rel="stylesheet" href="/css/main.css?v=4db6b01e">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/recipes.css?v=845aeacf">
 </head>
@@ -46,6 +46,7 @@
           </ul>
         </li>
         <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
       </ul>
     </nav>
   </div>
@@ -240,6 +241,7 @@
 
 
     <script src="/js/main.js"></script>
+    <script src="/js/share.js?v=0e691bed"></script>
     <script>
         // Build the category dropdown menus from the recipe cards on the page.
         document.addEventListener('DOMContentLoaded', function () {
@@ -262,6 +264,13 @@
                     link.href = '#' + id;
                     link.textContent = title.textContent;
                     menu.appendChild(link);
+                    // Per-recipe share buttons (deep link to this card)
+                    if (window.WTShare) {
+                        card.appendChild(window.WTShare.row(
+                            'https://willtran.org/recipes.html#' + id,
+                            title.textContent + ' — recipe by Will Tran'
+                        ));
+                    }
                 });
             });
         });

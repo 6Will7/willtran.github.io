@@ -11,4 +11,5 @@
     <url><loc>https://willtran.org/restaurants/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
     <url><loc>https://willtran.org/sec-search/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
     <url><loc>https://willtran.org/markets/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+    <url><loc>https://willtran.org/guestbook/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
 </urlset>

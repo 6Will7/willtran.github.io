@@ -298,6 +298,51 @@ html {
   font-size: 0.75rem;
   color: #94a3b8;
   font-style: italic;
+}
+
+/* Like + share row in the lightbox */
+.lightbox-actions {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; margin: 0.4rem 0 0.6rem;
+}
+.lb-like {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff; border-radius: 999px; padding: 0.3rem 0.75rem;
+  font-size: 0.9rem; cursor: pointer; transition: background 0.15s ease, transform 0.1s ease;
+}
+.lb-like:hover { background: rgba(255, 255, 255, 0.2); }
+.lb-like:active { transform: scale(0.94); }
+.lb-like .lb-heart { font-size: 1rem; line-height: 1; color: #cbd5e1; }
+.lb-like.liked .lb-heart { color: #f43f5e; }
+.lb-like.liked { border-color: rgba(244, 63, 94, 0.6); }
+.lb-sep { width: 1px; height: 1.2rem; background: rgba(255, 255, 255, 0.25); }
+.lb-share {
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff; border-radius: 999px; padding: 0.3rem 0.7rem;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lb-share:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* Like badge on gallery thumbnails */
+.like-badge {
+  position: absolute; right: 0.5rem; bottom: 0.5rem; z-index: 2;
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff; border-radius: 999px; padding: 0.2rem 0.55rem;
+  font-size: 0.78rem; cursor: pointer; backdrop-filter: blur(4px);
+  transition: background 0.15s ease, transform 0.1s ease;
+  opacity: 0;
+}
+.gallery-item:hover .like-badge, .like-badge.liked { opacity: 1; }
+.like-badge:hover { background: rgba(0, 0, 0, 0.75); }
+.like-badge:active { transform: scale(0.92); }
+.like-badge .lb-heart { color: #cbd5e1; }
+.like-badge.liked .lb-heart { color: #f43f5e; }
+@media (hover: none) {
+  .like-badge { opacity: 1; }
+}
   opacity: 0.7;
 }
 

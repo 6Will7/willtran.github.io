@@ -719,3 +719,25 @@ footer .container { padding-top: 0; padding-bottom: 0; }
   .nav-dropmenu { position: static; box-shadow: none; margin: 0.3rem 0 0; min-width: 0; }
   .nav-dropmenu a { padding: 0.4rem 0.2rem; }
 }
+
+/* Shared share-button row (WTShare) */
+.share-row {
+  display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+.share-label {
+  font-size: 0.82rem; font-weight: 600; color: var(--color-muted);
+}
+.share-btn {
+  background: var(--color-card-bg-alt, transparent);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 999px; padding: 0.28rem 0.7rem;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.share-btn:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+.share-btn:active { transform: scale(0.95); }

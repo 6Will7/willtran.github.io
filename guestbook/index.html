@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Say hello — leave a note in Will Tran's guestbook.">
+    <meta property="og:title" content="Guestbook | Will Tran">
+    <meta property="og:description" content="Say hello — leave a note in my guestbook.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/guestbook/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Guestbook | Will Tran</title>
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=4db6b01e">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .gb-wrap { max-width: 720px; }
+      .gb-entries { display: flex; flex-direction: column; gap: 0.9rem; margin: 1.2rem 0 2.5rem; }
+      .gb-entry {
+        border: 1px solid var(--color-border); border-radius: 12px;
+        padding: 1rem 1.2rem; background: var(--color-card-bg);
+      }
+      .gb-entry .gb-name { font-weight: 700; margin: 0 0 0.25rem; }
+      .gb-entry .gb-date { font-size: 0.78rem; color: var(--color-muted); margin-left: 0.5rem; font-weight: 400; }
+      .gb-entry p { margin: 0; white-space: pre-wrap; }
+      .gb-form { display: flex; flex-direction: column; gap: 0.8rem; }
+      .gb-form label { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 600; font-size: 0.9rem; }
+      .gb-form input, .gb-form textarea {
+        font: inherit; font-weight: 400; padding: 0.6rem 0.75rem;
+        border: 1px solid var(--color-border); border-radius: 8px;
+        background: var(--color-card-bg); color: var(--color-text);
+      }
+      .gb-form textarea { resize: vertical; min-height: 5rem; }
+      .gb-form-msg { font-size: 0.9rem; min-height: 1.4em; }
+      .gb-form-msg.ok { color: #1a7f37; }
+      .gb-form-msg.err { color: var(--color-danger, #DA121A); }
+      .gb-empty { color: var(--color-muted); }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container gb-wrap">
+        <section class="section reveal">
+            <h2>Guestbook</h2>
+            <p class="rest-sub">Say hello — leave a note and I'll put it up after a quick review.</p>
+            <div id="gb-share"></div>
+            <div id="gb-entries" class="gb-entries" aria-live="polite">
+                <div class="loader-center"><div class="spinner" role="status" aria-label="Loading guestbook"></div></div>
+            </div>
+        </section>
+        <section class="section reveal">
+            <h2>Sign the guestbook</h2>
+            <form id="gb-form" class="gb-form" novalidate>
+                <label>Name *
+                    <input type="text" name="name" required maxlength="50" autocomplete="name" placeholder="Your name">
+                </label>
+                <label>Message *
+                    <textarea name="message" required maxlength="500" placeholder="Say hello…"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary">Sign guestbook</button>
+                <p id="gb-form-msg" class="gb-form-msg" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script src="/js/share.js?v=0e691bed" defer></script>
+    <script src="/js/guestbook.js?v=bc459276" defer></script>
+</body>
+</html>
