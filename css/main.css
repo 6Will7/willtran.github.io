@@ -1,8 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&display=swap");
 
 /* --- 4. Base Body Application --- */
-body {
+html {
   background-color: var(--color-bg);
+  transition: var(--transition-theme);
+}
+
+body {
+  background-color: transparent;
   color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.6;
@@ -13,6 +18,24 @@ body {
 
   /* Ensures the light/dark mode switch is smooth */
   transition: var(--transition-theme);
+}
+
+/* Universal ambient color wash — fixed full-page gradient behind all content,
+   follows the accent picker. Cards and sections float above it. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(90px) saturate(1.25);
+  opacity: 0.5;
+  background:
+    radial-gradient(45% 35% at 8% 10%, color-mix(in srgb, var(--color-accent) 32%, transparent), transparent 70%),
+    radial-gradient(40% 32% at 93% 26%, color-mix(in srgb, var(--color-accent-2) 28%, transparent), transparent 70%),
+    radial-gradient(44% 36% at 55% 60%, color-mix(in srgb, var(--color-accent-3) 26%, transparent), transparent 70%),
+    radial-gradient(38% 30% at 12% 88%, color-mix(in srgb, var(--color-accent-2) 22%, transparent), transparent 70%),
+    radial-gradient(36% 30% at 90% 86%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 70%);
 }
 
 /* Editorial serif for display type */
