@@ -26,10 +26,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ----- Accent color switcher (persisted) ----- */
   var ACCENTS = {
-    violet:  { accent: "#7c3aed", hover: "#6d28d9", partner: "#2563eb" },
-    emerald: { accent: "#059669", hover: "#047857", partner: "#0ea5e9" },
-    amber:   { accent: "#d97706", hover: "#b45309", partner: "#dc2626" },
-    rose:    { accent: "#e11d48", hover: "#be1239", partner: "#f59e0b" }
+    violet:  { accent: "#7c3aed", hover: "#6d28d9", partner: "#2563eb", third: "#ec4899" },
+    emerald: { accent: "#059669", hover: "#047857", partner: "#0ea5e9", third: "#a3e635" },
+    amber:   { accent: "#d97706", hover: "#b45309", partner: "#dc2626", third: "#f59e0b" },
+    rose:    { accent: "#e11d48", hover: "#be1239", partner: "#f59e0b", third: "#7c3aed" }
   };
 
   function applyAccent(name) {
@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
       root.style.removeProperty("--color-accent");
       root.style.removeProperty("--color-accent-hover");
       root.style.removeProperty("--color-accent-2");
+      root.style.removeProperty("--color-accent-3");
       root.style.removeProperty("--color-accent-text");
       try { localStorage.removeItem("wt-accent"); } catch (e) {}
       name = "default";
@@ -46,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       root.style.setProperty("--color-accent", a.accent);
       root.style.setProperty("--color-accent-hover", a.hover);
       root.style.setProperty("--color-accent-2", a.partner);
+      root.style.setProperty("--color-accent-3", a.third);
       root.style.setProperty("--color-accent-text", "#ffffff");
       try { localStorage.setItem("wt-accent", name); } catch (e) {}
     }
