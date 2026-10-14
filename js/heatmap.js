@@ -309,7 +309,12 @@
     }
   }
 
-  var MAX_TILES = 150; // SPY has 500+ holdings; show the top 150 by weight
+  // Fewer, larger tiles on phones: legible labels and ~2.5x faster quote fill
+  // (150 tiles x ~1.1s per quote = ~3 min on desktop; 60 keeps mobile snappy).
+  function maxTiles() {
+    return window.innerWidth < 640 ? 60 : 150;
+  }
+  var lastHoldings = null, lastW = 0, lastH = 0;
 
   async function load(etf) {
     setActive(etf);
@@ -339,7 +344,7 @@
           ' · ' + (holdings.length - qmiss) + '/' + holdings.length + ' prices loaded';
       } else if (typeof ETF_HOLDINGS !== 'undefined' && ETF_HOLDINGS[etf]) {
         var full = ETF_HOLDINGS[etf];
-        var list = full.holdings.slice(0, MAX_TILES);
+        var list = full.holdings.slice(0, maxTiles());
         holdings = list.map(function (h) {
           return { s: h.s, name: null, w: h.w, pct: null };
         });
@@ -366,10 +371,26 @@
           ' — try SPY, DIA, QQQ, XLF, XBI, or a sector ETF.');
       }
       metaEl.textContent = meta;
+      lastHoldings = holdings;
+      lastW = mapEl.clientWidth; lastH = mapEl.clientHeight;
     } catch (e) {
       err(e.message || 'Could not load holdings.');
     }
   }
+
+  // Re-lay out (no refetch) on resize/rotation — debounced, and skipped for
+  // tiny iOS scroll-driven size jitters.
+  var resizeT = null;
+  window.addEventListener('resize', function () {
+    if (!lastHoldings) return;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(function () {
+      var W = mapEl.clientWidth, H = mapEl.clientHeight;
+      if (Math.abs(W - lastW) < 4 && Math.abs(H - lastH) < 4) return;
+      render(lastHoldings);
+      lastW = W; lastH = H;
+    }, 250);
+  });
 
   for (var i = 0; i < presets.length; i++) {
     presets[i].addEventListener('click', function () {
