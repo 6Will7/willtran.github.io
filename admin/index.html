@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Portal | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=4db6b01e">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .portal-wrap { max-width: 640px; }
+      #portal-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin: 0.8rem 0; box-sizing: border-box; }
+      #portal-msg { min-height: 1.4em; font-size: 0.9rem; }
+      .portal-grid { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 1rem; }
+      .portal-card {
+        display: block; text-decoration: none; color: var(--color-text);
+        border: 1px solid var(--color-border); border-radius: 12px;
+        padding: 1rem 1.1rem; background: var(--color-card-bg);
+        transition: border-color 0.15s ease, transform 0.15s ease;
+      }
+      .portal-card:hover { border-color: var(--color-accent); transform: translateY(-2px); }
+      .portal-card h3 { margin: 0 0 0.3rem; font-size: 1.05rem; }
+      .portal-card p { margin: 0; font-size: 0.88rem; color: var(--color-text-muted); }
+      .portal-card .go { float: right; color: var(--color-accent); font-weight: 700; }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container portal-wrap">
+        <section class="section reveal">
+            <div id="portal-lock">
+                <h2>Admin portal</h2>
+                <p class="rest-sub">Private — enter your admin token to see the hidden pages.</p>
+                <input id="portal-token" type="password" placeholder="Admin token" autocomplete="off" aria-label="Admin token">
+                <button id="portal-unlock" class="btn btn-primary">Unlock</button>
+                <p id="portal-msg" role="status" aria-live="polite"></p>
+            </div>
+            <div id="portal-links" hidden>
+                <h2>Admin portal</h2>
+                <p class="rest-sub">All your hidden pages in one place. Unlocked for this tab.</p>
+                <div class="portal-grid">
+                    <a class="portal-card" href="/gallery/upload.html">
+                        <span class="go">&rarr;</span>
+                        <h3>Gallery upload</h3>
+                        <p>Add new photos to the gallery, with custom categories.</p>
+                    </a>
+                    <a class="portal-card" href="/gallery/manage.html">
+                        <span class="go">&rarr;</span>
+                        <h3>Gallery manager</h3>
+                        <p>Reorganize photos, edit captions, reorder, hide or delete.</p>
+                    </a>
+                    <a class="portal-card" href="/restaurants/admin.html">
+                        <span class="go">&rarr;</span>
+                        <h3>Restaurant admin</h3>
+                        <p>Review submitted restaurants and manage your list.</p>
+                    </a>
+                    <a class="portal-card" href="/guestbook/admin.html">
+                        <span class="go">&rarr;</span>
+                        <h3>Guestbook admin</h3>
+                        <p>Approve or reject guestbook entries.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script>
+    (function () {
+      'use strict';
+      var WORKER_URL = 'https://willtran-stocks-proxy.willtran98.workers.dev';
+      var tokEl = document.getElementById('portal-token');
+      var unlockBtn = document.getElementById('portal-unlock');
+      var msgEl = document.getElementById('portal-msg');
+      var lockEl = document.getElementById('portal-lock');
+      var linksEl = document.getElementById('portal-links');
+
+      // Token keys used by the hidden pages — unlocking here pre-fills them all
+      var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin'];
+
+      function showLinks(tok) {
+        try {
+          TOKEN_KEYS.forEach(function (k) { sessionStorage.setItem(k, tok); });
+          sessionStorage.setItem('portal_unlocked', '1');
+        } catch (e) {}
+        lockEl.hidden = true;
+        linksEl.hidden = false;
+      }
+      try {
+        if (sessionStorage.getItem('portal_unlocked') === '1') {
+          var t = sessionStorage.getItem('gallery_admin') || '';
+          if (t) { showLinks(t); }
+        }
+      } catch (e) {}
+
+      function unlock() {
+        var tok = tokEl.value.trim();
+        if (!tok) { msgEl.textContent = 'Enter your admin token.'; tokEl.focus(); return; }
+        msgEl.textContent = 'Checking…';
+        unlockBtn.disabled = true;
+        fetch(WORKER_URL + '/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: tok })
+        }).then(function (r) {
+          return r.json().then(function (j) { return { ok: r.ok && j && j.ok, err: (j && j.error) || '' }; });
+        }).then(function (res) {
+          unlockBtn.disabled = false;
+          if (res.ok) { showLinks(tok); }
+          else { msgEl.textContent = res.err === 'too many attempts — try again later' ? res.err : 'Wrong token — try again.'; }
+        }).catch(function () {
+          unlockBtn.disabled = false;
+          msgEl.textContent = 'Could not reach the server — check your connection.';
+        });
+      }
+      unlockBtn.addEventListener('click', unlock);
+      tokEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+    })();
+    </script>
+</body>
+</html>

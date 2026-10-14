@@ -6,6 +6,8 @@
   var pendingEl = document.getElementById('gb-admin-pending');
   var msgEl = document.getElementById('gb-admin-msg');
 
+  try { tokenEl.value = sessionStorage.getItem('gb_admin') || ''; } catch (e) {}
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -90,6 +92,7 @@
 
   var deb = null;
   tokenEl.addEventListener('input', function () {
+    try { sessionStorage.setItem('gb_admin', tokenEl.value.trim()); } catch (e) {}
     clearTimeout(deb);
     deb = setTimeout(load, 400);
   });
