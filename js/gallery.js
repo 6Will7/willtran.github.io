@@ -22,10 +22,6 @@
     );
   }
 
-  // Tiny blurred placeholder shown while the real image loads
-  function placeholderUrl(cloudName, publicId) {
-    return clUrl(cloudName, publicId, "f_auto,q_20,w_40,e_blur:400");
-  }
 
   // Responsive thumbnail (grid). Browser picks the right size.
   function thumbSrcset(cloudName, publicId) {
@@ -299,52 +295,16 @@
       .replace(/"/g, "&quot;");
   }
 
-  // Swap the blurry placeholder for the real image once it loads
-  function hydrateImage(img) {
-    if (img.dataset.hydrated) return;
-    img.dataset.hydrated = "1";
-    var real = new Image();
-    real.decoding = "async";
-    if (img.dataset.srcset) real.srcset = img.dataset.srcset;
-    real.src = img.dataset.src;
-    var done = function () {
-      img.src = real.currentSrc || real.src;
-      if (img.dataset.srcset) img.srcset = img.dataset.srcset;
-      img.classList.remove("is-loading");
-    };
-    if (real.complete && real.naturalWidth) done();
-    else {
-      real.onload = done;
-      real.onerror = function () { img.classList.remove("is-loading"); };
-    }
-  }
 
-  function observeImages(scope) {
-    var imgs = scope.querySelectorAll("img[data-src]");
-    if (!("IntersectionObserver" in window)) {
-      imgs.forEach(hydrateImage);
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          hydrateImage(entry.target);
-          io.unobserve(entry.target);
-        }
-      });
-    }, { rootMargin: "400px" });
-    imgs.forEach(function (img) { io.observe(img); });
-  }
 
   function photoCard(photo, index) {
     var item = document.createElement("article");
     item.className = "gallery-item"; // no .reveal: cards must be visible even if the scroll observer misfires (mobile Safari)
     item.innerHTML =
       '<div class="thumb-wrap">' +
-        '<img class="gallery-image is-loading" ' +
-          'src="' + placeholderUrl(cloudName, photo.id) + '" ' +
-          'data-src="' + thumbSrc(cloudName, photo.id) + '" ' +
-          'data-srcset="' + thumbSrcset(cloudName, photo.id) + '" ' +
+        '<img class="gallery-image" ' +
+          'src="' + thumbSrc(cloudName, photo.id) + '" ' +
+          'srcset="' + thumbSrcset(cloudName, photo.id) + '" ' +
           'sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw" ' +
           'alt="' + escapeHtml(photo.alt) + '" ' +
           'data-index="' + index + '" ' +
@@ -401,7 +361,6 @@
       }
     });
 
-    observeImages(container);
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }
 
@@ -435,7 +394,6 @@
       });
       container.appendChild(card);
     });
-    observeImages(container);
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }
 

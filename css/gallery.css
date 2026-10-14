@@ -368,13 +368,9 @@ html {
 }
 
 /* Blurry placeholder state, then a soft sharpen into focus */
-.gallery-image.is-loading {
-  filter: blur(18px);
-  transform: scale(1.06);
-}
-.gallery-image:not(.is-loading) {
-  filter: blur(0);
-  transition: filter 0.6s ease, transform 0.3s ease;
+/* Subtle backdrop while thumbnails load (native lazy loading) */
+.gallery-image {
+  background: var(--color-card-bg-alt);
 }
 
 /* Keep the jump nav clear of the sticky header */
