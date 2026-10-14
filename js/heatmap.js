@@ -427,7 +427,6 @@
     { t: 'SPY', label: 'S&P 500' },
     { t: 'QQQ', label: 'Nasdaq 100' },
     { t: 'DIA', label: 'Dow Jones Industrial' },
-    { t: 'IWM', label: 'Russell 2000' },
     { t: 'XBI', label: 'Biotech' }
   ];
   var suggestEl = document.getElementById('hm-suggest');
