@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Gallery Upload | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=387c32ab">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .upload-wrap { max-width: 760px; }
+      #up-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-bottom: 1rem; box-sizing: border-box; }
+      .up-drop {
+        border: 2px dashed var(--color-border); border-radius: 12px;
+        padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
+        color: var(--color-text-muted); transition: border-color 0.2s ease, background 0.2s ease;
+      }
+      .up-drop:hover, .up-drop.drag { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 6%, transparent); color: var(--color-text); }
+      .up-drop strong { display: block; font-size: 1.05rem; margin-bottom: 0.3rem; color: var(--color-text); }
+      .up-queue { display: flex; flex-direction: column; gap: 0.9rem; margin: 1.25rem 0; }
+      .up-item { display: grid; grid-template-columns: 84px 1fr; gap: 0.9rem; border: 1px solid var(--color-border); border-radius: 10px; padding: 0.8rem; background: var(--color-card-bg); align-items: start; }
+      .up-item img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; display: block; }
+      .up-item .up-fields { display: flex; flex-direction: column; gap: 0.5rem; }
+      .up-item select, .up-item input[type="text"] { font: inherit; padding: 0.45rem 0.6rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg-alt); color: var(--color-text); width: 100%; box-sizing: border-box; }
+      .up-item .up-row { display: flex; gap: 0.5rem; align-items: center; }
+      .up-item .up-name { font-size: 0.82rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+      .up-status { font-size: 0.82rem; font-weight: 600; }
+      .up-status.waiting { color: var(--color-text-muted); }
+      .up-status.uploading { color: var(--color-accent); }
+      .up-status.done { color: #1a7f37; }
+      .up-status.error { color: var(--color-danger, #DA121A); }
+      .up-actions { display: flex; gap: 0.75rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+      .up-hint { font-size: 0.85rem; color: var(--color-text-muted); }
+      .up-bar { height: 6px; border-radius: 3px; background: var(--color-card-bg-alt); overflow: hidden; }
+      .up-bar > div { height: 100%; width: 0; background: var(--color-accent); transition: width 0.2s ease; }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container upload-wrap">
+        <section class="section reveal">
+            <h2>Gallery upload</h2>
+            <p class="rest-sub">Private — not linked anywhere public. Photos go straight to Cloudinary and appear in the gallery automatically.</p>
+            <input id="up-token" type="password" placeholder="Admin token" autocomplete="off" aria-label="Admin token">
+            <div id="up-drop" class="up-drop" role="button" tabindex="0" aria-label="Drop photos here or click to browse">
+                <strong>Drop photos here</strong>
+                or click to browse — JPG, PNG, WebP up to 10&nbsp;MB each
+            </div>
+            <input id="up-files" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
+            <div id="up-queue" class="up-queue"></div>
+            <div class="up-actions">
+                <button id="up-all" class="btn-primary" type="button" disabled>Upload all</button>
+                <span id="up-msg" class="up-hint"></span>
+            </div>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=a43adbef"></script>
+    <script src="/js/gallery-upload.js?v=bd0c64ed"></script>
+</body>
+</html>

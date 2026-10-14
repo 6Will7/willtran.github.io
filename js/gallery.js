@@ -412,7 +412,22 @@
           if (!data.cloudName || !Array.isArray(data.categories)) {
             throw new Error("DATA/gallery.json is missing cloudName or categories.");
           }
-          renderGallery(galleryContainer, data);
+          // Merge Will's private uploads (newest first) into their categories.
+          return fetch("https://willtran-stocks-proxy.willtran98.workers.dev/gallery/uploads")
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; })
+            .then(function (u) {
+              var uploads = (u && u.uploads) || [];
+              uploads.slice().reverse().forEach(function (up) {
+                if (!up.public_id || !up.category) return;
+                var cat = null;
+                data.categories.forEach(function (c) { if (c.title === up.category) cat = c; });
+                if (!cat) return;
+                var cap = up.caption || "";
+                cat.photos.unshift({ id: up.public_id, alt: cap || "Gallery photo", caption: cap });
+              });
+              renderGallery(galleryContainer, data);
+            });
         })
         .catch(function (err) {
           showError(galleryContainer, err.message + " Check that DATA/gallery.json exists and is valid JSON.");
