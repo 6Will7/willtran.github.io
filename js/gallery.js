@@ -539,6 +539,63 @@
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }
 
+  /* ---------- Gallery data: base JSON + uploads + Will's management edits ---------- */
+  function buildGalleryData(data, u) {
+    var uploads = (u && u.uploads) || [];
+    var edits = {};
+    ((u && u.edits) || []).forEach(function (e) {
+      if (e && e.photo_id) edits[e.photo_id] = e;
+    });
+    // Merge uploads into categories (newest first), creating sections as needed
+    uploads.slice().reverse().forEach(function (up) {
+      if (!up.public_id || !up.category) return;
+      var cat = null;
+      data.categories.forEach(function (c) { if (c.title === up.category) cat = c; });
+      if (!cat) {
+        cat = { title: up.category, photos: [] };
+        data.categories.push(cat);
+      }
+      var cap = up.caption || "";
+      cat.photos.unshift({ id: up.public_id, alt: cap || "Gallery photo", caption: cap });
+    });
+    // Apply management edits: recategorize, recaption, hide, reorder
+    var catOrder = [];
+    var seenCat = {};
+    data.categories.forEach(function (c) { catOrder.push(c.title); seenCat[c.title] = true; });
+    var byCat = {};
+    var seq = 0;
+    data.categories.forEach(function (c) {
+      c.photos.forEach(function (p) {
+        var e = edits[p.id];
+        if (e && e.deleted) return;
+        var title = (e && e.category) ? e.category : c.title;
+        var cap = (e && e.caption !== null && e.caption !== undefined) ? e.caption : p.caption;
+        if (!byCat[title]) {
+          byCat[title] = [];
+          if (!seenCat[title]) { seenCat[title] = true; catOrder.push(title); }
+        }
+        byCat[title].push({
+          id: p.id,
+          alt: cap || p.alt || "Gallery photo",
+          caption: cap || "",
+          pos: (e && e.position !== null && e.position !== undefined) ? e.position : null,
+          seq: seq++
+        });
+      });
+    });
+    var finalCats = [];
+    catOrder.forEach(function (title) {
+      var photos = (byCat[title] || []).sort(function (a, b) {
+        var pa = a.pos === null ? 1e9 : a.pos;
+        var pb = b.pos === null ? 1e9 : b.pos;
+        return (pa - pb) || (a.seq - b.seq);
+      });
+      if (photos.length) finalCats.push({ title: title, photos: photos });
+    });
+    data.categories = finalCats;
+    return data;
+  }
+
   /* ---------- Boot ---------- */
   document.addEventListener("DOMContentLoaded", function () {
     initLightboxRefs();
@@ -554,25 +611,12 @@
           if (!data.cloudName || !Array.isArray(data.categories)) {
             throw new Error("DATA/gallery.json is missing cloudName or categories.");
           }
-          // Merge Will's private uploads (newest first) into their categories.
+          // Merge Will's uploads + management edits (newest first) into categories.
           return fetch("https://willtran-stocks-proxy.willtran98.workers.dev/gallery/uploads")
             .then(function (r) { return r.ok ? r.json() : null; })
             .catch(function () { return null; })
             .then(function (u) {
-              var uploads = (u && u.uploads) || [];
-              uploads.slice().reverse().forEach(function (up) {
-                if (!up.public_id || !up.category) return;
-                var cat = null;
-                data.categories.forEach(function (c) { if (c.title === up.category) cat = c; });
-                if (!cat) {
-                  // Custom category from the uploader — new section at the end
-                  cat = { title: up.category, photos: [] };
-                  data.categories.push(cat);
-                }
-                var cap = up.caption || "";
-                cat.photos.unshift({ id: up.public_id, alt: cap || "Gallery photo", caption: cap });
-              });
-              renderGallery(galleryContainer, data);
+              renderGallery(galleryContainer, buildGalleryData(data, u));
             });
         })
         .catch(function (err) {
@@ -602,7 +646,7 @@
     }
   });
 
-  // Homepage hero stat: total photos = JSON + Will's uploads (auto-updates).
+  // Homepage hero stat: total photos = JSON + Will's uploads - hidden ones (auto-updates).
   function updatePhotoStat(data) {
     var el = document.getElementById("stat-photos");
     if (!el || !data.categories) return;
@@ -613,7 +657,9 @@
       .catch(function () { return null; })
       .then(function (u) {
         var n = (u && u.uploads) ? u.uploads.length : 0;
-        el.textContent = String(base + n);
+        var hidden = 0;
+        ((u && u.edits) || []).forEach(function (e) { if (e && e.deleted) hidden++; });
+        el.textContent = String(Math.max(0, base + n - hidden));
       });
   }
 })();
