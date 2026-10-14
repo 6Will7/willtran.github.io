@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Movies | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=4db6b01e">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/movies.css">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container movies-wrap">
+        <section class="section reveal">
+            <h2>Movies</h2>
+            <p class="rest-sub">Our little Letterboxd. Log what you watch, rate it, see what friends thought.</p>
+            <div class="mv-namebar">
+                <label for="mv-name">Watching as</label>
+                <input id="mv-name" type="text" placeholder="Your name" maxlength="30" autocomplete="off">
+                <button id="mv-name-save" class="btn btn-primary btn-sm">Save</button>
+            </div>
+            <div class="mv-tabs" role="tablist">
+                <button class="mv-tab active" data-tab="discover" role="tab">Discover</button>
+                <button class="mv-tab" data-tab="feed" role="tab">Friends' feed</button>
+                <button class="mv-tab" data-tab="diary" role="tab">Diary</button>
+                <button class="mv-tab" data-tab="watchlist" role="tab">Watchlist</button>
+            </div>
+
+            <div id="mv-tab-discover" class="mv-pane">
+                <div class="mv-searchrow">
+                    <input id="mv-search" type="search" placeholder="Search movies…" aria-label="Search movies">
+                    <button id="mv-search-btn" class="btn btn-primary">Search</button>
+                </div>
+                <div id="mv-results"></div>
+                <h3>Trending this week</h3>
+                <div id="mv-trending" class="mv-grid"></div>
+            </div>
+
+            <div id="mv-tab-feed" class="mv-pane" hidden>
+                <div id="mv-feed"></div>
+            </div>
+
+            <div id="mv-tab-diary" class="mv-pane" hidden>
+                <div class="mv-friends" id="mv-friends"></div>
+                <div id="mv-diary" class="mv-grid"></div>
+            </div>
+
+            <div id="mv-tab-watchlist" class="mv-pane" hidden>
+                <div id="mv-watchlist" class="mv-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="mv-modal" class="mv-modal" hidden>
+        <div class="mv-modal-card" role="dialog" aria-modal="true">
+            <button id="mv-modal-close" class="mv-modal-close" aria-label="Close">&times;</button>
+            <div id="mv-modal-body"></div>
+        </div>
+    </div>
+
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script src="/js/movies.js?v=01a8125b" defer></script>
+</body>
+</html>
