@@ -1,4 +1,4 @@
-/* Movies — Letterboxd-lite for friends. Unlisted pages; display names only. */
+/* Movies — for friends. Unlisted pages; display names only. */
 (function () {
   'use strict';
 
@@ -50,10 +50,11 @@
       tabs.forEach(function (x) { x.classList.remove('active'); });
       t.classList.add('active');
       var id = t.getAttribute('data-tab');
-      ['discover', 'feed', 'diary', 'watchlist'].forEach(function (k) {
+      ['discover', 'feed', 'reviews', 'diary', 'watchlist'].forEach(function (k) {
         document.getElementById('mv-tab-' + k).hidden = (k !== id);
       });
       if (id === 'feed') renderFeed();
+      if (id === 'reviews') renderReviewsTab();
       if (id === 'diary') renderDiaryTab();
       if (id === 'watchlist') renderWatchlistTab();
     });
@@ -147,6 +148,80 @@
         });
       })
       .catch(function () { feedEl.innerHTML = '<p class="mv-empty">Could not load the feed.</p>'; });
+  }
+
+  /* ---------- Reviews browser ---------- */
+  var reviewFriendsEl = document.getElementById('mv-review-friends');
+  var reviewsEl = document.getElementById('mv-reviews');
+  var reviewFilter = null; // null = everyone
+  var allReviews = [];
+
+  function renderReviewsTab() {
+    reviewFriendsEl.innerHTML = '<div class="loader-center"><div class="spinner"></div></div>';
+    reviewsEl.innerHTML = '';
+    Promise.all([
+      fetch(WORKER_URL + '/movies/feed?limit=100').then(function (r) { return r.json(); }),
+      fetch(WORKER_URL + '/movies/users').then(function (r) { return r.json(); }).catch(function () { return null; })
+    ]).then(function (res) {
+      var logs = (res[0] && res[0].logs) || [];
+      allReviews = logs.filter(function (l) { return l.review && l.review.trim(); });
+      var users = (res[1] && res[1].users) || [];
+      var names = [];
+      allReviews.forEach(function (l) { if (names.indexOf(l.name) < 0) names.push(l.name); });
+
+      reviewFriendsEl.innerHTML = '';
+      if (names.length > 1) {
+        var all = document.createElement('button');
+        all.className = 'mv-friend' + (reviewFilter === null ? ' active' : '');
+        all.textContent = 'Everyone';
+        all.addEventListener('click', function () { reviewFilter = null; renderReviewsTab(); });
+        reviewFriendsEl.appendChild(all);
+        names.forEach(function (n) {
+          var b = document.createElement('button');
+          b.className = 'mv-friend' + (reviewFilter === n ? ' active' : '');
+          b.textContent = n;
+          b.addEventListener('click', function () { reviewFilter = n; renderReviewsTab(); });
+          reviewFriendsEl.appendChild(b);
+        });
+      }
+      renderReviews();
+    }).catch(function () {
+      reviewFriendsEl.innerHTML = '';
+      reviewsEl.innerHTML = '<p class="mv-empty">Could not load reviews.</p>';
+    });
+  }
+
+  function renderReviews() {
+    reviewsEl.innerHTML = '';
+    var list = reviewFilter ? allReviews.filter(function (l) { return l.name === reviewFilter; }) : allReviews;
+    if (!list.length) {
+      reviewsEl.innerHTML = '<p class="mv-empty">No reviews yet — write one when you log a movie.</p>';
+      return;
+    }
+    list.forEach(function (l) {
+      var d = document.createElement('div');
+      d.className = 'mv-feed-item';
+      var ph = l.poster
+        ? '<img src="' + poster(l.poster, 'w185') + '" alt="" loading="lazy">'
+        : '';
+      d.innerHTML = '<div class="poster">' + ph + '</div>' +
+        '<div class="mv-feed-body">' +
+        '<div class="what"><a href="#" data-movie="' + l.tmdb_id + '">' + esc(l.title) + '</a>' +
+        (l.year ? ' <span class="meta">(' + esc(l.year) + ')</span>' : '') + '</div>' +
+        '<div><span class="who">' + esc(l.name) + '</span> ' +
+        '<span class="mv-stars">' + stars(l.rating) + '</span></div>' +
+        '<div class="mv-review-full">' + esc(l.review) + '</div>' +
+        '<div class="when">' + fmtDate(l.created_at) +
+        (l.watched_at ? ' · watched ' + esc(l.watched_at) : '') + '</div>' +
+        '</div>';
+      reviewsEl.appendChild(d);
+    });
+    reviewsEl.querySelectorAll('[data-movie]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        openMovie(parseInt(a.getAttribute('data-movie'), 10));
+      });
+    });
   }
 
   /* ---------- Diary ---------- */

@@ -48,7 +48,7 @@
     <main class="container movies-wrap">
         <section class="section reveal">
             <h2>Movies</h2>
-            <p class="rest-sub">Our little Letterboxd. Log what you watch, rate it, see what friends thought.</p>
+            <p class="rest-sub">Log what you watch, rate it, see what friends thought.</p>
             <div class="mv-namebar">
                 <label for="mv-name">Watching as</label>
                 <input id="mv-name" type="text" placeholder="Your name" maxlength="30" autocomplete="off">
@@ -57,6 +57,7 @@
             <div class="mv-tabs" role="tablist">
                 <button class="mv-tab active" data-tab="discover" role="tab">Discover</button>
                 <button class="mv-tab" data-tab="feed" role="tab">Friends' feed</button>
+                <button class="mv-tab" data-tab="reviews" role="tab">Reviews</button>
                 <button class="mv-tab" data-tab="diary" role="tab">Diary</button>
                 <button class="mv-tab" data-tab="watchlist" role="tab">Watchlist</button>
             </div>
@@ -73,6 +74,11 @@
 
             <div id="mv-tab-feed" class="mv-pane" hidden>
                 <div id="mv-feed"></div>
+            </div>
+
+            <div id="mv-tab-reviews" class="mv-pane" hidden>
+                <div class="mv-friends" id="mv-review-friends"></div>
+                <div id="mv-reviews"></div>
             </div>
 
             <div id="mv-tab-diary" class="mv-pane" hidden>
@@ -100,6 +106,6 @@
 </footer>
 
     <script src="/js/main.js?v=e2c0a542" defer></script>
-    <script src="/js/movies.js?v=01a8125b" defer></script>
+    <script src="/js/movies.js?v=d89835b2" defer></script>
 </body>
 </html>

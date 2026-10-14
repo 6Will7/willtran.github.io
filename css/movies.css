@@ -1,4 +1,4 @@
-/* Movies (Letterboxd-lite) — unlisted social pages, noindex. */
+/* Movies — unlisted social pages, noindex. */
 .movies-wrap { max-width: 1000px; }
 
 .mv-namebar {
@@ -60,6 +60,10 @@
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .mv-feed-body .when { font-size: 0.78rem; color: var(--color-text-muted); }
+.mv-review-full {
+  font-size: 0.92rem; line-height: 1.55; margin: 0.4rem 0;
+  white-space: pre-wrap;
+}
 
 /* Friends chips */
 .mv-friends { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1rem; }
