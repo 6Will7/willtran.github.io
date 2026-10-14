@@ -418,18 +418,60 @@
 
 
 
+  /* ---------- Reliable lazy loading (IntersectionObserver) ----------
+     Native loading="lazy" misfires in Safari (images stay black). We set
+     src/srcset via IO with a generous pre-load margin instead; the first
+     12 load eagerly (above the fold). Failed loads retry once. */
+  var lazyIO = null;
+  function lazyObserver() {
+    if (lazyIO) return lazyIO;
+    lazyIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        var img = en.target;
+        lazyIO.unobserve(img);
+        var ss = img.getAttribute('data-srcset');
+        var s = img.getAttribute('data-src');
+        img.removeAttribute('data-srcset');
+        img.removeAttribute('data-src');
+        var retried = false;
+        img.addEventListener('error', function () {
+          if (retried || !s) return;
+          retried = true;
+          setTimeout(function () {
+            if (ss) img.srcset = ss;
+            img.src = s;
+          }, 1500);
+        });
+        if (ss) img.srcset = ss;
+        img.src = s;
+      });
+    }, { rootMargin: '900px 0px', threshold: 0.01 });
+    return lazyIO;
+  }
+  function initLazyImages(root) {
+    var imgs = (root || document).querySelectorAll('img[data-src]');
+    var io = lazyObserver();
+    for (var i = 0; i < imgs.length; i++) io.observe(imgs[i]);
+  }
+
   function photoCard(photo, index) {
     var item = document.createElement("article");
     item.className = "gallery-item"; // no .reveal: cards must be visible even if the scroll observer misfires (mobile Safari)
+    var eager = index < 12;
+    var src = thumbSrc(cloudName, photo.id);
+    var srcset = thumbSrcset(cloudName, photo.id);
+    var imgAttrs = eager
+      ? 'src="' + src + '" srcset="' + srcset + '" '
+      : 'data-src="' + src + '" data-srcset="' + srcset + '" ';
     item.innerHTML =
       '<div class="thumb-wrap">' +
         '<img class="gallery-image" ' +
-          'src="' + thumbSrc(cloudName, photo.id) + '" ' +
-          'srcset="' + thumbSrcset(cloudName, photo.id) + '" ' +
+          imgAttrs +
           'sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw" ' +
           'alt="' + escapeHtml(photo.alt) + '" ' +
           'data-index="' + index + '" ' +
-          'loading="lazy" decoding="async">' +
+          'decoding="async">' +
         '<button class="like-badge" data-photo-id="' + escapeHtml(photo.id) + '" ' +
           'aria-label="Like this photo"><span class="lb-heart" aria-hidden="true">♥</span> ' +
           '<span class="lb-n">0</span></button>' +
@@ -503,6 +545,7 @@
       }
     } catch (e) {}
 
+    initLazyImages(container);
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }
 
@@ -536,6 +579,7 @@
       });
       container.appendChild(card);
     });
+    initLazyImages(container);
     if (window.RobitReveal) window.RobitReveal.observeNew(container);
   }
 
