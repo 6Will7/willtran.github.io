@@ -395,8 +395,8 @@
     });
   }
 
-  /* ----- ticker suggestions: 11 GICS sector SPDRs first, then benchmarks ----- */
-  var SUGGESTIONS = [
+  /* ----- Sector ETF picker ("Click here for Sector ETFs") ----- */
+  var SECTORS = [
     { t: 'XLK', label: 'Information Technology' },
     { t: 'XLV', label: 'Health Care' },
     { t: 'XLF', label: 'Financials' },
@@ -407,7 +407,41 @@
     { t: 'XLE', label: 'Energy' },
     { t: 'XLU', label: 'Utilities' },
     { t: 'XLRE', label: 'Real Estate' },
-    { t: 'XLB', label: 'Materials' },
+    { t: 'XLB', label: 'Materials' }
+  ];
+  var sectorBtn = document.getElementById('hm-sector-btn');
+  var sectorMenu = document.getElementById('hm-sector-menu');
+
+  function closeSectors() {
+    sectorMenu.hidden = true;
+    sectorBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  if (sectorBtn && sectorMenu) {
+    sectorMenu.innerHTML = SECTORS.map(function (s) {
+      return '<button type="button" class="hm-sector-item" data-ticker="' + s.t + '">' +
+        '<strong>' + escH(s.t) + '</strong><span> - ' + escH(s.label) + '</span></button>';
+    }).join('');
+    sectorBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = sectorMenu.hidden;
+      sectorMenu.hidden = !open;
+      sectorBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    sectorMenu.addEventListener('click', function (e) {
+      var item = e.target.closest ? e.target.closest('.hm-sector-item') : null;
+      if (item) { closeSectors(); load(item.getAttribute('data-ticker')); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!sectorMenu.hidden && !e.target.closest('.hm-sectors')) closeSectors();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !sectorMenu.hidden) closeSectors();
+    });
+  }
+
+  /* ----- ticker suggestions (benchmarks; sectors live under the Sector ETFs box) ----- */
+  var SUGGESTIONS = [
     { t: 'SPY', label: 'S&P 500' },
     { t: 'QQQ', label: 'Nasdaq 100' },
     { t: 'DIA', label: 'Dow Jones Industrial' },

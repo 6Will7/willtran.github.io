@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
     <link rel="stylesheet" href="/css/main.css?v=387c32ab">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/heatmap.css?v=0f88bce8">
+    <link rel="stylesheet" href="/css/heatmap.css?v=70fa4349">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
@@ -60,6 +60,10 @@
 
             <div class="hm-controls">
                 <div class="hm-presets" role="group" aria-label="Benchmark presets">
+                    <div class="hm-sectors">
+                        <button id="hm-sector-btn" class="calc-chip hm-preset" type="button" aria-expanded="false" aria-haspopup="true">Click here for Sector ETFs ▾</button>
+                        <div id="hm-sector-menu" class="hm-sector-menu" hidden></div>
+                    </div>
                     <button class="calc-chip hm-preset" type="button" data-etf="SPY">S&amp;P 500</button>
                     <button class="calc-chip hm-preset" type="button" data-etf="QQQ">Nasdaq 100</button>
                     <button class="calc-chip hm-preset" type="button" data-etf="DIA">Dow 30</button>
@@ -87,7 +91,7 @@
                 <span>+3%</span>
                 <span class="hm-legend-note">today's change</span>
             </div>
-            <p class="hm-note">Full holdings for SPY, DIA, XLF, and XBI come straight from State Street's
+            <p class="hm-note">Full holdings for SPY, DIA, XLF, XBI, and all 11 Select Sector SPDRs come straight from State Street's
             published daily files (refreshed weekly); Nasdaq 100 is live from Nasdaq. Any other
             ticker shows its top 25 holdings. Colors show today's % change vs. the previous close;
             gray tiles had no price data. Data for informational purposes only — verify before investing.</p>
@@ -103,7 +107,7 @@
 
     <script src="/js/main.js"></script>
     <script src="/js/gics.js?v=a5a85f5a"></script>
-    <script src="/js/etf-holdings.js?v=ce1bb2ce"></script>
-    <script src="/js/heatmap.js?v=ae2506f6"></script>
+    <script src="/js/etf-holdings.js?v=b12662cf"></script>
+    <script src="/js/heatmap.js?v=823ae945"></script>
 </body>
 </html>
