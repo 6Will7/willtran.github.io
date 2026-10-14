@@ -446,6 +446,7 @@
         })
         .then(function (data) {
           renderFeatured(featuredGrid, data);
+          updatePhotoStat(data);
         })
         .catch(function (err) {
           featuredGrid.innerHTML =
@@ -454,4 +455,19 @@
         });
     }
   });
+
+  // Homepage hero stat: total photos = JSON + Will's uploads (auto-updates).
+  function updatePhotoStat(data) {
+    var el = document.getElementById("stat-photos");
+    if (!el || !data.categories) return;
+    var base = 0;
+    data.categories.forEach(function (c) { base += (c.photos || []).length; });
+    fetch("https://willtran-stocks-proxy.willtran98.workers.dev/gallery/uploads")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (u) {
+        var n = (u && u.uploads) ? u.uploads.length : 0;
+        el.textContent = String(base + n);
+      });
+  }
 })();
