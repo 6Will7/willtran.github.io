@@ -1,16 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&display=swap");
+
 /* --- 4. Base Body Application --- */
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
   margin: 0;
-  
+
   /* MIN size (16px on phones), PREFERRED size (scales smoothly), MAX size (18px on desktops) */
-  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); 
-  
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+
   /* Ensures the light/dark mode switch is smooth */
-  transition: var(--transition-theme); 
+  transition: var(--transition-theme);
+}
+
+/* Editorial serif for display type */
+.hero-title,
+.logo-link,
+.section h2,
+h1 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 /* --- Theme Toggle Button --- */
 .theme-toggle {
@@ -58,10 +70,14 @@ body {
 
 /* --- Header & Navigation --- */
 header {
-  background-color: var(--color-header-bg);
-  padding: 1.5rem 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  border-bottom: 3px solid var(--color-header-border);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background-color: color-mix(in srgb, var(--color-header-bg) 84%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-header-border);
   transition: var(--transition-theme);
 }
 
@@ -77,11 +93,18 @@ header {
 }
 
 .logo-link {
-  font-size: 1.6rem;
+  font-size: 1.65rem;
   font-weight: 700;
   color: var(--color-nav-text-active);
   text-decoration: none;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.02em;
+}
+
+.logo-link .logo-dot {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 nav ul {
@@ -102,6 +125,31 @@ nav a {
   letter-spacing: 0.5px;
 }
 
+/* Animated underline for top-level nav links */
+nav > ul > li > a {
+  position: relative;
+  padding-bottom: 4px;
+}
+
+nav > ul > li > a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+nav > ul > li > a:hover::after,
+nav > ul > li > a.active::after {
+  transform: scaleX(1);
+}
+
 nav a:hover {
   color: var(--color-accent);
 }
@@ -109,8 +157,6 @@ nav a:hover {
 nav a.active {
   color: var(--color-nav-text-active);
   font-weight: 700;
-  border-bottom: 2px solid var(--color-accent);
-  padding-bottom: 4px;
 }
 
 /* Markets dropdown: "Markets" is a link to the landing page, ▾ toggles the menu */
@@ -138,8 +184,6 @@ nav a.active {
 .nav-droplink.active {
   color: var(--color-nav-text-active);
   font-weight: 700;
-  border-bottom: 2px solid var(--color-accent);
-  padding-bottom: 4px;
 }
 
 .nav-dropmenu {
@@ -162,6 +206,12 @@ nav a.active {
 
 .nav-drop.open .nav-dropmenu {
   display: flex;
+  animation: dropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
 
 /* invisible bridge over the margin gap — keeps :hover alive while the
@@ -178,6 +228,7 @@ nav a.active {
 @media (hover: hover) and (pointer: fine) {
   .nav-drop:hover .nav-dropmenu {
     display: flex;
+    animation: dropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
@@ -189,8 +240,8 @@ nav a.active {
 }
 
 .nav-dropmenu a.active {
-  border-bottom: 0;
-  padding-bottom: 0.55rem;
+  color: var(--color-accent);
+  font-weight: 700;
 }
 
 /* --- Sections & Cards --- */
@@ -260,6 +311,37 @@ html {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .hero-mesh, .kicker-dot { animation: none !important; }
+  .btn-primary::after { display: none; }
+}
+
+/* --- Accent color switcher --- */
+.swatches {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.swatch {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sw), var(--sw2, var(--sw)));
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.swatch:hover {
+  transform: scale(1.12);
+}
+
+.swatch[aria-checked="true"] {
+  border-color: var(--color-text);
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.12);
 }
 
 /* --- Sticky header with blur --- */
@@ -297,25 +379,77 @@ header {
 
 /* --- Hero --- */
 .hero {
+  position: relative;
   text-align: left;
-  padding: 5rem 0 3rem;
+  padding: 5rem 0 3.5rem;
   max-width: 880px;
+  isolation: isolate;
 }
+
+/* Drifting gradient mesh behind the hero */
+.hero-mesh {
+  position: absolute;
+  inset: -25% -15%;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.55;
+  background:
+    radial-gradient(42% 38% at 18% 28%, color-mix(in srgb, var(--color-accent) 26%, transparent), transparent 70%),
+    radial-gradient(36% 32% at 82% 18%, color-mix(in srgb, var(--color-accent-2) 22%, transparent), transparent 70%),
+    radial-gradient(30% 30% at 62% 82%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 70%);
+  animation: meshDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes meshDrift {
+  to { transform: translate3d(4%, -4%, 0) scale(1.07); }
+}
+
 .hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--color-accent);
-  margin: 0 0 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
 }
+
+.kicker-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  animation: dotPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.65; }
+}
+
 .hero-title {
-  font-size: clamp(3rem, 7vw, 5rem);
-  line-height: 1.05;
-  letter-spacing: -1.5px;
+  font-size: clamp(3.2rem, 8vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-weight: 650;
   margin: 0 0 1.25rem;
   color: var(--color-text);
 }
+
+.grad-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .hero-subtitle {
   font-size: clamp(1.05rem, 1.5vw, 1.3rem);
   color: var(--color-text-muted);
@@ -326,6 +460,42 @@ header {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+/* Hero stats row */
+.hero-stats {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  margin: 2.75rem 0 0;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.hero-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hero-stats dt {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.hero-stats dt .grad-text {
+  font-style: italic;
+}
+
+.hero-stats dd {
+  margin: 0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--color-text-muted);
 }
 
 /* --- Buttons --- */
@@ -341,11 +511,27 @@ header {
 }
 .btn:hover { text-decoration: none; transform: translateY(-2px); }
 .btn-primary {
-  background-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
   color: var(--color-accent-text);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
-.btn-primary:hover { background-color: var(--color-accent-hover); color: var(--color-accent-text); }
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -70%;
+  width: 45%;
+  height: 100%;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s ease;
+}
+.btn-primary:hover { color: var(--color-accent-text); box-shadow: var(--shadow-glow); }
+.btn-primary:hover::after { left: 130%; }
 .btn-secondary {
   background-color: transparent;
   color: var(--color-text);
@@ -386,18 +572,35 @@ header {
 }
 .explore-card {
   display: block;
+  position: relative;
+  overflow: hidden;
   background: var(--color-card-bg-alt);
   border: 1px solid var(--color-card-border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 1.75rem;
   color: var(--color-text);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
+.explore-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .explore-card:hover {
   text-decoration: none;
   transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lift);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-card-border));
+}
+.explore-card:hover::before {
+  transform: scaleX(1);
 }
 .explore-card h3 {
   margin: 0 0 0.5rem;

@@ -23,8 +23,8 @@
 
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
 
-  <link rel="stylesheet" href="css/variables.css?v=f46e94d7">
-  <link rel="stylesheet" href="css/main.css?v=578d0e15">
+  <link rel="stylesheet" href="css/variables.css?v=4edbf286">
+  <link rel="stylesheet" href="css/main.css?v=4a34c841">
   <link rel="stylesheet" href="css/gallery.css?v=21ff396f">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/apod.css">
@@ -37,7 +37,7 @@
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
         <span class="toggle-icon">◐</span>
       </button>
-      <a href="/" class="logo-link">William Tran</a>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
     </div>
     <nav>
       <ul>
@@ -65,13 +65,19 @@
   <main class="container">
 
     <section class="hero reveal">
-      <p class="hero-kicker">Hello, welcome to my website</p>
-      <h1 class="hero-title">Will Tran</h1>
+      <div class="hero-mesh" aria-hidden="true"></div>
+      <p class="hero-kicker"><span class="kicker-dot" aria-hidden="true"></span>Hello, welcome to my website</p>
+      <h1 class="hero-title">Will <span class="grad-text">Tran</span></h1>
       <p class="hero-subtitle">Welcome to the next generation of the internet. Press Ctrl + D or Cmd + D on Mac to favorite the coolest and best curated website on the internet.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="gallery.html">View the gallery</a>
-        <a class="btn btn-secondary" href="recipes.html">Browse recipes</a>
+        <a class="btn btn-secondary" href="markets/">Explore markets</a>
       </div>
+      <dl class="hero-stats">
+        <div><dt>107</dt><dd>Gallery photos</dd></div>
+        <div><dt>4</dt><dd>Market tools</dd></div>
+        <div><dt><span class="grad-text">1</span></dt><dd>Bold proprietor</dd></div>
+      </dl>
     </section>
 
     <section class="apod" id="apod" hidden>
@@ -136,6 +142,18 @@
       </div>
     </section>
 
+    <section class="section reveal">
+      <h2>Paint the site</h2>
+      <p style="color: var(--color-text-muted); max-width: 60ch;">Not feeling the blue? Pick an accent color — it repaints buttons, links, and highlights across every page, and your choice is remembered.</p>
+      <div class="swatches" role="radiogroup" aria-label="Accent color">
+        <button type="button" class="swatch" data-accent="default" role="radio" aria-checked="true" title="Institutional blue" aria-label="Institutional blue (default)" style="--sw:#2563eb;--sw2:#7c3aed"></button>
+        <button type="button" class="swatch" data-accent="violet" role="radio" aria-checked="false" title="Violet" aria-label="Violet" style="--sw:#7c3aed;--sw2:#2563eb"></button>
+        <button type="button" class="swatch" data-accent="emerald" role="radio" aria-checked="false" title="Emerald" aria-label="Emerald" style="--sw:#059669;--sw2:#0ea5e9"></button>
+        <button type="button" class="swatch" data-accent="amber" role="radio" aria-checked="false" title="Amber" aria-label="Amber" style="--sw:#d97706;--sw2:#dc2626"></button>
+        <button type="button" class="swatch" data-accent="rose" role="radio" aria-checked="false" title="Rose" aria-label="Rose" style="--sw:#e11d48;--sw2:#f59e0b"></button>
+      </div>
+    </section>
+
   </main>
 
   <footer>
@@ -145,7 +163,7 @@
 </footer>
 
 
-  <script src="js/main.js?v=f10ef315" defer></script>
+  <script src="js/main.js?v=aa054e0c" defer></script>
   <script src="js/gallery.js?v=574667ff" defer></script>
   <script src="js/apod.js?v=3d1def46" defer></script>
 </body>

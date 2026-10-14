@@ -22,7 +22,46 @@ document.addEventListener("DOMContentLoaded", function () {
   loadFooter();
   initReveal();
   initBackToTop();
+  initAccentSwitcher();
 
+  /* ----- Accent color switcher (persisted) ----- */
+  var ACCENTS = {
+    violet:  { accent: "#7c3aed", hover: "#6d28d9", partner: "#2563eb" },
+    emerald: { accent: "#059669", hover: "#047857", partner: "#0ea5e9" },
+    amber:   { accent: "#d97706", hover: "#b45309", partner: "#dc2626" },
+    rose:    { accent: "#e11d48", hover: "#be1239", partner: "#f59e0b" }
+  };
+
+  function applyAccent(name) {
+    var root = document.documentElement;
+    if (!name || name === "default" || !ACCENTS[name]) {
+      root.style.removeProperty("--color-accent");
+      root.style.removeProperty("--color-accent-hover");
+      root.style.removeProperty("--color-accent-2");
+      root.style.removeProperty("--color-accent-text");
+      try { localStorage.removeItem("wt-accent"); } catch (e) {}
+      name = "default";
+    } else {
+      var a = ACCENTS[name];
+      root.style.setProperty("--color-accent", a.accent);
+      root.style.setProperty("--color-accent-hover", a.hover);
+      root.style.setProperty("--color-accent-2", a.partner);
+      root.style.setProperty("--color-accent-text", "#ffffff");
+      try { localStorage.setItem("wt-accent", name); } catch (e) {}
+    }
+    document.querySelectorAll(".swatch").forEach(function (s) {
+      s.setAttribute("aria-checked", s.getAttribute("data-accent") === name ? "true" : "false");
+    });
+  }
+
+  function initAccentSwitcher() {
+    var saved = null;
+    try { saved = localStorage.getItem("wt-accent"); } catch (e) {}
+    if (saved && ACCENTS[saved]) applyAccent(saved);
+    document.querySelectorAll(".swatch").forEach(function (s) {
+      s.addEventListener("click", function () { applyAccent(s.getAttribute("data-accent")); });
+    });
+  }
   /* ----- Markets dropdown (works for build-inlined and runtime-fetched header) ----- */
   function initNavDropdown() {
     var drop = document.querySelector(".nav-drop");

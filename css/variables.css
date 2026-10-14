@@ -3,6 +3,10 @@
 /* --- 1. Global Light Theme (Default) --- */
 :root {
   color-scheme: light; /* <-- defaults to light */
+  /* Typography */
+  --font-display: "Newsreader", "Georgia", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
   /* Core Colors */
   --color-bg: #fbfaf3;       /* Warm, crisp off-white */
   --color-text: #03071e;     /* Deep institutional navy/black */
@@ -22,6 +26,13 @@
   --color-accent: #2563eb;       /* Crisp institutional blue */
   --color-accent-hover: #1d4ed8;
   --color-accent-text: #ffffff;  /* Text on accent-colored backgrounds */
+  --color-accent-2: #7c3aed;     /* Gradient partner for the accent */
+  --gradient-brand: linear-gradient(120deg, var(--color-accent), var(--color-accent-2));
+
+  /* Depth */
+  --shadow-lift: 0 12px 28px rgba(3, 7, 30, 0.10);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent),
+                 0 8px 24px color-mix(in srgb, var(--color-accent) 18%, transparent);
 
   /* Alerts (Disclaimer Box) */
   --color-alert-bg: #fef2f2;
@@ -54,6 +65,10 @@
     --color-accent: #FCDD09;
     --color-accent-hover: #d9bd08;
     --color-accent-text: #1b1a1f;
+    --color-accent-2: #DA121A;   /* yellow → red gradient in dark mode */
+    --shadow-lift: 0 12px 28px rgba(0, 0, 0, 0.45);
+    --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent),
+                   0 8px 28px color-mix(in srgb, var(--color-accent) 22%, transparent);
 
     --color-alert-bg: #1b1a1f;
     --color-alert-border: #2e2d34;
@@ -82,6 +97,10 @@
   --color-accent: #FCDD09;
   --color-accent-hover: #d9bd08;
   --color-accent-text: #1b1a1f;
+  --color-accent-2: #DA121A;
+  --shadow-lift: 0 12px 28px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent),
+                 0 8px 28px color-mix(in srgb, var(--color-accent) 22%, transparent);
 
   --color-alert-bg: #1b1a1f;
   --color-alert-border: #2e2d34;
