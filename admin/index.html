@@ -103,6 +103,11 @@
                         <h3>Guestbook admin</h3>
                         <p>Approve or reject guestbook entries.</p>
                     </a>
+                    <a class="portal-card" href="/recipes/manage.html">
+                        <span class="go">&rarr;</span>
+                        <h3>Recipe manager</h3>
+                        <p>Edit recipes, add new ones, reorganize, or hide them.</p>
+                    </a>
                 </div>
             </div>
         </section>
@@ -125,7 +130,7 @@
       var linksEl = document.getElementById('portal-links');
 
       // Token keys used by the hidden pages — unlocking here pre-fills them all
-      var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin'];
+      var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin', 'recipe_admin'];
 
       function showLinks(tok) {
         try {

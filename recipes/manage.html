@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Recipe manager | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=e5320378">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .mgr-wrap { max-width: 860px; }
+      #rmgr-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-bottom: 1rem; box-sizing: border-box; }
+      #rmgr-msg { min-height: 1.4em; font-size: 0.9rem; margin-top: 0.5rem; }
+      .mgr-toolbar { display: flex; gap: 0.6rem; align-items: center; margin: 0.8rem 0; flex-wrap: wrap; }
+      .rmgr-cat { margin: 1.6rem 0; }
+      .rmgr-cat > h3 { font-size: 1.1rem; margin: 0 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--color-border); }
+      .rmgr-card {
+        border: 1px solid var(--color-border); border-radius: 12px; padding: 1rem;
+        margin-bottom: 0.8rem; background: var(--color-card-bg);
+      }
+      .rmgr-card.is-hidden { opacity: 0.55; }
+      .rmgr-grid { display: grid; gap: 0.6rem; grid-template-columns: 1fr 1fr; }
+      .rmgr-grid .full { grid-column: 1 / -1; }
+      .rmgr-card label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 0.25rem; }
+      .rmgr-card input[type="text"], .rmgr-card textarea, .rmgr-card select {
+        width: 100%; font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--color-border);
+        border-radius: 8px; background: var(--color-bg); color: var(--color-text); box-sizing: border-box;
+      }
+      .rmgr-card textarea { min-height: 5rem; resize: vertical; font-size: 0.9rem; }
+      .rmgr-actions { display: flex; gap: 0.4rem; margin-top: 0.7rem; flex-wrap: wrap; align-items: center; }
+      .mgr-btn {
+        font: inherit; font-size: 0.85rem; padding: 0.35rem 0.8rem; border-radius: 8px;
+        border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer;
+      }
+      .mgr-btn:hover { border-color: var(--color-accent); }
+      .mgr-btn.danger { color: #DA121A; border-color: rgba(218, 18, 26, 0.4); }
+      .mgr-btn:disabled { opacity: 0.4; cursor: default; }
+      .mgr-saved { font-size: 0.78rem; color: #1a7f37; min-height: 1em; margin-left: auto; }
+      .mgr-hidden-tag {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+        color: #b45309; background: rgba(180, 83, 9, 0.12); border-radius: 4px; padding: 0.1rem 0.4rem;
+      }
+      .mgr-new-tag {
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+        border-radius: 4px; padding: 0.1rem 0.4rem;
+      }
+      @media (max-width: 640px) { .rmgr-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+            <li><a href="/economic-data/">Economic Data</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+        <li><a href="/movies/">Movies</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container mgr-wrap">
+        <section class="section reveal">
+            <h2>Recipe manager</h2>
+            <p class="rest-sub">Not linked anywhere public. Edit recipes, add new ones, reorganize, or hide them. Changes go live immediately.</p>
+            <input id="rmgr-token" type="password" placeholder="Admin token" autocomplete="off" aria-label="Admin token">
+            <div class="mgr-toolbar">
+                <button id="rmgr-load" class="btn btn-primary">Load recipes</button>
+                <button id="rmgr-add" class="btn">+ Add recipe</button>
+                <label style="font-size:0.9rem"><input type="checkbox" id="rmgr-show-hidden"> Show hidden</label>
+            </div>
+            <p id="rmgr-msg" role="status" aria-live="polite"></p>
+            <div id="rmgr-cats"></div>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script src="/js/recipe-manage.js?v=ec0a64f3" defer></script>
+</body>
+</html>
