@@ -363,4 +363,7 @@
   tokEl.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') load();
   });
+
+  // Auto-load when the portal pre-filled the token
+  if (token()) load();
 })();

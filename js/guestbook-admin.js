@@ -96,4 +96,7 @@
     clearTimeout(deb);
     deb = setTimeout(load, 400);
   });
+
+  // Auto-load when the portal pre-filled the token
+  if (token()) load();
 })();
