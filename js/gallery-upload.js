@@ -50,14 +50,16 @@
   function catOptions(selected) {
     return allCats().map(function (c) {
       return '<option' + (c === selected ? ' selected' : '') + '>' + esc(c) + '</option>';
-    }).join('') + '<option value="__new">' + esc(NEW_OPT) + '</option>';
+    }).join('') + '<option value="__new"' + (selected === '__new' ? ' selected' : '') + '>' +
+      esc(NEW_OPT) + '</option>';
   }
 
   function refreshCatOptions() {
     items.forEach(function (it) {
-      if (!it.catEl || it.catEl.value === '__new') return;
-      var cur = it.catEl.value;
-      it.catEl.innerHTML = catOptions(cur);
+      if (!it.catEl) return;
+      // Rebuild every select, preserving each item's current choice
+      // (including "__new" for items still naming a category).
+      it.catEl.innerHTML = catOptions(it.catEl.value);
     });
   }
 
