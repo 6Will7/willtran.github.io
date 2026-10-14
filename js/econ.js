@@ -133,6 +133,7 @@
       '<div class="t">' + fmtTime(e.time) + ' <span class="etz">ET</span></div>' +
       '<div class="name">' + esc(e.event) +
         (e.impact ? '<span class="impact ' + esc(e.impact) + '">' + esc(e.impact) + '</span>' : '') +
+        (e.projected ? ' <span class="proj">expected</span>' : '') +
         (e.period ? ' <span class="etz">' + esc(e.period) + '</span>' : '') + '</div>' +
       '<div class="vals">' +
         '<div class="v"><span class="k">Actual</span><span class="a">' + fmtVal(e.actual) + '</span></div>' +

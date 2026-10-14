@@ -60,6 +60,11 @@
 .impact.high { background: rgba(218, 18, 26, 0.14); color: #DA121A; }
 .impact.medium { background: rgba(232, 163, 61, 0.16); color: #b45309; }
 .impact.low { background: rgba(100, 116, 139, 0.16); color: #64748b; }
+.proj {
+  font-size: 0.68rem; font-style: italic; color: var(--color-text-muted);
+  border: 1px dashed var(--color-border); border-radius: 4px; padding: 0.1rem 0.35rem;
+  margin-left: 0.4rem; vertical-align: middle; white-space: nowrap;
+}
 
 @media (max-width: 640px) {
   .econ-ev { grid-template-columns: 1fr; gap: 0.3rem; }
