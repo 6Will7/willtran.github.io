@@ -1,5 +1,5 @@
 /* Market heat map — ETF holdings as a sector-grouped treemap.
- * Data: /nasdaq/list (QQQ, live) or /etf/holdings + /quote (other ETFs).
+ * Data: /nasdaq/list (QQQ, live) or State Street official holdings (js/etf-holdings.js).
  * Tiles link to /stocks/?symbol= for the full quote page.
  */
 (function () {
@@ -360,28 +360,10 @@
         meta = etf + ' · ' + list.length + ' of ' + full.count + ' holdings' +
                ' · index weights as of ' + full.asOf;
       } else {
-        var r2 = await fetch(WORKER_URL + '/etf/holdings?symbol=' + encodeURIComponent(etf));
-        var j2 = await r2.json();
-        if (!r2.ok || !j2.holdings || !j2.holdings.length) {
-          throw new Error(j2.error || ('no holdings found for ' + etf));
-        }
-        holdings = j2.holdings.map(function (h) {
-          return { s: h.s, name: h.name, w: h.w, pct: null };
-        });
-        meta = etf + ' · top ' + holdings.length + ' holdings by index weight · fetching live prices…';
-        metaEl.textContent = meta;
-        render(holdings);
-        await quoteLoop(holdings);
-        var maxT2 = 0, loaded2 = 0;
-        holdings.forEach(function (h) {
-          if (h.pct !== null && h.pct !== undefined) {
-            loaded2++;
-            if (h.t && h.t > maxT2) maxT2 = h.t;
-          }
-        });
-        markMissing(holdings);
-        freshEl.textContent = freshnessLine(maxT2, loaded2, holdings.length);
-        meta = etf + ' · top ' + holdings.length + ' holdings by index weight';
+        // Official holdings only (State Street SPDRs + Nasdaq 100) —
+        // no third-party scrape fallback. Anything else gets a clean note.
+        throw new Error('No official holdings data for ' + etf +
+          ' — try SPY, DIA, QQQ, XLF, XBI, or a sector ETF.');
       }
       metaEl.textContent = meta;
     } catch (e) {
