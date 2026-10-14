@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!drop || drop.dataset.init) return;
     drop.dataset.init = "1";
     var btn = drop.querySelector(".nav-dropbtn");
-    if (drop.querySelector(".nav-dropmenu a.active")) btn.classList.add("active");
+    var topLink = drop.querySelector(".nav-droplink");
+    if (drop.querySelector(".nav-dropmenu a.active")) topLink.classList.add("active");
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
       var open = drop.classList.toggle("open");
