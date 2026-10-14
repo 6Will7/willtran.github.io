@@ -1,0 +1,68 @@
+/* Economic Data — U.S. releases calendar (FMP via worker). */
+.econ-wrap { max-width: 900px; }
+
+.econ-next {
+  border: 1px solid var(--color-card-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 12px; padding: 1rem 1.2rem; margin: 1rem 0;
+  background: var(--color-card-bg);
+  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+}
+.econ-next .lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); font-weight: 700; }
+.econ-next .ev { font-size: 1.05rem; font-weight: 700; }
+.econ-next .when { font-size: 0.9rem; color: var(--color-text-muted); }
+.econ-next .count { margin-left: auto; font-weight: 700; color: var(--color-accent); white-space: nowrap; }
+
+.econ-toolbar { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; margin: 1rem 0 0.3rem; }
+.econ-weeks { display: flex; gap: 0.4rem; }
+.econ-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-left: auto; }
+.econ-filter { font-size: 0.85rem; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer; font: inherit; }
+.econ-filter.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.econ-range { font-size: 0.85rem; color: var(--color-text-muted); margin: 0.2rem 0 1rem; }
+
+.econ-day { margin-bottom: 1.6rem; }
+.econ-day > h3 {
+  font-size: 1rem; margin: 0 0 0.6rem; padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; gap: 0.6rem; align-items: baseline;
+}
+.econ-day > h3 .today {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--color-accent); color: #fff; border-radius: 4px; padding: 0.15rem 0.45rem;
+}
+.econ-day > h3 .cnt { margin-left: auto; font-size: 0.8rem; color: var(--color-text-muted); font-weight: 400; }
+
+.econ-ev {
+  display: grid; grid-template-columns: 72px 1fr auto; gap: 0.8rem; align-items: center;
+  padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: 10px;
+  margin-bottom: 0.5rem; background: var(--color-card-bg);
+}
+.econ-ev .t { font-weight: 700; font-size: 0.88rem; white-space: nowrap; }
+.econ-ev .t .etz { font-weight: 400; font-size: 0.72rem; color: var(--color-text-muted); }
+.econ-ev .name { font-size: 0.94rem; }
+.econ-ev .vals {
+  display: flex; gap: 1rem; font-size: 0.85rem; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.econ-ev .vals .v { display: flex; flex-direction: column; }
+.econ-ev .vals .k { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); }
+.econ-ev .vals .a { font-weight: 700; }
+.econ-ev .surprise {
+  font-size: 0.72rem; border-radius: 999px; padding: 0.1rem 0.45rem; margin-top: 0.15rem;
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent); white-space: nowrap;
+}
+.impact {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; border-radius: 4px; padding: 0.12rem 0.4rem; margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.impact.high { background: rgba(218, 18, 26, 0.14); color: #DA121A; }
+.impact.medium { background: rgba(232, 163, 61, 0.16); color: #b45309; }
+.impact.low { background: rgba(100, 116, 139, 0.16); color: #64748b; }
+
+@media (max-width: 640px) {
+  .econ-ev { grid-template-columns: 1fr; gap: 0.3rem; }
+  .econ-ev .vals { text-align: left; }
+  .econ-filters { margin-left: 0; }
+}
