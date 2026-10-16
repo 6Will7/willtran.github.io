@@ -426,7 +426,48 @@ html {
 @media (max-width: 768px) {
   .thumb-wrap { aspect-ratio: auto; min-height: 200px; }
   .thumb-wrap .gallery-image { position: relative; }
+
+  /* Compact single-row scrollable jump nav — the wrapped multi-row
+     version ate too much viewport when stuck */
+  .jump-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0.5rem;
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .jump-nav::-webkit-scrollbar { display: none; }
+  .jump-nav a {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.82rem;
+  }
 }
+
+/* Floating back-to-top button (added by gallery.js) */
+.gallery-to-top {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  opacity: 0.94;
+  padding: 0;
+}
+.gallery-to-top[hidden] { display: none; }
+.gallery-to-top:active { transform: scale(0.94); }
 
 /* Homepage featured cards are clickable links to the gallery */
 .gallery-item-link {

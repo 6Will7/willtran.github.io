@@ -706,4 +706,23 @@
         el.textContent = String(Math.max(0, base + n - hidden));
       });
   }
+  // Floating back-to-top button (gallery page only)
+  function initToTop() {
+    if (!document.querySelector(".gallery-grid")) return;
+    var btn = document.createElement("button");
+    btn.className = "gallery-to-top";
+    btn.setAttribute("aria-label", "Back to top");
+    btn.textContent = "↑";
+    btn.hidden = true;
+    document.body.appendChild(btn);
+    btn.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    var onScroll = function () {
+      btn.hidden = window.scrollY < 600;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+  initToTop();
 })();
