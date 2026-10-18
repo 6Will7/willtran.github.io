@@ -63,3 +63,23 @@
   text-transform: uppercase; letter-spacing: 0.04em;
 }
 .bart-meta { display: flex; gap: 0.8rem; font-size: 0.85rem; color: var(--color-text-muted); }
+
+/* Service advisory banners */
+.bart-alert {
+  border: 1px solid rgba(232, 163, 61, 0.45);
+  border-left: 4px solid #e8a33d;
+  background: color-mix(in srgb, #e8a33d 9%, var(--color-card-bg));
+  border-radius: 10px; padding: 0.75rem 1rem; margin: 0.6rem 0;
+  font-size: 0.92rem;
+}
+.bart-alert .alert-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  background: #e8a33d; color: #fff; border-radius: 4px;
+  padding: 0.12rem 0.45rem; margin-right: 0.5rem; vertical-align: middle;
+}
+.bart-alert.elevator { border-color: rgba(100, 116, 139, 0.4); border-left-color: #64748b;
+  background: color-mix(in srgb, #64748b 8%, var(--color-card-bg)); }
+.bart-alert.elevator .alert-tag { background: #64748b; }
+.bart-alerts-ok { font-size: 0.85rem; color: var(--color-text-muted); margin: 0.4rem 0; }
+.bart-alerts-ok .dot { color: #1a7f37; font-weight: 800; }

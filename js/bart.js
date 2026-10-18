@@ -264,8 +264,33 @@
 
   // Restore last station
   renderFavs();
+  loadAdvisories();
   try {
     var last = localStorage.getItem('bart_last');
     if (last) selectStation(last);
   } catch (e) {}
+
+  // Service advisories banner
+  function loadAdvisories() {
+    var box = document.getElementById('bart-alerts');
+    if (!box) return;
+    fetch(WORKER_URL + '/bart/advisory')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j) return;
+        var html = '';
+        (j.advisories || []).forEach(function (a) {
+          html += '<div class="bart-alert"><span class="alert-tag">Alert</span>' + esc(a) + '</div>';
+        });
+        if ((j.elevators || []).length) {
+          html += '<div class="bart-alert elevator"><span class="alert-tag">Elevators</span>' +
+            'Out of service: ' + esc(j.elevators.join(' · ')) + '</div>';
+        }
+        if (!html) {
+          html = '<p class="bart-alerts-ok"><span class="dot">●</span> No active service alerts</p>';
+        }
+        box.innerHTML = html;
+      })
+      .catch(function () {});
+  }
 })();
