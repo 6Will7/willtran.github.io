@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BART Tracker | Will Tran</title>
+    <meta name="description" content="Real-time BART departures by station, line, and direction.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=e5320378">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/bart.css">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li><a href="/bart/">BART</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+            <li><a href="/economic-data/">Economic Data</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+        <li><a href="/movies/">Movies</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container bart-wrap">
+        <section class="section reveal">
+            <h2>BART Tracker</h2>
+            <p class="rest-sub">Real-time departures. Pick a station to see what's coming.</p>
+
+            <div class="bart-picker">
+                <input id="bart-search" type="text" placeholder="Search stations…" autocomplete="off" aria-label="Search stations">
+                <div id="bart-station-list" class="bart-station-list" hidden></div>
+            </div>
+            <div id="bart-favs" class="bart-favs"></div>
+
+            <div id="bart-board" hidden>
+                <div class="bart-head">
+                    <div>
+                        <h3 id="bart-station-name"></h3>
+                        <p id="bart-updated" class="bart-updated"></p>
+                    </div>
+                    <div class="bart-dir-filter" role="group" aria-label="Filter by direction">
+                        <button class="mv-friend bart-dir active" data-dir="all">All</button>
+                        <button class="mv-friend bart-dir" data-dir="North">North</button>
+                        <button class="mv-friend bart-dir" data-dir="South">South</button>
+                    </div>
+                </div>
+                <div id="bart-deps"></div>
+            </div>
+            <p id="bart-msg" class="mv-empty" role="status"></p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script src="/js/bart.js?v=79f49f6d" defer></script>
+</body>
+</html>
