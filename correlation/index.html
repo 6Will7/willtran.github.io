@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation Calculator | Will Tran</title>
+    <meta name="description" content="How closely do two stocks move together? Correlation across 1M, 3M, 6M, 1Y, 2Y and 5Y timeframes.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=e5320378">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/corr.css">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/gallery.html">Gallery</a></li>
+        <li><a href="/recipes.html">Recipes</a></li>
+        <li><a href="/videos.html">Videos</a></li>
+        <li><a href="/calculator/">Calculator</a></li>
+        <li><a href="/bart/">BART</a></li>
+        <li class="nav-drop">
+          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
+          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
+            <li><a href="/stocks/">Stocks</a></li>
+            <li><a href="/heatmap/">Heat Map</a></li>
+            <li><a href="/rates/">Rates</a></li>
+            <li><a href="/sec-search/">SEC Search</a></li>
+            <li><a href="/economic-data/">Economic Data</a></li>
+            <li><a href="/correlation/">Correlation</a></li>
+          </ul>
+        </li>
+        <li><a href="/restaurants/">Restaurants</a></li>
+        <li><a href="/guestbook/">Guestbook</a></li>
+        <li><a href="/movies/">Movies</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container corr-wrap">
+        <section class="section reveal">
+            <h2>Correlation Calculator</h2>
+            <p class="rest-sub">How closely do two stocks move together? Correlation of daily returns across timeframes — 1.0 means they move in lockstep, 0 means unrelated, −1.0 means opposite.</p>
+
+            <form id="corr-form" class="corr-form">
+                <input id="corr-a" type="text" placeholder="Ticker A — e.g. AAPL" autocomplete="off" autocapitalize="characters" aria-label="Ticker A">
+                <span class="corr-vs">vs</span>
+                <input id="corr-b" type="text" placeholder="Ticker B — e.g. MSFT" autocomplete="off" autocapitalize="characters" aria-label="Ticker B">
+                <button type="submit" class="btn btn-primary">Calculate</button>
+            </form>
+            <div class="corr-presets">
+                <span>Try:</span>
+                <button type="button" class="corr-preset" data-a="AAPL" data-b="MSFT">AAPL vs MSFT</button>
+                <button type="button" class="corr-preset" data-a="SPY" data-b="QQQ">SPY vs QQQ</button>
+                <button type="button" class="corr-preset" data-a="XOM" data-b="CVX">XOM vs CVX</button>
+                <button type="button" class="corr-preset" data-a="GLD" data-b="SPY">GLD vs SPY</button>
+                <button type="button" class="corr-preset" data-a="TLT" data-b="SPY">TLT vs SPY</button>
+            </div>
+
+            <div id="corr-results" hidden>
+                <p id="corr-summary" class="corr-summary"></p>
+                <div class="corr-table-wrap">
+                    <table class="corr-table">
+                        <thead>
+                            <tr>
+                                <th>Timeframe</th>
+                                <th>Correlation</th>
+                                <th id="corr-th-a"></th>
+                                <th id="corr-th-b"></th>
+                                <th>Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corr-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="corr-tf-tabs" role="group" aria-label="Chart timeframe"></div>
+                <canvas id="corr-chart" height="260"></canvas>
+                <p class="corr-note">Daily log returns on split/dividend-adjusted closes. Past correlation doesn't guarantee future co-movement.</p>
+            </div>
+            <p id="corr-msg" class="mv-empty" role="status"></p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=e2c0a542" defer></script>
+    <script src="/js/corr.js?v=76f2d319" defer></script>
+</body>
+</html>
