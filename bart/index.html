@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/css/main.css?v=aafbea2b">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/loading.css">
-    <link rel="stylesheet" href="/css/bart.css?v=68507fe5">
+    <link rel="stylesheet" href="/css/bart.css?v=e813baf3">
 </head>
 <body>
     <header>
@@ -62,12 +62,20 @@
             <p id="bart-msg" class="mv-empty" role="status"></p>
 
             <div id="bart-map" aria-label="Map of BART stations"></div>
+            <div class="bart-legend" aria-hidden="true">
+                <span><i style="background:#f5c400"></i>Yellow · Antioch–SFO</span>
+                <span><i style="background:#ed1c24"></i>Red · Richmond–Millbrae</span>
+                <span><i style="background:#009e49"></i>Green · Berryessa–Daly City</span>
+                <span><i style="background:#0099cc"></i>Blue · Dublin–Daly City</span>
+                <span><i style="background:#ff9933"></i>Orange · Richmond–Berryessa</span>
+                <span><i style="background:#7a68a6"></i>Oakland Airport Connector</span>
+            </div>
             <p class="bart-map-note">Tap a station on the map to see its departures.</p>
 
             <h3 class="bart-near-h">Find the nearest station to any address</h3>
             <p class="bart-near-sub">Enter any Bay Area address — home, work, a restaurant, wherever you're headed — and we'll find the closest BART, Muni, and VTA rail stations, with distance and walking time. Tap a BART result to load its departures.</p>
             <form id="bart-near-form" class="bart-near-form">
-                <input id="bart-near-input" type="text" placeholder="Street address — e.g. 201 Spear St, San Francisco" aria-label="Street address" autocomplete="off">
+                <input id="bart-near-input" type="text" placeholder="Street address — e.g. Union Square, San Francisco" aria-label="Street address" autocomplete="off">
                 <button type="submit" class="btn btn-primary">Find stations</button>
             </form>
             <div id="bart-near-results"></div>
@@ -82,6 +90,6 @@
 
     <script src="/js/main.js?v=fbe6bd86" defer></script>
     <script src="/js/transit-data.js?v=e53e5aed" defer></script>
-    <script src="/js/bart.js?v=6bb02290" defer></script>
+    <script src="/js/bart.js?v=c9ac3816" defer></script>
 </body>
 </html>

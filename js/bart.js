@@ -90,11 +90,28 @@
     return [x, y];
   }
 
+  // Stylized SF Bay water outline (lat/lng waypoints, projected like stations)
+  var BAY = [[38.02, -122.44], [38.10, -122.33], [38.11, -122.24], [38.06, -122.15],
+    [38.03, -122.05], [37.99, -121.96], [37.95, -122.02], [37.94, -122.18],
+    [37.94, -122.34], [37.90, -122.38], [37.86, -122.33], [37.82, -122.30],
+    [37.77, -122.25], [37.72, -122.17], [37.66, -122.09], [37.58, -122.00],
+    [37.50, -121.97], [37.43, -122.02], [37.41, -122.10], [37.44, -122.17],
+    [37.51, -122.23], [37.57, -122.29], [37.62, -122.37], [37.68, -122.42],
+    [37.74, -122.41], [37.79, -122.42], [37.83, -122.46], [37.89, -122.46],
+    [37.95, -122.44]];
+
+  function lineCount(abbr) {
+    var n = 0;
+    LINES.forEach(function (ln) { if (ln.stops.indexOf(abbr) >= 0) n++; });
+    return n;
+  }
+
   function initMap() {
     var el = document.getElementById('bart-map');
     if (!el) return;
     var las = [], los = [];
     STATIONS.forEach(function (s) { if (COORDS[s[0]]) { las.push(COORDS[s[0]][0]); los.push(COORDS[s[0]][1]); } });
+    BAY.forEach(function (p) { las.push(p[0]); los.push(p[1]); });
     mapBounds = {
       minLa: Math.min.apply(null, las), maxLa: Math.max.apply(null, las),
       minLo: Math.min.apply(null, los), maxLo: Math.max.apply(null, los)
@@ -103,21 +120,38 @@
     mapBounds.h = mapBounds.maxLa - mapBounds.minLa;
 
     var out = ['<svg viewBox="0 0 ' + MAP_W + ' ' + MAP_H + '" role="img" aria-label="BART system map" class="bart-svg">'];
-    LINES.forEach(function (ln) {
-      var pts = ln.stops.map(function (a) {
-        var p = project(COORDS[a][0], COORDS[a][1]);
-        return p[0].toFixed(1) + ',' + p[1].toFixed(1);
-      }).join(' ');
-      out.push('<polyline points="' + pts + '" fill="none" stroke="' + ln.color + '" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>');
+    out.push('<defs><filter id="waterBlur" x="-20%" y="-20%" width="140%" height="140%">' +
+      '<feGaussianBlur stdDeviation="9"/></filter></defs>');
+    var bayPts = BAY.map(function (p) {
+      var q = project(p[0], p[1]);
+      return q[0].toFixed(1) + ',' + q[1].toFixed(1);
+    }).join(' ');
+    out.push('<polygon points="' + bayPts + '" class="map-water" filter="url(#waterBlur)"/>');
+    // Halo pass (soft underlay), then the lines themselves
+    [11, 6.5].forEach(function (wdt, pass) {
+      LINES.forEach(function (ln) {
+        var pts = ln.stops.map(function (a) {
+          var p = project(COORDS[a][0], COORDS[a][1]);
+          return p[0].toFixed(1) + ',' + p[1].toFixed(1);
+        }).join(' ');
+        out.push('<polyline points="' + pts + '" fill="none" stroke="' + ln.color +
+          '" stroke-width="' + wdt + '" stroke-linejoin="round" stroke-linecap="round" opacity="' +
+          (pass === 0 ? '0.20' : '0.95') + '"/>');
+      });
     });
     STATIONS.forEach(function (s) {
       var c = COORDS[s[0]]; if (!c) return;
       var p = project(c[0], c[1]);
+      var n = lineCount(s[0]);
+      var r = n >= 3 ? 12 : (n === 2 ? 11 : 9);
       out.push('<g class="map-stn" data-abbr="' + s[0] + '">' +
-        '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="10" class="map-dot"/>' +
+        '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r + '" data-r="' + r + '" class="map-dot"/>' +
         '<title>' + esc(s[1]) + '</title></g>');
       if (LABEL_STATIONS[s[0]]) {
-        out.push('<text x="' + (p[0] + 15).toFixed(1) + '" y="' + (p[1] + 4).toFixed(1) + '" class="map-label">' + esc(s[1].split('/')[0].trim()) + '</text>');
+        var rightSide = p[0] > MAP_W * 0.7;
+        var tx = rightSide ? p[0] - 16 : p[0] + 16;
+        out.push('<text x="' + tx.toFixed(1) + '" y="' + (p[1] + 5).toFixed(1) + '" class="map-label"' +
+          (rightSide ? ' text-anchor="end"' : '') + '>' + esc(s[1].split('/')[0].trim()) + '</text>');
       }
     });
     out.push('</svg>');
@@ -138,8 +172,9 @@
   function highlightMarker() {
     Object.keys(markers).forEach(function (a) {
       var c = markers[a];
-      if (a === currentAbbr) { c.setAttribute('r', '14'); c.classList.add('sel'); }
-      else { c.setAttribute('r', '10'); c.classList.remove('sel'); }
+      var base = parseInt(c.getAttribute('data-r') || '10', 10);
+      if (a === currentAbbr) { c.setAttribute('r', String(base + 4)); c.classList.add('sel'); }
+      else { c.setAttribute('r', String(base)); c.classList.remove('sel'); }
     });
   }
 
