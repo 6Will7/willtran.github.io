@@ -187,12 +187,13 @@
     });
   }
 
-  // Magnified schematic strip of the shared trunk: West Oakland → Daly City.
+  // Magnified schematic strip of the shared trunk: Daly City → West Oakland
+  // (west on the left, east on the right — matching the main map).
   // Stations evenly spaced so the downtown cluster is easy to read and tap.
   function renderInset() {
     var el = document.getElementById('bart-inset');
     if (!el) return;
-    var stops = ['WOAK', 'EMBR', 'MONT', 'POWL', 'CIVC', '16TH', '24TH', 'GLEN', 'BALB', 'DALY'];
+    var stops = ['DALY', 'BALB', 'GLEN', '24TH', '16TH', 'CIVC', 'POWL', 'MONT', 'EMBR', 'WOAK'];
     var bundle = ['#f5c400', '#ed1c24', '#009e49', '#0099cc'];
     var W = 1000, CY = 104, X0 = 62, X1 = 938;
     var out = ['<svg viewBox="0 0 1000 208" role="img" aria-label="Downtown trunk detail" class="bart-svg">'];
