@@ -127,18 +127,40 @@
       return q[0].toFixed(1) + ',' + q[1].toFixed(1);
     }).join(' ');
     out.push('<polygon points="' + bayPts + '" class="map-water" filter="url(#waterBlur)"/>');
-    // Halo pass (soft underlay), then the lines themselves
-    [11, 6.5].forEach(function (wdt, pass) {
-      LINES.forEach(function (ln) {
-        var pts = ln.stops.map(function (a) {
-          var p = project(COORDS[a][0], COORDS[a][1]);
-          return p[0].toFixed(1) + ',' + p[1].toFixed(1);
-        }).join(' ');
-        out.push('<polyline points="' + pts + '" fill="none" stroke="' + ln.color +
-          '" stroke-width="' + wdt + '" stroke-linejoin="round" stroke-linecap="round" opacity="' +
-          (pass === 0 ? '0.20' : '0.95') + '"/>');
-      });
+    // Draw shared corridors as side-by-side bundles: group every segment
+    // by the lines that use it, then offset each line perpendicular to the
+    // track so overlapping lines all stay visible (station dots hide the
+    // joints where the bundle changes).
+    var segMap = {};
+    LINES.forEach(function (ln, li) {
+      for (var i = 0; i < ln.stops.length - 1; i++) {
+        var sa = ln.stops[i], sb = ln.stops[i + 1];
+        var key = sa < sb ? sa + '|' + sb : sb + '|' + sa;
+        if (!segMap[key]) segMap[key] = { a: sa, b: sb, lines: [] };
+        if (segMap[key].lines.indexOf(li) < 0) segMap[key].lines.push(li);
+      }
     });
+    function segPass(spacing, opacity, width) {
+      var str = '';
+      Object.keys(segMap).forEach(function (key) {
+        var seg = segMap[key];
+        var pa = project(COORDS[seg.a][0], COORDS[seg.a][1]);
+        var pb = project(COORDS[seg.b][0], COORDS[seg.b][1]);
+        var dx = pb[0] - pa[0], dy = pb[1] - pa[1];
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var px = -dy / len, py = dx / len;
+        seg.lines.forEach(function (li, idx) {
+          var off = (idx - (seg.lines.length - 1) / 2) * spacing;
+          str += '<line x1="' + (pa[0] + px * off).toFixed(1) + '" y1="' + (pa[1] + py * off).toFixed(1) +
+            '" x2="' + (pb[0] + px * off).toFixed(1) + '" y2="' + (pb[1] + py * off).toFixed(1) +
+            '" stroke="' + LINES[li].color + '" stroke-width="' + width +
+            '" stroke-linecap="round" opacity="' + opacity + '"/>';
+        });
+      });
+      return str;
+    }
+    out.push(segPass(12, 0.15, 13));  // soft halo underlay
+    out.push(segPass(7.5, 0.97, 5.5)); // the bundled lines
     // Dashed box marking the area the downtown inset magnifies
     var c1 = project(37.838, -122.482), c2 = project(37.686, -122.280);
     out.push('<rect x="' + Math.min(c1[0], c2[0]).toFixed(1) + '" y="' + Math.min(c1[1], c2[1]).toFixed(1) +
@@ -198,9 +220,9 @@
     var W = 1000, CY = 104, X0 = 62, X1 = 938;
     var out = ['<svg viewBox="0 0 1000 208" role="img" aria-label="Downtown trunk detail" class="bart-svg">'];
     bundle.forEach(function (col, i) {
-      var y = CY - 9 + i * 6;
-      out.push('<line x1="' + X0 + '" y1="' + y + '" x2="' + X1 + '" y2="' + y +
-        '" stroke="' + col + '" stroke-width="4.5" stroke-linecap="round" opacity="0.95"/>');
+      var y = CY + (i - 1.5) * 7.5;
+      out.push('<line x1="' + (X0 - 26) + '" y1="' + y.toFixed(1) + '" x2="' + (X1 + 26) + '" y2="' + y.toFixed(1) +
+        '" stroke="' + col + '" stroke-width="5.5" stroke-linecap="round" opacity="0.97"/>');
     });
     stops.forEach(function (abbr, i) {
       var x = X0 + (X1 - X0) * i / (stops.length - 1);
