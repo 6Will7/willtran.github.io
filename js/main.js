@@ -74,12 +74,12 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Create & Share", items: [
       { t: "Gallery", h: "/gallery.html", d: "Photos from the Bay Area and beyond.", k: "photos pictures images camera" },
       { t: "Recipes", h: "/recipes.html", d: "Things I've cooked and written down.", k: "cooking food dishes kitchen" },
-      { t: "Videos", h: "/videos.html", d: "Short clips and longer cuts.", k: "watch clips films" },
       { t: "Restaurants", h: "/restaurants/", d: "Bay Area spots worth eating at.", k: "food dining eat places" },
       { t: "Guestbook", h: "/guestbook/", d: "Leave a note for me and future visitors.", k: "sign hello comment visitors" }
     ] },
     { name: "Watch", items: [
-      { t: "Movies", h: "/movies/", d: "What my friends and I have been watching.", k: "films diary reviews ratings watchlist" }
+      { t: "Movies", h: "/movies/", d: "What my friends and I have been watching.", k: "films diary reviews ratings watchlist" },
+      { t: "Videos", h: "/videos.html", d: "Featured videos, some of my own.", k: "watch clips films featured" }
     ] },
     { name: "Tools", items: [
       { t: "Calculator", h: "/calculator/", d: "Natural-language calculator with conversions and bond math.", k: "math compute convert units" },
