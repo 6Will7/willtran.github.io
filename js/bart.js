@@ -391,12 +391,14 @@
         var scored = TRANSIT_STATIONS.map(function (s) {
           return { s: s, d: havMi(la, lo, s.la, s.lo) };
         }).sort(function (a, b) { return a.d - b.d; }).slice(0, 6);
-        var html = '';
-        scored.forEach(function (r0) {
+        var place = String(res[0].display_name || q).split(',').slice(0, 2).join(',').trim();
+        var html = '<p class="near-head">Nearest stations to <strong>' + esc(place) + '</strong>:</p>';
+        scored.forEach(function (r0, idx) {
           var walk = Math.max(1, Math.round(r0.d / 3 * 60));
           html += '<div class="near-row' + (r0.s.a ? ' clickable" data-abbr="' + r0.s.a + '"' : '"') + '>' +
+            '<span class="near-rank">' + (idx + 1) + '</span>' +
             '<span class="near-badge ' + r0.s.s + '">' + r0.s.s + '</span>' +
-            '<span class="near-name">' + esc(r0.s.n) + '</span>' +
+            '<span class="near-name">' + esc(r0.s.n) + (r0.s.a ? '<small>Tap for departures</small>' : '') + '</span>' +
             '<span class="near-dist">' + r0.d.toFixed(1) + ' mi<small>~' + walk + ' min walk</small></span></div>';
         });
         nearResults.innerHTML = html;

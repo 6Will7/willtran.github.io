@@ -93,7 +93,15 @@
 @media (max-width: 640px) { #bart-map { height: 320px; } }
 
 /* Nearest-station finder */
-.bart-near-form { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.bart-near-h { margin: 1.6rem 0 0.3rem; font-size: 1.15rem; }
+.bart-near-sub { font-size: 0.94rem; color: var(--color-text-muted); margin: 0 0 0.4rem; max-width: 62ch; }
+.bart-near-form { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.8rem; }
+.near-head { margin: 1rem 0 0.2rem; font-size: 0.98rem; }
+.near-rank {
+  font-size: 0.8rem; font-weight: 800; color: var(--color-text-muted);
+  min-width: 1.1rem; text-align: center; flex-shrink: 0;
+}
+.near-name small { display: block; font-size: 0.76rem; font-weight: 400; color: var(--color-accent); }
 .bart-near-form input {
   flex: 1 1 260px; font: inherit; font-size: 1rem;
   padding: 0.65rem 0.85rem; border: 1px solid var(--color-border); border-radius: 10px;
