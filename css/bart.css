@@ -84,13 +84,30 @@
 .bart-alerts-ok { font-size: 0.85rem; color: var(--color-text-muted); margin: 0.4rem 0; }
 .bart-alerts-ok .dot { color: #1a7f37; font-weight: 800; }
 
-/* Station map */
+/* Station map — static SVG diagram (lines + stations), no external tiles */
 #bart-map {
-  height: 400px; border-radius: 12px; margin-top: 1.4rem;
-  border: 1px solid var(--color-border); z-index: 0;
+  position: relative; border-radius: 12px; margin-top: 1.4rem;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-card-bg) 60%, transparent);
+  padding: 0.6rem;
+}
+.bart-svg { display: block; width: 100%; height: auto; }
+.map-dot {
+  fill: var(--color-card-bg); stroke: #44403c; stroke-width: 3.5; cursor: pointer;
+}
+.map-dot.sel { fill: var(--color-accent); stroke: var(--color-accent); }
+.map-stn:hover .map-dot { fill: var(--color-accent); }
+.map-label {
+  font-size: 21px; font-weight: 600; fill: var(--color-text-muted);
+  paint-order: stroke; stroke: var(--color-card-bg); stroke-width: 5px;
+  pointer-events: none;
+}
+.bart-pin {
+  position: absolute; transform: translate(-50%, -92%);
+  font-size: 1.5rem; pointer-events: none; z-index: 3;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 .bart-map-note { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.4rem; }
-@media (max-width: 640px) { #bart-map { height: 320px; } }
 
 /* Nearest-station finder */
 .bart-near-h { margin: 1.6rem 0 0.3rem; font-size: 1.15rem; }

@@ -74,50 +74,84 @@
     { color: '#7a68a6', stops: ['COLS', 'OAKL'] }
   ];
   var markers = {};
-  var bartMap = null;
-  var addrMarker = null;
+
+  // Static SVG system map — lines + stations projected from real coords.
+  // No tiles, no libraries: always there, loads instantly.
+  var MAP_W = 1000, MAP_H = 1090, MAP_PAD = 46;
+  var LABEL_STATIONS = { ANTC: 1, RICH: 1, DBRK: 1, MCAR: 1, CONC: 1, '12TH': 1,
+    EMBR: 1, POWL: 1, DALY: 1, MLBR: 1, SFIA: 1, COLS: 1, HAYW: 1, FRMT: 1,
+    WARM: 1, BERY: 1, DUBL: 1, LAFY: 1, BAYF: 1, UCTY: 1 };
+  var mapBounds = null;
+
+  function project(la, lo) {
+    var kx = Math.cos(37.7 * Math.PI / 180); // shrink lng degrees to match lat scale
+    var x = MAP_PAD + (lo - mapBounds.minLo) * kx / mapBounds.w * (MAP_W - 2 * MAP_PAD);
+    var y = MAP_PAD + (mapBounds.maxLa - la) / mapBounds.h * (MAP_H - 2 * MAP_PAD);
+    return [x, y];
+  }
 
   function initMap() {
     var el = document.getElementById('bart-map');
-    if (!el || !window.L) return;
-    var map = L.map('bart-map', { scrollWheelZoom: false });
-    bartMap = map;
-    map.on('focus', function () { map.scrollWheelZoom.enable(); });
-    map.on('blur', function () { map.scrollWheelZoom.disable(); });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      maxZoom: 18
-    }).addTo(map);
+    if (!el) return;
+    var las = [], los = [];
+    STATIONS.forEach(function (s) { if (COORDS[s[0]]) { las.push(COORDS[s[0]][0]); los.push(COORDS[s[0]][1]); } });
+    mapBounds = {
+      minLa: Math.min.apply(null, las), maxLa: Math.max.apply(null, las),
+      minLo: Math.min.apply(null, los), maxLo: Math.max.apply(null, los)
+    };
+    mapBounds.w = (mapBounds.maxLo - mapBounds.minLo) * Math.cos(37.7 * Math.PI / 180);
+    mapBounds.h = mapBounds.maxLa - mapBounds.minLa;
+
+    var out = ['<svg viewBox="0 0 ' + MAP_W + ' ' + MAP_H + '" role="img" aria-label="BART system map" class="bart-svg">'];
     LINES.forEach(function (ln) {
-      var pts = ln.stops.map(function (a) { return COORDS[a]; }).filter(Boolean);
-      L.polyline(pts, { color: ln.color, weight: 3.5, opacity: 0.85 }).addTo(map);
+      var pts = ln.stops.map(function (a) {
+        var p = project(COORDS[a][0], COORDS[a][1]);
+        return p[0].toFixed(1) + ',' + p[1].toFixed(1);
+      }).join(' ');
+      out.push('<polyline points="' + pts + '" fill="none" stroke="' + ln.color + '" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>');
     });
     STATIONS.forEach(function (s) {
-      var c = COORDS[s[0]];
-      if (!c) return;
-      var m = L.circleMarker(c, {
-        radius: 6, color: '#fff', weight: 2, fillColor: '#44403c', fillOpacity: 1
-      }).addTo(map);
-      m.bindTooltip(s[1], { direction: 'top', offset: [0, -8] });
-      m.on('click', function () {
-        selectStation(s[0]);
+      var c = COORDS[s[0]]; if (!c) return;
+      var p = project(c[0], c[1]);
+      out.push('<g class="map-stn" data-abbr="' + s[0] + '">' +
+        '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="10" class="map-dot"/>' +
+        '<title>' + esc(s[1]) + '</title></g>');
+      if (LABEL_STATIONS[s[0]]) {
+        out.push('<text x="' + (p[0] + 15).toFixed(1) + '" y="' + (p[1] + 4).toFixed(1) + '" class="map-label">' + esc(s[1].split('/')[0].trim()) + '</text>');
+      }
+    });
+    out.push('</svg>');
+    out.push('<div id="bart-pin" class="bart-pin" hidden>📍</div>');
+    el.innerHTML = out.join('');
+
+    Array.prototype.forEach.call(el.querySelectorAll('.map-stn'), function (g) {
+      markers[g.getAttribute('data-abbr')] = g.querySelector('circle');
+      g.addEventListener('click', function () {
+        selectStation(g.getAttribute('data-abbr'));
         var board = document.getElementById('bart-board');
         if (board) board.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-      markers[s[0]] = m;
     });
-    var all = STATIONS.map(function (s) { return COORDS[s[0]]; }).filter(Boolean);
-    map.fitBounds(L.latLngBounds(all).pad(0.04));
+    highlightMarker();
   }
 
   function highlightMarker() {
     Object.keys(markers).forEach(function (a) {
-      markers[a].setStyle(a === currentAbbr
-        ? { fillColor: '#2563eb', radius: 9 }
-        : { fillColor: '#44403c', radius: 6 });
+      var c = markers[a];
+      if (a === currentAbbr) { c.setAttribute('r', '14'); c.classList.add('sel'); }
+      else { c.setAttribute('r', '10'); c.classList.remove('sel'); }
     });
-    var m = markers[currentAbbr];
-    if (m) m.bringToFront();
+  }
+
+  // Place a % positioned pin over the SVG map for a lat/lng (address finder)
+  function dropPin(la, lo) {
+    var pin = document.getElementById('bart-pin');
+    var wrap = document.getElementById('bart-map');
+    if (!pin || !wrap || !mapBounds) return;
+    var p = project(la, lo);
+    pin.style.left = (p[0] / MAP_W * 100) + '%';
+    pin.style.top = (p[1] / MAP_H * 100) + '%';
+    pin.hidden = false;
   }
 
   var searchEl = document.getElementById('bart-search');
@@ -409,14 +443,7 @@
             if (board) board.scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         });
-        if (bartMap && window.L) {
-          if (addrMarker) bartMap.removeLayer(addrMarker);
-          addrMarker = L.marker([la, lo]).addTo(bartMap)
-            .bindTooltip('You: ' + q, { direction: 'top' });
-          var pts = [[la, lo]];
-          scored.slice(0, 3).forEach(function (r0) { pts.push([r0.s.la, r0.s.lo]); });
-          bartMap.flyToBounds(L.latLngBounds(pts).pad(0.15), { duration: 0.8 });
-        }
+        dropPin(la, lo);
       })
       .catch(function () {
         nearResults.innerHTML = '<p class="near-msg">Address lookup failed — check your connection.</p>';
