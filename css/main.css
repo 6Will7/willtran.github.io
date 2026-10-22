@@ -207,6 +207,7 @@ nav a.active {
 }
 .jump-open:hover { filter: brightness(1.1); }
 .jump-open:active { transform: scale(0.97); }
+.jump-burger { font-size: 1.02rem; line-height: 1; }
 .jump-key {
   font-size: 0.72rem; font-weight: 700;
   background: rgba(255, 255, 255, 0.22);
