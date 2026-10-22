@@ -110,6 +110,16 @@
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
 }
 .bart-map-note { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.4rem; }
+
+/* Downtown inset — schematic strip of the shared trunk */
+.bart-inset-h { margin: 1.3rem 0 0.4rem; font-size: 1rem; }
+#bart-inset {
+  border-radius: 12px; border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-card-bg) 60%, transparent);
+  padding: 0.5rem 0.6rem;
+}
+.map-inset-box { fill: none; stroke: var(--color-text-muted); stroke-width: 2.5; stroke-dasharray: 10 8; opacity: 0.55; }
+.map-inset-tag { font-size: 19px; font-weight: 700; fill: var(--color-text-muted); opacity: 0.8; }
 .bart-legend {
   display: flex; flex-wrap: wrap; gap: 0.35rem 1.1rem; margin-top: 0.6rem;
   font-size: 0.8rem; color: var(--color-text-muted);

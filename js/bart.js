@@ -79,7 +79,7 @@
   // No tiles, no libraries: always there, loads instantly.
   var MAP_W = 1000, MAP_H = 1090, MAP_PAD = 46;
   var LABEL_STATIONS = { ANTC: 1, RICH: 1, DBRK: 1, MCAR: 1, CONC: 1, '12TH': 1,
-    EMBR: 1, POWL: 1, DALY: 1, MLBR: 1, SFIA: 1, COLS: 1, HAYW: 1, FRMT: 1,
+    DALY: 1, MLBR: 1, SFIA: 1, COLS: 1, HAYW: 1, FRMT: 1,
     WARM: 1, BERY: 1, DUBL: 1, LAFY: 1, BAYF: 1, UCTY: 1 };
   var mapBounds = null;
 
@@ -139,13 +139,20 @@
           (pass === 0 ? '0.20' : '0.95') + '"/>');
       });
     });
+    // Dashed box marking the area the downtown inset magnifies
+    var c1 = project(37.838, -122.482), c2 = project(37.686, -122.280);
+    out.push('<rect x="' + Math.min(c1[0], c2[0]).toFixed(1) + '" y="' + Math.min(c1[1], c2[1]).toFixed(1) +
+      '" width="' + Math.abs(c2[0] - c1[0]).toFixed(1) + '" height="' + Math.abs(c2[1] - c1[1]).toFixed(1) +
+      '" rx="14" class="map-inset-box"/>');
+    out.push('<text x="' + (Math.min(c1[0], c2[0]) + 12).toFixed(1) + '" y="' + (Math.min(c1[1], c2[1]) + 26).toFixed(1) +
+      '" class="map-inset-tag">DETAIL BELOW ↓</text>');
     STATIONS.forEach(function (s) {
       var c = COORDS[s[0]]; if (!c) return;
       var p = project(c[0], c[1]);
       var n = lineCount(s[0]);
       var r = n >= 3 ? 12 : (n === 2 ? 11 : 9);
       out.push('<g class="map-stn" data-abbr="' + s[0] + '">' +
-        '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r + '" data-r="' + r + '" class="map-dot"/>' +
+        '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r + '" data-r="' + r + '" data-abbr="' + s[0] + '" class="map-dot"/>' +
         '<title>' + esc(s[1]) + '</title></g>');
       if (LABEL_STATIONS[s[0]]) {
         var rightSide = p[0] > MAP_W * 0.7;
@@ -159,22 +166,62 @@
     el.innerHTML = out.join('');
 
     Array.prototype.forEach.call(el.querySelectorAll('.map-stn'), function (g) {
-      markers[g.getAttribute('data-abbr')] = g.querySelector('circle');
       g.addEventListener('click', function () {
         selectStation(g.getAttribute('data-abbr'));
         var board = document.getElementById('bart-board');
         if (board) board.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+    renderInset();
     highlightMarker();
   }
 
   function highlightMarker() {
-    Object.keys(markers).forEach(function (a) {
-      var c = markers[a];
+    Array.prototype.forEach.call(document.querySelectorAll('.map-dot'), function (c) {
       var base = parseInt(c.getAttribute('data-r') || '10', 10);
-      if (a === currentAbbr) { c.setAttribute('r', String(base + 4)); c.classList.add('sel'); }
-      else { c.setAttribute('r', String(base)); c.classList.remove('sel'); }
+      if (c.getAttribute('data-abbr') === currentAbbr) {
+        c.setAttribute('r', String(base + 4)); c.classList.add('sel');
+      } else {
+        c.setAttribute('r', String(base)); c.classList.remove('sel');
+      }
+    });
+  }
+
+  // Magnified schematic strip of the shared trunk: West Oakland → Daly City.
+  // Stations evenly spaced so the downtown cluster is easy to read and tap.
+  function renderInset() {
+    var el = document.getElementById('bart-inset');
+    if (!el) return;
+    var stops = ['WOAK', 'EMBR', 'MONT', 'POWL', 'CIVC', '16TH', '24TH', 'GLEN', 'BALB', 'DALY'];
+    var bundle = ['#f5c400', '#ed1c24', '#009e49', '#0099cc'];
+    var W = 1000, CY = 104, X0 = 62, X1 = 938;
+    var out = ['<svg viewBox="0 0 1000 208" role="img" aria-label="Downtown trunk detail" class="bart-svg">'];
+    bundle.forEach(function (col, i) {
+      var y = CY - 9 + i * 6;
+      out.push('<line x1="' + X0 + '" y1="' + y + '" x2="' + X1 + '" y2="' + y +
+        '" stroke="' + col + '" stroke-width="4.5" stroke-linecap="round" opacity="0.95"/>');
+    });
+    stops.forEach(function (abbr, i) {
+      var x = X0 + (X1 - X0) * i / (stops.length - 1);
+      var above = i % 2 === 0;
+      var anchor = i === 0 ? 'start' : (i === stops.length - 1 ? 'end' : 'middle');
+      var name = stName(abbr).split('/')[0].trim();
+      out.push('<g class="map-stn" data-abbr="' + abbr + '">' +
+        '<circle cx="' + x.toFixed(1) + '" cy="' + CY + '" r="11" data-r="11" data-abbr="' + abbr + '" class="map-dot"/>' +
+        '<title>' + esc(stName(abbr)) + '</title></g>');
+      out.push('<line x1="' + x.toFixed(1) + '" y1="' + (above ? CY - 14 : CY + 14) + '" x2="' + x.toFixed(1) +
+        '" y2="' + (above ? CY - 30 : CY + 30) + '" stroke="var(--color-text-muted)" stroke-width="2" opacity="0.5"/>');
+      out.push('<text x="' + x.toFixed(1) + '" y="' + (above ? CY - 40 : CY + 56) + '" text-anchor="' + anchor +
+        '" class="map-label">' + esc(name) + '</text>');
+    });
+    out.push('</svg>');
+    el.innerHTML = out.join('');
+    Array.prototype.forEach.call(el.querySelectorAll('.map-stn'), function (g) {
+      g.addEventListener('click', function () {
+        selectStation(g.getAttribute('data-abbr'));
+        var board = document.getElementById('bart-board');
+        if (board) board.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
   }
 
