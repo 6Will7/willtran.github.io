@@ -284,7 +284,7 @@
         });
         if ((j.elevators || []).length) {
           html += '<div class="bart-alert elevator"><span class="alert-tag">Elevators</span>' +
-            'Out of service: ' + esc(j.elevators.join(' · ')) + '</div>';
+            esc(j.elevators.join(' ')) + '</div>';
         }
         if (!html) {
           html = '<p class="bart-alerts-ok"><span class="dot">●</span> No active service alerts</p>';
