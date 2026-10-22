@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/main.css?v=e5320378">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="/css/bart.css">
 </head>
 <body>
@@ -76,6 +77,15 @@
                 <div id="bart-deps"></div>
             </div>
             <p id="bart-msg" class="mv-empty" role="status"></p>
+
+            <div id="bart-map" aria-label="Map of BART stations"></div>
+            <p class="bart-map-note">Tap a station on the map to see its departures.</p>
+
+            <form id="bart-near-form" class="bart-near-form">
+                <input id="bart-near-input" type="text" placeholder="Enter an address — find the closest rail stations" aria-label="Street address" autocomplete="off">
+                <button type="submit" class="btn btn-primary">Find stations</button>
+            </form>
+            <div id="bart-near-results"></div>
         </section>
     </main>
     <footer>
@@ -85,6 +95,8 @@
 </footer>
 
     <script src="/js/main.js?v=e2c0a542" defer></script>
-    <script src="/js/bart.js?v=649ff9a2" defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <script src="/js/transit-data.js?v=e53e5aed" defer></script>
+    <script src="/js/bart.js?v=160262b4" defer></script>
 </body>
 </html>
