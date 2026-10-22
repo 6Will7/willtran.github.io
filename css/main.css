@@ -183,96 +183,108 @@ nav a.active {
   font-weight: 700;
 }
 
-/* Markets dropdown: "Markets" is a link to the landing page, ▾ toggles the menu */
-.nav-drop {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.nav-dropbtn {
+/* Jump-to menu: the "All pages" button + searchable full-screen overlay.
+   The nav bar keeps three shortcut links; everything else lives in the menu. */
+.jump-open {
   -webkit-appearance: none;
   appearance: none;
-  background: none;
+  background: var(--color-accent);
   border: 0;
+  border-radius: 999px;
   margin: 0;
-  padding: 0 0 0 0.25rem;
+  padding: 0.5rem 1rem;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 0.7em;
-  line-height: 1;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
   display: inline-flex;
   align-items: center;
-  color: var(--color-nav-text);
-  transition: color 0.2s ease;
+  gap: 0.5rem;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+.jump-open:hover { filter: brightness(1.1); }
+.jump-open:active { transform: scale(0.97); }
+.jump-key {
+  font-size: 0.72rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 5px; padding: 0.12rem 0.4rem;
+  text-transform: none; letter-spacing: 0;
 }
 
-.nav-dropbtn:hover {
-  color: var(--color-accent);
-}
-
-.nav-droplink.active {
-  color: var(--color-nav-text-active);
-  font-weight: 700;
-}
-
-.nav-dropmenu {
+.jump-overlay {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: -0.5rem;
-  z-index: 50;
-  min-width: 11rem;
-  margin: 0.4rem 0 0;
-  padding: 0.4rem 0;
-  list-style: none;
-  flex-direction: column;
-  gap: 0;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10, 10, 18, 0.5);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  padding: 6vh 1rem 1rem;
+  overflow-y: auto;
+}
+.jump-overlay.open { display: block; animation: jumpFade 0.18s ease; }
+@keyframes jumpFade { from { opacity: 0; } to { opacity: 1; } }
+
+.jump-panel {
+  max-width: 640px; margin: 0 auto;
   background: var(--color-card-bg);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(3, 7, 30, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(3, 7, 30, 0.35);
+  overflow: hidden;
+  animation: jumpUp 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes jumpUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.jump-searchrow {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+#jump-search {
+  flex: 1; font: inherit; font-size: 1.1rem;
+  border: 0; outline: 0; background: transparent;
+  color: var(--color-text);
+}
+.jump-close {
+  -webkit-appearance: none; appearance: none;
+  background: transparent; border: 0; cursor: pointer;
+  font-size: 1.05rem; color: var(--color-text-muted);
+  padding: 0.3rem 0.5rem; border-radius: 8px;
+}
+.jump-close:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+
+.jump-list { max-height: 62vh; overflow-y: auto; padding: 0.6rem; }
+.jump-group h4 {
+  margin: 0.7rem 0.6rem 0.3rem;
+  font-size: 0.72rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--color-text-muted);
+}
+.jump-item {
+  display: block; padding: 0.6rem 0.7rem; border-radius: 10px;
+  text-decoration: none;
+}
+.jump-item-t { display: block; font-weight: 700; color: var(--color-text); font-size: 1rem; }
+.jump-item-d { display: block; font-size: 0.86rem; color: var(--color-text-muted); margin-top: 0.1rem; }
+.jump-item.sel { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.jump-none { padding: 1rem; color: var(--color-text-muted); font-size: 0.95rem; }
+.jump-hint {
+  padding: 0.6rem 1rem; margin: 0;
+  font-size: 0.76rem; color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
 }
 
-.nav-drop.open .nav-dropmenu {
-  display: flex;
-  animation: dropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+@media (max-width: 640px) {
+  .jump-overlay { padding: 0; }
+  .jump-panel { max-width: none; min-height: 100%; border-radius: 0; border: 0; }
+  .jump-list { max-height: none; }
 }
 
-@keyframes dropIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-  to { opacity: 1; transform: none; }
-}
-
-/* invisible bridge over the margin gap — keeps :hover alive while the
-   mouse travels from the button down into the menu */
-.nav-dropmenu::before {
-  content: "";
-  position: absolute;
-  top: -0.4rem;
-  left: 0;
-  right: 0;
-  height: 0.4rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .nav-drop:hover .nav-dropmenu {
-    display: flex;
-    animation: dropIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-}
-
-.nav-dropmenu a {
-  display: block;
-  padding: 0.55rem 1.1rem;
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.nav-dropmenu a.active {
-  color: var(--color-accent);
-  font-weight: 700;
-}
+.footer-links { margin-bottom: 0.4rem; font-size: 0.9rem; }
+.footer-links a { color: var(--color-nav-text); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent); text-decoration: underline; }
 
 /* --- Sections & Cards --- */
 .section {
@@ -743,9 +755,8 @@ footer .container { padding-top: 0; padding-bottom: 0; }
   .nav-container { flex-wrap: wrap; gap: 0.75rem; row-gap: 0.5rem; }
   nav ul { flex-wrap: wrap; gap: 0.9rem; row-gap: 0.4rem; }
   nav a { font-size: 0.8rem; }
-  .nav-dropbtn { font-size: 0.7em; padding-left: 0.2rem; }
-  .nav-dropmenu { position: static; box-shadow: none; margin: 0.3rem 0 0; min-width: 0; }
-  .nav-dropmenu a { padding: 0.4rem 0.2rem; }
+  .nav-quicklink { display: none; }
+  .jump-key { display: none; }
 }
 
 /* Shared share-button row (WTShare) */

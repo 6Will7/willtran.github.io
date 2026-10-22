@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
 
     <link rel="stylesheet" href="css/variables.css?v=619d2a45">
-    <link rel="stylesheet" href="css/main.css?v=e5320378">
+    <link rel="stylesheet" href="css/main.css?v=361157bf">
     <link rel="stylesheet" href="css/gallery.css?v=7f17a5c4">
     <link rel="stylesheet" href="css/components.css">
 </head>
@@ -33,24 +33,10 @@
     </div>
     <nav>
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/gallery.html" class="active">Gallery</a></li>
-        <li><a href="/recipes.html">Recipes</a></li>
-        <li><a href="/videos.html">Videos</a></li>
-        <li><a href="/calculator/">Calculator</a></li>
-        <li class="nav-drop">
-          <a href="/markets/" class="nav-droplink" id="markets-link">Markets</a><button type="button" class="nav-dropbtn" id="markets-dropbtn" aria-expanded="false" aria-haspopup="true" aria-label="Toggle Markets submenu">▾</button>
-          <ul class="nav-dropmenu" aria-labelledby="markets-dropbtn">
-            <li><a href="/stocks/">Stocks</a></li>
-            <li><a href="/heatmap/">Heat Map</a></li>
-            <li><a href="/rates/">Rates</a></li>
-            <li><a href="/sec-search/">SEC Search</a></li>
-            <li><a href="/economic-data/">Economic Data</a></li>
-          </ul>
-        </li>
-        <li><a href="/restaurants/">Restaurants</a></li>
-        <li><a href="/guestbook/">Guestbook</a></li>
-        <li><a href="/movies/">Movies</a></li>
+        <li class="nav-quicklink"><a href="/gallery.html" class="active">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+        <li><button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the all-pages menu">All pages <span class="jump-key" aria-hidden="true">⌘K</span></button></li>
       </ul>
     </nav>
   </div>
@@ -70,6 +56,7 @@
     <!-- Shared Footer Placeholder -->
     <footer>
   <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
     <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
   </div>
 </footer>
@@ -115,7 +102,7 @@
         </div>
     </div>
 
-    <script src="js/main.js?v=e2c0a542" defer></script>
+    <script src="js/main.js?v=fbe6bd86" defer></script>
     <script src="js/gallery.js?v=cccb346a" defer></script>
 </body>
 </html>

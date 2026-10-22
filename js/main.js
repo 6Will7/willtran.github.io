@@ -67,28 +67,144 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   /* ----- Markets dropdown (works for build-inlined and runtime-fetched header) ----- */
-  function initNavDropdown() {
-    var drop = document.querySelector(".nav-drop");
-    if (!drop || drop.dataset.init) return;
-    drop.dataset.init = "1";
-    var btn = drop.querySelector(".nav-dropbtn");
-    var topLink = drop.querySelector(".nav-droplink");
-    if (drop.querySelector(".nav-dropmenu a.active")) topLink.classList.add("active");
-    btn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      var open = drop.classList.toggle("open");
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    document.addEventListener("click", function () {
-      drop.classList.remove("open");
-      btn.setAttribute("aria-expanded", "false");
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") {
-        drop.classList.remove("open");
-        btn.setAttribute("aria-expanded", "false");
+  function initNavDropdown() { initJumpMenu(); }
+
+  /* ----- Jump-to menu: one searchable, grouped all-pages overlay ----- */
+  var JUMP_GROUPS = [
+    { name: "Create & Share", items: [
+      { t: "Gallery", h: "/gallery.html", d: "Photos from the Bay Area and beyond.", k: "photos pictures images camera" },
+      { t: "Recipes", h: "/recipes.html", d: "Things I've cooked and written down.", k: "cooking food dishes kitchen" },
+      { t: "Videos", h: "/videos.html", d: "Short clips and longer cuts.", k: "watch clips films" },
+      { t: "Restaurants", h: "/restaurants/", d: "Bay Area spots worth eating at.", k: "food dining eat places" },
+      { t: "Guestbook", h: "/guestbook/", d: "Leave a note for me and future visitors.", k: "sign hello comment visitors" }
+    ] },
+    { name: "Watch", items: [
+      { t: "Movies", h: "/movies/", d: "What my friends and I have been watching.", k: "films diary reviews ratings watchlist" }
+    ] },
+    { name: "Tools", items: [
+      { t: "Calculator", h: "/calculator/", d: "Natural-language calculator with conversions and bond math.", k: "math compute convert units" },
+      { t: "BART Tracker", h: "/bart/", d: "Real-time departures, service alerts, station map, nearest stations.", k: "bart train transit commute muni vta map stations" }
+    ] },
+    { name: "Markets", items: [
+      { t: "Markets Overview", h: "/markets/", d: "All the market tools in one place.", k: "stocks finance tools" },
+      { t: "Stocks", h: "/stocks/", d: "Live quotes, charts, SEC filings, and insider trades.", k: "quotes charts tickers watchlist prices" },
+      { t: "Heat Map", h: "/heatmap/", d: "Sector heat map built from official ETF holdings.", k: "sectors sp500 etf treemap" },
+      { t: "Rates", h: "/rates/", d: "Treasury yields and the yield curve, for any date.", k: "treasury bonds yield curve interest" },
+      { t: "SEC Search", h: "/sec-search/", d: "Full-text search across SEC filings.", k: "edgar filings 10-k 10-q search" },
+      { t: "Economic Data", h: "/economic-data/", d: "CPI, payrolls, FOMC — the U.S. release calendar.", k: "cpi jobs fomc calendar releases macro" },
+      { t: "Correlation", h: "/correlation/", d: "How closely do two stocks move together?", k: "calculator compare pair beta covariance" }
+    ] },
+    { name: "Site", items: [
+      { t: "Home", h: "/", d: "Back to the front page.", k: "index start main" },
+      { t: "Sitemap", h: "/sitemap/", d: "Every page on the site, on one page.", k: "all pages directory index list" }
+    ] }
+  ];
+  var jumpBuilt = false, jumpSel = 0, jumpLinks = [];
+
+  function initJumpMenu() {
+    var openBtn = document.getElementById("jump-open");
+    if (openBtn && !openBtn.dataset.init) {
+      openBtn.dataset.init = "1";
+      openBtn.addEventListener("click", openJump);
+    }
+    if (jumpBuilt) return;
+    jumpBuilt = true;
+
+    var overlay = document.createElement("div");
+    overlay.className = "jump-overlay";
+    overlay.id = "jump-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "All pages");
+    overlay.innerHTML =
+      '<div class="jump-panel">' +
+        '<div class="jump-searchrow">' +
+          '<input id="jump-search" type="text" placeholder="Jump to… try &quot;bart&quot; or &quot;stocks&quot;" autocomplete="off" aria-label="Search pages">' +
+          '<button type="button" id="jump-close" class="jump-close" aria-label="Close menu">✕</button>' +
+        '</div>' +
+        '<div id="jump-list" class="jump-list"></div>' +
+        '<p class="jump-hint">↑ ↓ to move · Enter to go · Esc to close</p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    var input = overlay.querySelector("#jump-search");
+    input.addEventListener("input", function () { renderJump(input.value); });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { e.preventDefault(); moveJump(1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); moveJump(-1); }
+      else if (e.key === "Enter") {
+        e.preventDefault();
+        var a = jumpLinks[jumpSel];
+        if (a) window.location.href = a.getAttribute("href");
       }
     });
+    overlay.querySelector("#jump-close").addEventListener("click", closeJump);
+    overlay.addEventListener("mousedown", function (e) { if (e.target === overlay) closeJump(); });
+    document.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        if (overlay.classList.contains("open")) closeJump(); else openJump();
+      } else if (e.key === "Escape" && overlay.classList.contains("open")) {
+        closeJump();
+      }
+    });
+  }
+
+  function renderJump(filter) {
+    var list = document.getElementById("jump-list");
+    if (!list) return;
+    var words = (filter || "").toLowerCase().split(/\s+/).filter(Boolean);
+    var html = "";
+    jumpLinks = [];
+    JUMP_GROUPS.forEach(function (g) {
+      var items = g.items.filter(function (it) {
+        var hay = (it.t + " " + it.d + " " + it.k).toLowerCase();
+        return words.every(function (w) { return hay.indexOf(w) >= 0; });
+      });
+      if (!items.length) return;
+      html += '<div class="jump-group"><h4>' + g.name + "</h4>";
+      items.forEach(function (it) {
+        html += '<a class="jump-item" href="' + it.h + '"><span class="jump-item-t">' +
+          it.t + '</span><span class="jump-item-d">' + it.d + "</span></a>";
+      });
+      html += "</div>";
+    });
+    list.innerHTML = html || '<p class="jump-none">No pages match — try a shorter search.</p>';
+    jumpLinks = Array.prototype.slice.call(list.querySelectorAll(".jump-item"));
+    jumpSel = 0;
+    markJumpSel();
+    jumpLinks.forEach(function (a, i) {
+      a.addEventListener("mouseenter", function () { jumpSel = i; markJumpSel(); });
+    });
+  }
+
+  function markJumpSel() {
+    jumpLinks.forEach(function (a, i) { a.classList.toggle("sel", i === jumpSel); });
+    var a = jumpLinks[jumpSel];
+    if (a && a.scrollIntoView) a.scrollIntoView({ block: "nearest" });
+  }
+  function moveJump(d) {
+    if (!jumpLinks.length) return;
+    jumpSel = (jumpSel + d + jumpLinks.length) % jumpLinks.length;
+    markJumpSel();
+  }
+  function openJump() {
+    initJumpMenu();
+    var overlay = document.getElementById("jump-overlay");
+    if (!overlay) return;
+    renderJump("");
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    var input = document.getElementById("jump-search");
+    if (input) { input.value = ""; setTimeout(function () { input.focus(); }, 30); }
+  }
+  function closeJump() {
+    var overlay = document.getElementById("jump-overlay");
+    if (!overlay) return;
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+    var btn = document.getElementById("jump-open");
+    if (btn) btn.focus();
   }
 
   /* ----- 2. Header injection ----- */
