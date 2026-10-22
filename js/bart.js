@@ -140,7 +140,7 @@
         if (segMap[key].lines.indexOf(li) < 0) segMap[key].lines.push(li);
       }
     });
-    function segPass(spacing, opacity, width) {
+    function segPass(spacing, width, casing) {
       var str = '';
       Object.keys(segMap).forEach(function (key) {
         var seg = segMap[key];
@@ -153,14 +153,14 @@
           var off = (idx - (seg.lines.length - 1) / 2) * spacing;
           str += '<line x1="' + (pa[0] + px * off).toFixed(1) + '" y1="' + (pa[1] + py * off).toFixed(1) +
             '" x2="' + (pb[0] + px * off).toFixed(1) + '" y2="' + (pb[1] + py * off).toFixed(1) +
-            '" stroke="' + LINES[li].color + '" stroke-width="' + width +
-            '" stroke-linecap="round" opacity="' + opacity + '"/>';
+            '"' + (casing ? ' class="seg-casing"' : ' stroke="' + LINES[li].color + '" opacity="0.97"') +
+            ' stroke-width="' + width + '" stroke-linecap="round"/>';
         });
       });
       return str;
     }
-    out.push(segPass(12, 0.15, 13));  // soft halo underlay
-    out.push(segPass(7.5, 0.97, 5.5)); // the bundled lines
+    out.push(segPass(8.5, 9.5, true));  // background casing — separates the stripes
+    out.push(segPass(8.5, 6, false));   // the bundled lines
     // Dashed box marking the area the downtown inset magnifies
     var c1 = project(37.838, -122.482), c2 = project(37.686, -122.280);
     out.push('<rect x="' + Math.min(c1[0], c2[0]).toFixed(1) + '" y="' + Math.min(c1[1], c2[1]).toFixed(1) +
@@ -220,9 +220,9 @@
     var W = 1000, CY = 104, X0 = 62, X1 = 938;
     var out = ['<svg viewBox="0 0 1000 208" role="img" aria-label="Downtown trunk detail" class="bart-svg">'];
     bundle.forEach(function (col, i) {
-      var y = CY + (i - 1.5) * 7.5;
+      var y = CY + (i - 1.5) * 8.5;
       out.push('<line x1="' + (X0 - 26) + '" y1="' + y.toFixed(1) + '" x2="' + (X1 + 26) + '" y2="' + y.toFixed(1) +
-        '" stroke="' + col + '" stroke-width="5.5" stroke-linecap="round" opacity="0.97"/>');
+        '" stroke="' + col + '" stroke-width="6" stroke-linecap="round" opacity="0.97"/>');
     });
     stops.forEach(function (abbr, i) {
       var x = X0 + (X1 - X0) * i / (stops.length - 1);

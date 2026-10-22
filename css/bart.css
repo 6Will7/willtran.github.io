@@ -92,6 +92,7 @@
   padding: 0.6rem;
 }
 .bart-svg { display: block; width: 100%; height: auto; }
+.seg-casing { stroke: var(--color-card-bg); }
 .map-water { fill: #a9cdec; opacity: 0.55; }
 [data-theme="dark"] .map-water { fill: #33567e; opacity: 0.5; }
 .map-dot {
