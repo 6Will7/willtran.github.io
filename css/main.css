@@ -28,14 +28,17 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  filter: blur(80px) saturate(1.45);
-  opacity: 0.75;
+  /* No filter here on purpose: blur(80px) on a fixed full-viewport layer was
+     the site's biggest per-frame cost in Chrome (re-rasterized and
+     re-composited on every scroll frame). The gradients below are drawn
+     wide and soft so the mesh looks the same with no live blur pass. */
+  opacity: 0.8;
   background:
-    radial-gradient(48% 38% at 8% 10%, color-mix(in srgb, var(--color-accent) 48%, transparent), transparent 70%),
-    radial-gradient(42% 34% at 93% 26%, color-mix(in srgb, var(--color-accent-2) 44%, transparent), transparent 70%),
-    radial-gradient(46% 38% at 55% 60%, color-mix(in srgb, var(--color-accent-3) 42%, transparent), transparent 70%),
-    radial-gradient(40% 32% at 12% 88%, color-mix(in srgb, var(--color-accent-2) 36%, transparent), transparent 70%),
-    radial-gradient(38% 32% at 90% 86%, color-mix(in srgb, var(--color-accent) 38%, transparent), transparent 70%);
+    radial-gradient(60% 48% at 8% 10%, color-mix(in srgb, var(--color-accent) 40%, transparent) 0%, transparent 75%),
+    radial-gradient(54% 44% at 93% 26%, color-mix(in srgb, var(--color-accent-2) 36%, transparent) 0%, transparent 75%),
+    radial-gradient(58% 48% at 55% 60%, color-mix(in srgb, var(--color-accent-3) 34%, transparent) 0%, transparent 75%),
+    radial-gradient(52% 42% at 12% 88%, color-mix(in srgb, var(--color-accent-2) 30%, transparent) 0%, transparent 75%),
+    radial-gradient(50% 42% at 90% 86%, color-mix(in srgb, var(--color-accent) 32%, transparent) 0%, transparent 75%);
 }
 
 /* Editorial serif for display type */
@@ -293,9 +296,10 @@ nav a.active {
 .section {
   margin: 2.5rem 0;
   padding: 2.5rem;
-  background: color-mix(in srgb, var(--color-card-bg) 78%, transparent);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  /* No backdrop-filter: each section was running its own blur pass over the
+     mesh on every scroll frame. The card bg is slightly more opaque now, so
+     the look is nearly unchanged without that cost. */
+  background: color-mix(in srgb, var(--color-card-bg) 84%, transparent);
   border-radius: 12px;
   border: 1px solid var(--color-card-border);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
