@@ -218,9 +218,11 @@ nav a.active {
 .jump-overlay {
   display: none;
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(10, 10, 18, 0.5);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  /* No backdrop-filter here: blurring the whole page behind a full-screen
+     overlay forces Chrome to re-snapshot and re-blur everything underneath
+     on every animation frame, which is what made opening feel sluggish.
+     A darker scrim reads as a modal layer without that cost. */
+  background: rgba(10, 10, 18, 0.62);
   padding: 6vh 1rem 1rem;
   overflow-y: auto;
 }
@@ -350,6 +352,9 @@ a:hover {
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 110px;
+  /* Reserve the scrollbar gutter always, so locking body scroll (e.g. when
+     the jump menu opens) doesn't reflow the whole page width. */
+  scrollbar-gutter: stable;
 }
 
 @media (prefers-reduced-motion: reduce) {
