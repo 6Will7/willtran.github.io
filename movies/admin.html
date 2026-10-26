@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Movies Admin | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=229168b7">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .admin-wrap { max-width: 760px; }
+      #mv-admin-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin: 0.8rem 0; box-sizing: border-box; }
+      #mv-admin-msg { min-height: 1.4em; font-size: 0.9rem; }
+      #mv-admin-filter { font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin: 0 0 1rem; }
+      .mv-admin-list { display: flex; flex-direction: column; gap: 0.75rem; margin: 0 0 2rem; }
+      .mv-admin-item { display: flex; gap: 0.9rem; border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1rem; background: var(--color-card-bg); }
+      .mv-admin-item .poster { flex: 0 0 46px; }
+      .mv-admin-item .poster img { width: 46px; border-radius: 5px; display: block; }
+      .mv-admin-item .body { flex: 1; min-width: 0; }
+      .mv-admin-item h4 { margin: 0 0 0.15rem; }
+      .mv-admin-item .meta { font-size: 0.82rem; color: var(--color-muted); }
+      .mv-admin-item .review { white-space: pre-wrap; margin: 0.4rem 0 0; }
+      .mv-admin-item .stars { color: var(--color-accent); font-weight: 700; }
+      .mv-admin-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+      .btn-edit { background: transparent; color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      .btn-delete { background: transparent; color: var(--color-danger, #DA121A); border: 1px solid var(--color-danger, #DA121A); border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      .btn-save { background: #1a7f37; color: #fff; border: 0; border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      .mv-editbox { width: 100%; font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); box-sizing: border-box; margin-top: 0.4rem; }
+      .mv-edit-rating { font: inherit; padding: 0.4rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-top: 0.4rem; }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container admin-wrap">
+        <section class="section reveal">
+            <h2>Movies admin</h2>
+            <p class="rest-sub">Not linked anywhere public. Manage every friend's logged review — edit the text or rating, or delete the entry.</p>
+            <input id="mv-admin-token" type="password" placeholder="Admin token" autocomplete="off" aria-label="Admin token">
+            <button id="mv-admin-load" class="btn btn-primary">Load reviews</button>
+            <p id="mv-admin-msg" role="status" aria-live="polite"></p>
+            <div id="mv-admin-filter-row" hidden>
+                <label class="rest-sub" for="mv-admin-filter">Show reviews from&nbsp;</label>
+                <select id="mv-admin-filter" aria-label="Filter by friend"></select>
+            </div>
+            <div id="mv-admin-list" class="mv-admin-list">
+                <p class="rest-sub">Enter your token above to load reviews.</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=da52daa7" defer></script>
+    <script src="/js/movies-admin.js?v=ffd1a769" defer></script>
+</body>
+</html>
