@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Suggestions Admin | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=229168b7">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .admin-wrap { max-width: 720px; }
+      .admin-pending { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0 2rem; }
+      .admin-item { border: 1px solid var(--color-border); border-radius: 10px; padding: 0.9rem 1rem; background: var(--color-card-bg); }
+      .admin-item h4 { margin: 0 0 0.2rem; }
+      .admin-item .msg { color: var(--color-text); white-space: pre-wrap; margin: 0.3rem 0; }
+      .admin-item .when { font-size: 0.78rem; color: var(--color-muted); }
+      .admin-item .cat { display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-accent); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.1rem 0.55rem; margin-left: 0.5rem; vertical-align: middle; }
+      .admin-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+      .btn-approve { background: #1a7f37; color: #fff; border: 0; border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      .btn-reject { background: transparent; color: var(--color-danger, #DA121A); border: 1px solid var(--color-danger, #DA121A); border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
+      #sg-admin-token { width: 100%; font: inherit; padding: 0.6rem 0.75rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-bottom: 1rem; box-sizing: border-box; }
+      #sg-admin-msg { min-height: 1.4em; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container admin-wrap">
+        <section class="section reveal">
+            <h2>Suggestions admin</h2>
+            <p class="rest-sub">Not linked anywhere public. Enter your admin token to review pending suggestions.</p>
+            <input id="sg-admin-token" type="password" placeholder="Admin token" autocomplete="off">
+            <h3>Pending suggestions</h3>
+            <div id="sg-admin-pending" class="admin-pending">
+                <p class="rest-sub">Enter your token above to load the queue.</p>
+            </div>
+            <p id="sg-admin-msg" role="status" aria-live="polite"></p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=fd6b7b90" defer></script>
+    <script src="/js/suggestions-admin.js?v=451e3b28" defer></script>
+</body>
+</html>

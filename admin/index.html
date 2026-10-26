@@ -94,6 +94,12 @@
                         <h3>Movies admin</h3>
                         <p>Manage friends' movie reviews — edit text or ratings, or delete entries.</p>
                     </a>
+                    <a class="portal-card" href="/suggestions/admin.html">
+                        <span class="go">&rarr;</span>
+                        <span class="portal-badge" id="badge-suggestions" hidden></span>
+                        <h3>Suggestions admin</h3>
+                        <p>Approve or reject suggestion box entries.</p>
+                    </a>
                     <a class="portal-card" href="/recipes/manage.html">
                         <span class="go">&rarr;</span>
                         <h3>Recipe manager</h3>
@@ -110,7 +116,7 @@
   </div>
 </footer>
 
-    <script src="/js/main.js?v=da52daa7" defer></script>
+    <script src="/js/main.js?v=fd6b7b90" defer></script>
     <script>
     (function () {
       'use strict';
@@ -122,7 +128,7 @@
       var linksEl = document.getElementById('portal-links');
 
       // Token keys used by the hidden pages — unlocking here pre-fills them all
-      var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin', 'recipe_admin', 'movies_admin'];
+      var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin', 'recipe_admin', 'movies_admin', 'sugg_admin'];
 
       function showLinks(tok) {
         try {
@@ -155,6 +161,7 @@
             if (!j) return;
             setBadge('badge-restaurants', j.restaurants | 0);
             setBadge('badge-guestbook', j.guestbook | 0);
+            setBadge('badge-suggestions', j.suggestions | 0);
           })
           .catch(function () { /* badges stay hidden on failure */ });
       }

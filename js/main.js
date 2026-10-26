@@ -75,7 +75,8 @@ document.addEventListener("DOMContentLoaded", function () {
       { t: "Gallery", h: "/gallery.html", d: "Photos from the Bay Area and beyond.", k: "photos pictures images camera" },
       { t: "Recipes", h: "/recipes.html", d: "Things I've cooked and written down.", k: "cooking food dishes kitchen" },
       { t: "Restaurants", h: "/restaurants/", d: "Bay Area spots worth eating at.", k: "food dining eat places" },
-      { t: "Guestbook", h: "/guestbook/", d: "Leave a note for me and future visitors.", k: "sign hello comment visitors" }
+      { t: "Guestbook", h: "/guestbook/", d: "Leave a note for me and future visitors.", k: "sign hello comment visitors" },
+      { t: "Suggestions", h: "/suggestions/", d: "Suggest something — a movie, a restaurant, a feature.", k: "suggest idea feedback box request" }
     ] },
     { name: "Watch", items: [
       { t: "Movies", h: "/movies/", d: "What my friends and I have been watching.", k: "films diary reviews ratings watchlist" },

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Suggest something for Will Tran's site — a movie, a restaurant, a feature, anything.">
+    <meta property="og:title" content="Suggestion Box | Will Tran">
+    <meta property="og:description" content="Suggest something — a movie, a restaurant, a feature, anything.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/suggestions/">
+    <meta property="og:image" content="https://willtran.org/apple-touch-icon.png">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Suggestion Box | Will Tran</title>
+    <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
+    <link rel="stylesheet" href="/css/main.css?v=229168b7">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <style>
+      .sg-wrap { max-width: 720px; }
+      .sg-entries { display: flex; flex-direction: column; gap: 0.9rem; margin: 1.2rem 0 2.5rem; }
+      .sg-entry {
+        border: 1px solid var(--color-border); border-radius: 12px;
+        padding: 1rem 1.2rem; background: var(--color-card-bg);
+      }
+      .sg-entry .sg-name { font-weight: 700; margin: 0 0 0.25rem; }
+      .sg-entry .sg-date { font-size: 0.78rem; color: var(--color-muted); margin-left: 0.5rem; font-weight: 400; }
+      .sg-entry .sg-cat {
+        display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.04em; color: var(--color-accent); border: 1px solid var(--color-border);
+        border-radius: 999px; padding: 0.1rem 0.55rem; margin-left: 0.5rem; vertical-align: middle;
+      }
+      .sg-entry p { margin: 0; white-space: pre-wrap; }
+      .sg-form { display: flex; flex-direction: column; gap: 0.8rem; }
+      .sg-form label { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 600; font-size: 0.9rem; }
+      .sg-form input, .sg-form textarea, .sg-form select {
+        font: inherit; font-weight: 400; padding: 0.6rem 0.75rem;
+        border: 1px solid var(--color-border); border-radius: 8px;
+        background: var(--color-card-bg); color: var(--color-text);
+      }
+      .sg-form textarea { resize: vertical; min-height: 5rem; }
+      .sg-form-msg { font-size: 0.9rem; min-height: 1.4em; }
+      .sg-form-msg.ok { color: #1a7f37; }
+      .sg-form-msg.err { color: var(--color-danger, #DA121A); }
+      .sg-empty { color: var(--color-muted); }
+    </style>
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container sg-wrap">
+        <section class="section reveal">
+            <h2>Suggestion box</h2>
+            <p class="rest-sub">Got an idea? A movie to watch, a restaurant to try, a feature for this site — drop it here and I'll put it up after a quick review.</p>
+            <div id="sg-entries" class="sg-entries" aria-live="polite">
+                <div class="loader-center"><div class="spinner" role="status" aria-label="Loading suggestions"></div></div>
+            </div>
+        </section>
+        <section class="section reveal">
+            <h2>Make a suggestion</h2>
+            <form id="sg-form" class="sg-form" novalidate>
+                <label>Name *
+                    <input type="text" name="name" required maxlength="50" autocomplete="name" placeholder="Your name">
+                </label>
+                <label>About
+                    <select name="category" aria-label="Suggestion category">
+                        <option value="Website">This website</option>
+                        <option value="Movie">A movie</option>
+                        <option value="Restaurant">A restaurant</option>
+                        <option value="Recipe">A recipe</option>
+                        <option value="Other">Something else</option>
+                    </select>
+                </label>
+                <label>Suggestion *
+                    <textarea name="suggestion" required maxlength="1000" placeholder="What should I add, watch, eat, or build?"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary">Send suggestion</button>
+                <p id="sg-form-msg" class="sg-form-msg" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=fd6b7b90" defer></script>
+    <script src="/js/suggestions.js?v=23633e7c" defer></script>
+</body>
+</html>
