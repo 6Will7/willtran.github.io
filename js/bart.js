@@ -262,6 +262,7 @@
   var searchEl = document.getElementById('bart-search');
   var listEl = document.getElementById('bart-station-list');
   var favsEl = document.getElementById('bart-favs');
+  var popEl = document.getElementById('bart-popular');
   var boardEl = document.getElementById('bart-board');
   var nameEl = document.getElementById('bart-station-name');
   var updatedEl = document.getElementById('bart-updated');
@@ -310,6 +311,25 @@
     });
   }
 
+  // Shortcut buttons: the three busiest stations (the downtown SF trio)
+  // plus Bay Fair.
+  var POPULAR = ['EMBR', 'MONT', 'POWL', 'BAYF'];
+  function renderPopular() {
+    if (!popEl) return;
+    popEl.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'bart-fav-label';
+    label.textContent = 'Popular:';
+    popEl.appendChild(label);
+    POPULAR.forEach(function (abbr) {
+      var b = document.createElement('button');
+      b.className = 'mv-friend bart-fav' + (abbr === currentAbbr ? ' active' : '');
+      b.textContent = stName(abbr);
+      b.addEventListener('click', function () { selectStation(abbr); });
+      popEl.appendChild(b);
+    });
+  }
+
   function renderStationList(filter) {
     var q = (filter || '').toLowerCase().trim();
     var matches = STATIONS.filter(function (s) {
@@ -339,6 +359,7 @@
     listEl.hidden = true;
     try { localStorage.setItem('bart_last', abbr); } catch (e) {}
     renderFavs();
+    renderPopular();
     highlightMarker();
     load();
   }
@@ -490,6 +511,7 @@
 
   // Restore last station
   renderFavs();
+  renderPopular();
   initMap();
   loadAdvisories();
   try {
