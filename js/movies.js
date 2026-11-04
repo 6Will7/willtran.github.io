@@ -65,7 +65,7 @@
     var d = document.createElement('div');
     d.className = 'mv-card' + (extra ? ' ' + extra : '');
     var ph = m.poster
-      ? '<img src="' + poster(m.poster) + '" alt="" loading="lazy">'
+      ? '<img src="' + poster(m.poster) + '" alt="' + esc(m.title) + ' poster" loading="lazy">'
       : '<div class="no-poster">No poster</div>';
     d.innerHTML = '<div class="poster">' + ph + '</div>' +
       '<h4>' + esc(m.title) + '</h4>' +
@@ -126,7 +126,7 @@
           var d = document.createElement('div');
           d.className = 'mv-feed-item';
           var ph = l.poster
-            ? '<img src="' + poster(l.poster, 'w185') + '" alt="" loading="lazy">'
+            ? '<img src="' + poster(l.poster, 'w185') + '" alt="' + esc(l.title) + ' poster" loading="lazy">'
             : '';
           d.innerHTML = '<div class="poster">' + ph + '</div>' +
             '<div class="mv-feed-body">' +
@@ -202,7 +202,7 @@
       var d = document.createElement('div');
       d.className = 'mv-feed-item';
       var ph = l.poster
-        ? '<img src="' + poster(l.poster, 'w185') + '" alt="" loading="lazy">'
+        ? '<img src="' + poster(l.poster, 'w185') + '" alt="' + esc(l.title) + ' poster" loading="lazy">'
         : '';
       d.innerHTML = '<div class="poster">' + ph + '</div>' +
         '<div class="mv-feed-body">' +
@@ -367,7 +367,7 @@
     if (mine) currentRating = mine.rating;
 
     var ph = m.poster
-      ? '<img src="' + poster(m.poster, 'w342') + '" alt="">'
+      ? '<img src="' + poster(m.poster, 'w342') + '" alt="' + esc(m.title) + ' poster">'
       : '<div class="no-poster">No poster</div>';
     var html = '<div class="mv-modal-hero">' +
       '<div class="poster">' + ph + '</div>' +

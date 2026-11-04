@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>Guestbook | Will Tran</title>
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
-    <link rel="stylesheet" href="/css/main.css?v=229168b7">
+    <link rel="stylesheet" href="/css/main.css?v=0c5f2ee6">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/loading.css">
     <style>
@@ -34,6 +34,7 @@
         background: var(--color-card-bg); color: var(--color-text);
       }
       .gb-form textarea { resize: vertical; min-height: 5rem; }
+      .gb-form-note { font-size: 0.8rem; color: var(--color-text-muted); }
       .gb-form-msg { font-size: 0.9rem; min-height: 1.4em; }
       .gb-form-msg.ok { color: #1a7f37; }
       .gb-form-msg.err { color: var(--color-danger, #DA121A); }
@@ -79,13 +80,14 @@
                     <textarea name="message" required maxlength="500" placeholder="Say hello…"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary">Sign guestbook</button>
+                <p class="gb-form-note">Your name and message may be published here after a quick review. <a href="/privacy/">Privacy &amp; Terms</a></p>
                 <p id="gb-form-msg" class="gb-form-msg" role="status" aria-live="polite"></p>
             </form>
         </section>
     </main>
     <footer>
   <div class="container">
-    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
     <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
   </div>
 </footer>

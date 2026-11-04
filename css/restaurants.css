@@ -162,6 +162,11 @@
   outline-offset: 1px;
 }
 
+.rest-form-note {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 .rest-form-msg {
   min-height: 1.4em;
   font-size: 0.9rem;

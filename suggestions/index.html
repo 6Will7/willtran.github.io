@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>Suggestion Box | Will Tran</title>
     <link rel="stylesheet" href="/css/variables.css?v=619d2a45">
-    <link rel="stylesheet" href="/css/main.css?v=229168b7">
+    <link rel="stylesheet" href="/css/main.css?v=0c5f2ee6">
     <link rel="stylesheet" href="/css/components.css">
     <link rel="stylesheet" href="/css/loading.css">
     <style>
@@ -39,6 +39,7 @@
         background: var(--color-card-bg); color: var(--color-text);
       }
       .sg-form textarea { resize: vertical; min-height: 5rem; }
+      .sg-form-note { font-size: 0.8rem; color: var(--color-text-muted); }
       .sg-form-msg { font-size: 0.9rem; min-height: 1.4em; }
       .sg-form-msg.ok { color: #1a7f37; }
       .sg-form-msg.err { color: var(--color-danger, #DA121A); }
@@ -92,13 +93,14 @@
                     <textarea name="suggestion" required maxlength="1000" placeholder="What should I add, watch, eat, or build?"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary">Send suggestion</button>
+                <p class="sg-form-note">Approved suggestions are published with your name. <a href="/privacy/">Privacy &amp; Terms</a></p>
                 <p id="sg-form-msg" class="sg-form-msg" role="status" aria-live="polite"></p>
             </form>
         </section>
     </main>
     <footer>
   <div class="container">
-    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a></p>
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
     <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
   </div>
 </footer>

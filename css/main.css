@@ -790,3 +790,10 @@ footer .container { padding-top: 0; padding-bottom: 0; }
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 .share-btn:active { transform: scale(0.95); }
+
+/* Accessibility: one consistent keyboard focus indicator site-wide.
+   :focus-visible only fires for keyboard/assistive navigation, not mouse clicks. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
