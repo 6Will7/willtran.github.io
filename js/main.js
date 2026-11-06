@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ----- Accent color switcher data (must be defined before init calls below) ----- */
   var ACCENTS = {
     violet:  { accent: "#7c3aed", hover: "#6d28d9", partner: "#2563eb", third: "#ec4899" },
+    royal:   { accent: "#7D2CFF", hover: "#6d28d9", partner: "#2563eb", third: "#F5B916" },
     emerald: { accent: "#059669", hover: "#047857", partner: "#0ea5e9", third: "#a3e635" },
     amber:   { accent: "#d97706", hover: "#b45309", partner: "#dc2626", third: "#f59e0b" },
     rose:    { accent: "#e11d48", hover: "#be1239", partner: "#f59e0b", third: "#7c3aed" }
