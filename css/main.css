@@ -797,3 +797,19 @@ footer .container { padding-top: 0; padding-bottom: 0; }
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* Homepage color bands (less-white pass, 2026-11-06): soft section tints in
+   light mode; in dark mode they flatten to the dark card tone. */
+.band {
+  border-radius: 18px;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+.band-warm { background: #fdf0d5; }
+.band-blue { background: #eef3fd; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .band-warm,
+  :root:not([data-theme="light"]) .band-blue { background: var(--color-card-bg-alt); }
+}
+[data-theme="dark"] .band-warm,
+[data-theme="dark"] .band-blue { background: var(--color-card-bg-alt); }
