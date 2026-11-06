@@ -661,6 +661,14 @@
             .catch(function () { return null; })
             .then(function (u) {
               renderGallery(galleryContainer, buildGalleryData(data, u));
+              // Shuffle: open the lightbox on a random photo
+              var shuf = document.getElementById("gallery-shuffle");
+              if (shuf && allPhotos.length) {
+                shuf.disabled = false;
+                shuf.addEventListener("click", function () {
+                  openLightbox(Math.floor(Math.random() * allPhotos.length));
+                });
+              }
             });
         })
         .catch(function (err) {

@@ -153,26 +153,128 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  /* ----- Jump content search: recipes, restaurants, logged movies -----
+     Loaded lazily on first menu open; results merge under the page groups.
+     Content fields are user-generated, so they are HTML-escaped on render. */
+  var JUMP_WORKER = "https://willtran-stocks-proxy.willtran98.workers.dev";
+  var jumpContent = null;
+  function jumpEsc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function jumpRerenderIfOpen() {
+    var ov = document.getElementById("jump-overlay");
+    if (ov && ov.classList.contains("open")) {
+      var inp = document.getElementById("jump-search");
+      renderJump(inp ? inp.value : "");
+    }
+  }
+  function ensureJumpContent() {
+    if (jumpContent) return;
+    jumpContent = { recipes: [], restaurants: [], movies: [] };
+    Promise.all([
+      fetch("/data/recipes.json").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(JUMP_WORKER + "/recipes/edits").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    ]).then(function (res) {
+      var data = res[0];
+      if (!data) return;
+      var byId = {};
+      (data.categories || []).forEach(function (c) {
+        (c.recipes || []).forEach(function (r) {
+          byId[r.id] = { t: r.title || "", prep: r.prep || "", cook: r.cook || "" };
+        });
+      });
+      ((res[1] && res[1].edits) || []).forEach(function (e) {
+        if (!e || !e.recipe_id) return;
+        if (e.deleted) { delete byId[e.recipe_id]; return; }
+        if (!byId[e.recipe_id] && e.is_new) {
+          byId[e.recipe_id] = { t: e.title || "Untitled", prep: e.prep || "", cook: e.cook || "" };
+        } else if (byId[e.recipe_id] && e.title) {
+          byId[e.recipe_id].t = e.title;
+        }
+      });
+      Object.keys(byId).forEach(function (id) {
+        var r = byId[id];
+        var bits = [];
+        if (r.prep) bits.push("Prep " + r.prep);
+        if (r.cook) bits.push("Cook " + r.cook);
+        jumpContent.recipes.push({
+          t: r.t, d: "Recipe" + (bits.length ? " · " + bits.join(" · ") : ""),
+          h: "/recipes.html#" + id, hay: (r.t + " recipe food").toLowerCase()
+        });
+      });
+      jumpRerenderIfOpen();
+    });
+    fetch(JUMP_WORKER + "/restaurants").then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        ((j && j.restaurants) || []).forEach(function (r) {
+          jumpContent.restaurants.push({
+            t: r.name || "",
+            d: [r.cuisine, r.neighborhood].filter(Boolean).join(" · ") || "Restaurant",
+            h: "/restaurants/",
+            hay: ((r.name || "") + " " + (r.cuisine || "") + " " + (r.neighborhood || "") + " restaurant food").toLowerCase()
+          });
+        });
+        jumpRerenderIfOpen();
+      }).catch(function () {});
+    fetch(JUMP_WORKER + "/movies/feed?limit=100").then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        var byMovie = {};
+        ((j && j.logs) || []).forEach(function (l) {
+          var m = byMovie[l.tmdb_id];
+          if (!m) m = byMovie[l.tmdb_id] = { t: l.title || "", year: l.year || "", best: 0, names: [] };
+          if (l.rating > m.best) m.best = l.rating;
+          if (l.name && m.names.indexOf(l.name) < 0) m.names.push(l.name);
+        });
+        Object.keys(byMovie).forEach(function (id) {
+          var m = byMovie[id];
+          jumpContent.movies.push({
+            t: m.t + (m.year ? " (" + m.year + ")" : ""),
+            d: "Movie · ★ " + m.best.toFixed(1) + " · logged by " + m.names.slice(0, 3).join(", ") +
+              (m.names.length > 3 ? " +" + (m.names.length - 3) : ""),
+            h: "/movies/?movie=" + id,
+            hay: (m.t + " movie film").toLowerCase()
+          });
+        });
+        jumpRerenderIfOpen();
+      }).catch(function () {});
+  }
+
   function renderJump(filter) {
     var list = document.getElementById("jump-list");
     if (!list) return;
     var words = (filter || "").toLowerCase().split(/\s+/).filter(Boolean);
     var html = "";
     jumpLinks = [];
+    function itemHtml(it, escIt) {
+      return '<a class="jump-item" href="' + it.h + '"><span class="jump-item-t">' +
+        (escIt ? jumpEsc(it.t) : it.t) + '</span><span class="jump-item-d">' +
+        (escIt ? jumpEsc(it.d) : it.d) + "</span></a>";
+    }
+    function groupHtml(name, items, escIt) {
+      if (!items.length) return "";
+      var s = '<div class="jump-group"><h4>' + name + "</h4>";
+      items.forEach(function (it) { s += itemHtml(it, escIt); });
+      return s + "</div>";
+    }
     JUMP_GROUPS.forEach(function (g) {
       var items = g.items.filter(function (it) {
         var hay = (it.t + " " + it.d + " " + it.k).toLowerCase();
         return words.every(function (w) { return hay.indexOf(w) >= 0; });
       });
-      if (!items.length) return;
-      html += '<div class="jump-group"><h4>' + g.name + "</h4>";
-      items.forEach(function (it) {
-        html += '<a class="jump-item" href="' + it.h + '"><span class="jump-item-t">' +
-          it.t + '</span><span class="jump-item-d">' + it.d + "</span></a>";
-      });
-      html += "</div>";
+      html += groupHtml(g.name, items, false);
     });
-    list.innerHTML = html || '<p class="jump-none">No pages match — try a shorter search.</p>';
+    if (words.length && jumpContent) {
+      [["Recipes", jumpContent.recipes], ["Restaurants", jumpContent.restaurants],
+       ["Movies", jumpContent.movies]].forEach(function (pair) {
+        var items = pair[1].filter(function (it) {
+          return words.every(function (w) { return it.hay.indexOf(w) >= 0; });
+        }).slice(0, 5);
+        html += groupHtml(pair[0], items, true);
+      });
+    }
+    list.innerHTML = html || '<p class="jump-none">No matches — try a shorter search.</p>';
     jumpLinks = Array.prototype.slice.call(list.querySelectorAll(".jump-item"));
     jumpSel = 0;
     markJumpSel();
@@ -193,6 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   function openJump() {
     initJumpMenu();
+    ensureJumpContent();
     var overlay = document.getElementById("jump-overlay");
     if (!overlay) return;
     renderJump("");

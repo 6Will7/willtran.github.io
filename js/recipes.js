@@ -190,6 +190,14 @@
     fetch(WORKER_URL + '/recipes/edits').then(function (r) { return r.ok ? r.json() : { edits: [] }; }).catch(function () { return { edits: [] }; })
   ]).then(function (res) {
     render(applyEdits(res[0], (res[1] && res[1].edits) || []));
+    // Deep link: /recipes.html#<recipe-id> scrolls to that card (site search)
+    try {
+      var hid = (window.location.hash || '').slice(1);
+      if (hid) {
+        var hel = document.getElementById(hid);
+        if (hel) setTimeout(function () { hel.scrollIntoView(); }, 60);
+      }
+    } catch (e) {}
   }).catch(function () {
     showError('Could not load recipes — check your connection.');
   });

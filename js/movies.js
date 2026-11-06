@@ -459,4 +459,10 @@
       .catch(function () { msgEl.textContent = 'Failed.'; });
     });
   }
+
+  // Deep link: /movies/?movie=<tmdb_id> opens that movie (used by site search)
+  try {
+    var deepMovie = new URLSearchParams(window.location.search).get('movie');
+    if (deepMovie && parseInt(deepMovie, 10) > 0) openMovie(parseInt(deepMovie, 10));
+  } catch (e) {}
 })();
