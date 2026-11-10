@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ] },
     { name: "Watch", items: [
       { t: "Movies", h: "/movies/", d: "What my friends and I have been watching.", k: "films diary reviews ratings watchlist" },
+      { t: "What to Watch", h: "/movies/watch/", d: "Popular movies by streaming service — Netflix, Prime Video, Max, Hulu.", k: "streaming netflix prime max hulu watch providers" },
       { t: "Videos", h: "/videos.html", d: "Featured videos, some of my own.", k: "watch clips films featured" }
     ] },
     { name: "Tools", items: [

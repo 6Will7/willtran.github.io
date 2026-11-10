@@ -15,6 +15,7 @@
     <url><loc>https://willtran.org/suggestions/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
     <url><loc>https://willtran.org/bart/</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
     <url><loc>https://willtran.org/movies/</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://willtran.org/movies/watch/</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
     <url><loc>https://willtran.org/economic-data/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
     <url><loc>https://willtran.org/correlation/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
     <url><loc>https://willtran.org/sitemap/</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
