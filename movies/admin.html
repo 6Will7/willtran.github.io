@@ -30,6 +30,15 @@
       .btn-save { background: #1a7f37; color: #fff; border: 0; border-radius: 8px; padding: 0.45rem 1rem; cursor: pointer; font: inherit; }
       .mv-editbox { width: 100%; font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); box-sizing: border-box; margin-top: 0.4rem; }
       .mv-edit-rating { font: inherit; padding: 0.4rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); margin-top: 0.4rem; }
+      #mv-censor { border: 1px solid var(--color-border); border-radius: 10px; padding: 1rem; margin: 0 0 1.2rem; background: var(--color-card-bg); }
+      #mv-censor h3 { margin: 0 0 0.3rem; }
+      .mv-censor-row { display: flex; gap: 0.5rem; margin: 0.6rem 0; flex-wrap: wrap; }
+      #mv-censor-input { flex: 1; min-width: 180px; font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); }
+      .mv-censor-words { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+      .mv-censor-chip { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--color-border); border-radius: 999px; padding: 0.25rem 0.4rem 0.25rem 0.75rem; font-size: 0.88rem; }
+      .mv-censor-chip button { background: transparent; border: 0; color: var(--color-danger, #DA121A); cursor: pointer; font: inherit; padding: 0 0.25rem; line-height: 1; }
+      .mv-admin-item mark { background: rgba(218, 18, 26, 0.16); color: inherit; padding: 0 2px; border-radius: 3px; }
+      .mv-censored-note { font-size: 0.8rem; color: var(--color-danger, #DA121A); margin-top: 0.3rem; }
     </style>
 </head>
 <body>
@@ -59,6 +68,15 @@
             <input id="mv-admin-token" type="password" placeholder="Admin token" autocomplete="off" aria-label="Admin token">
             <button id="mv-admin-load" class="btn btn-primary">Load reviews</button>
             <p id="mv-admin-msg" role="status" aria-live="polite"></p>
+            <div id="mv-censor" hidden>
+                <h3>Review censoring</h3>
+                <p class="rest-sub">Words on this list appear as *** everywhere reviews are shown (feed, diaries, movie pages). The original text is never changed — remove a word and it comes back. Matching is whole-word, any case. To censor one specific passage instead, use Edit on that review, select the text, and hit “Censor selection”.</p>
+                <div class="mv-censor-row">
+                    <input id="mv-censor-input" type="text" placeholder="Add a word to censor" maxlength="40" autocomplete="off" aria-label="Word to censor">
+                    <button id="mv-censor-add" class="btn btn-primary">Add word</button>
+                </div>
+                <div id="mv-censor-words" class="mv-censor-words"></div>
+            </div>
             <div id="mv-admin-filter-row" hidden>
                 <label class="rest-sub" for="mv-admin-filter">Show reviews from&nbsp;</label>
                 <select id="mv-admin-filter" aria-label="Filter by friend"></select>
@@ -76,6 +94,6 @@
 </footer>
 
     <script src="/js/main.js?v=0933a91c" defer></script>
-    <script src="/js/movies-admin.js?v=ffd1a769" defer></script>
+    <script src="/js/movies-admin.js?v=2c23ba3a" defer></script>
 </body>
 </html>

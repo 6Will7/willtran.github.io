@@ -10,7 +10,12 @@
   var listEl = document.getElementById('mv-admin-list');
   var filterRow = document.getElementById('mv-admin-filter-row');
   var filterEl = document.getElementById('mv-admin-filter');
+  var censorEl = document.getElementById('mv-censor');
+  var censorInput = document.getElementById('mv-censor-input');
+  var censorAddBtn = document.getElementById('mv-censor-add');
+  var censorWordsEl = document.getElementById('mv-censor-words');
   var allLogs = [];
+  var censorWords = [];
 
   try { tokenEl.value = sessionStorage.getItem('movies_admin') || ''; } catch (e) {}
 
@@ -43,6 +48,73 @@
     return '★'.repeat(full) + (half ? '½' : '') + ' (' + r.toFixed(1) + ')';
   }
 
+  /* ---------- Censoring ---------- */
+  function censorRe() {
+    if (!censorWords.length) return null;
+    var parts = censorWords.slice().sort(function (a, b) { return b.length - a.length; })
+      .map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+    try { return new RegExp('(?<![A-Za-z0-9])(' + parts.join('|') + ')(?![A-Za-z0-9])', 'gi'); }
+    catch (e) { return new RegExp('\\b(' + parts.join('|') + ')\\b', 'gi'); }
+  }
+  function matchedWords(text) {
+    var re = censorRe();
+    if (!re || !text) return [];
+    var found = [], m;
+    while ((m = re.exec(text)) !== null) {
+      var w = m[1].toLowerCase();
+      if (found.indexOf(w) === -1) found.push(w);
+    }
+    return found;
+  }
+  function highlight(text) {
+    var re = censorRe();
+    if (!re || !text) return esc(text);
+    var out = '', last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      out += esc(text.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>';
+      last = m.index + m[0].length;
+    }
+    return out + esc(text.slice(last));
+  }
+  function renderWords() {
+    censorWordsEl.innerHTML = '';
+    if (!censorWords.length) {
+      censorWordsEl.innerHTML = '<span class="rest-sub">No words censored.</span>';
+      return;
+    }
+    censorWords.forEach(function (w) {
+      var chip = document.createElement('span');
+      chip.className = 'mv-censor-chip';
+      chip.innerHTML = esc(w) + ' <button type="button" aria-label="Remove ' + esc(w) + '">&times;</button>';
+      chip.querySelector('button').addEventListener('click', function () {
+        api({ token: token(), action: 'censor-remove', word: w })
+          .then(function (res) {
+            if (!res.ok) { msgEl.textContent = (res.j && res.j.error) || 'Remove failed.'; return; }
+            censorWords = res.j.words || [];
+            renderWords();
+            render();
+          })
+          .catch(function () { msgEl.textContent = 'Could not reach the server.'; });
+      });
+      censorWordsEl.appendChild(chip);
+    });
+  }
+  function addCensorWord() {
+    var w = censorInput.value.trim().toLowerCase();
+    if (!w) return;
+    api({ token: token(), action: 'censor-add', word: w })
+      .then(function (res) {
+        if (!res.ok) { msgEl.textContent = (res.j && res.j.error) || 'Add failed.'; return; }
+        censorWords = res.j.words || [];
+        censorInput.value = '';
+        renderWords();
+        render();
+      })
+      .catch(function () { msgEl.textContent = 'Could not reach the server.'; });
+  }
+  censorAddBtn.addEventListener('click', addCensorWord);
+  censorInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') addCensorWord(); });
+
   function ratingOptions(sel) {
     var html = '';
     for (var v = 0.5; v <= 5; v += 0.5) {
@@ -73,7 +145,10 @@
           '<h4>' + esc(l.title) + (l.year ? ' (' + esc(l.year) + ')' : '') + '</h4>' +
           '<div class="meta">' + esc(l.name) + ' · <span class="stars">' + esc(stars(l.rating)) + '</span>' +
             (l.watched_at ? ' · watched ' + esc(l.watched_at) : '') + ' · logged ' + esc(fmtDate(l.created_at)) + '</div>' +
-          (l.review ? '<p class="review">' + esc(l.review) + '</p>' : '<p class="review"><em>No review text.</em></p>') +
+          (l.review ? '<p class="review">' + highlight(l.review) + '</p>' : '<p class="review"><em>No review text.</em></p>') +
+          (matchedWords(l.review).length
+            ? '<div class="mv-censored-note">Shows as *** on the site — matched: ' + esc(matchedWords(l.review).join(', ')) + '</div>'
+            : '') +
           '<div class="mv-admin-actions">' +
             '<button class="btn-edit" data-action="edit">Edit</button>' +
             '<button class="btn-delete" data-action="delete">Delete</button>' +
@@ -103,10 +178,24 @@
       '<textarea class="mv-editbox" rows="4" aria-label="Review text">' + esc(log.review || '') + '</textarea>' +
       '<div class="mv-admin-actions">' +
         '<button class="btn-save" data-action="save">Save</button>' +
+        '<button class="btn-edit" data-action="censor-sel">Censor selection</button>' +
         '<button class="btn-edit" data-action="cancel">Cancel</button>' +
       '</div>';
     body.appendChild(form);
     form.querySelector('[data-action="cancel"]').addEventListener('click', render);
+    form.querySelector('[data-action="censor-sel"]').addEventListener('click', function () {
+      var ta = form.querySelector('.mv-editbox');
+      var s = ta.selectionStart, e2 = ta.selectionEnd;
+      if (s == null || s === e2) {
+        msgEl.textContent = 'Select the part of the review to censor first.';
+        ta.focus();
+        return;
+      }
+      ta.value = ta.value.slice(0, s) + '***' + ta.value.slice(e2);
+      ta.focus();
+      ta.setSelectionRange(s + 3, s + 3);
+      msgEl.textContent = 'Censored — hit Save to apply.';
+    });
     form.querySelector('[data-action="save"]').addEventListener('click', function () {
       var rating = form.querySelector('.mv-edit-rating').value;
       var review = form.querySelector('.mv-editbox').value;
@@ -161,6 +250,16 @@
         filterRow.hidden = false;
         msgEl.textContent = allLogs.length ? '' : 'No reviews logged yet.';
         render();
+        api({ token: t, action: 'censor-list' })
+          .then(function (res2) {
+            if (res2.ok) {
+              censorWords = res2.j.words || [];
+              censorEl.hidden = false;
+              renderWords();
+              render();
+            }
+          })
+          .catch(function () {});
       })
       .catch(function () { msgEl.textContent = 'Could not reach the server — check your connection.'; });
   }
