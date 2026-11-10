@@ -4,9 +4,19 @@
 .bart-picker { position: relative; margin: 1rem 0 0.6rem; }
 #bart-search {
   width: 100%; font: inherit; font-size: 1.05rem;
-  padding: 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: 10px;
+  padding: 0.7rem 2.8rem 0.7rem 0.9rem; border: 1px solid var(--color-border); border-radius: 10px;
   background: var(--color-card-bg); color: var(--color-text); box-sizing: border-box;
 }
+.bart-clear {
+  position: absolute; right: 0.55rem; top: 50%; transform: translateY(-50%);
+  width: 1.9rem; height: 1.9rem; border-radius: 50%; border: none;
+  background: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
+  color: var(--color-text); font-size: 1.25rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0 0 0.12rem; z-index: 51;
+}
+.bart-clear:hover { background: color-mix(in srgb, var(--color-text-muted) 28%, transparent); }
+.bart-clear[hidden] { display: none; }
 .bart-station-list {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
   background: var(--color-card-bg); border: 1px solid var(--color-border);

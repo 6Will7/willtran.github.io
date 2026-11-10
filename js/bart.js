@@ -260,6 +260,7 @@
   }
 
   var searchEl = document.getElementById('bart-search');
+  var clearEl = document.getElementById('bart-clear');
   var listEl = document.getElementById('bart-station-list');
   var favsEl = document.getElementById('bart-favs');
   var popEl = document.getElementById('bart-popular');
@@ -353,9 +354,14 @@
     listEl.hidden = false;
   }
 
+  function syncClear() {
+    if (clearEl) clearEl.hidden = !searchEl.value;
+  }
+
   function selectStation(abbr) {
     currentAbbr = abbr;
     searchEl.value = stName(abbr);
+    syncClear();
     listEl.hidden = true;
     try { localStorage.setItem('bart_last', abbr); } catch (e) {}
     renderFavs();
@@ -479,8 +485,18 @@
   }
 
   // Station search
-  searchEl.addEventListener('input', function () { renderStationList(searchEl.value); });
-  searchEl.addEventListener('focus', function () { renderStationList(searchEl.value); });
+  searchEl.addEventListener('input', function () { syncClear(); renderStationList(searchEl.value); });
+  searchEl.addEventListener('focus', function () { syncClear(); renderStationList(searchEl.value); });
+  if (clearEl) {
+    clearEl.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    clearEl.addEventListener('click', function () {
+      searchEl.value = '';
+      syncClear();
+      searchEl.focus();
+      renderStationList('');
+    });
+  }
+  syncClear();
   searchEl.addEventListener('blur', function () {
     setTimeout(function () { listEl.hidden = true; }, 150);
   });
@@ -492,7 +508,7 @@
     if (e.key === 'Escape') { listEl.hidden = true; searchEl.blur(); }
   });
   document.addEventListener('click', function (e) {
-    if (!listEl.hidden && !listEl.contains(e.target) && e.target !== searchEl) {
+    if (!listEl.hidden && !listEl.contains(e.target) && e.target !== searchEl && e.target !== clearEl) {
       listEl.hidden = true;
     }
   });
