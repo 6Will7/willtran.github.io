@@ -463,3 +463,8 @@
 .fin-table td.spark { width: 84px; }
 .spark-svg { width: 76px; height: 28px; display: block; margin-left: auto; }
 .fin-table th.spark-head { font-size: 0.72rem; }
+.filings-pager { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-top: 0.75rem; }
+.filings-pager-btn { font: inherit; font-size: 0.9rem; padding: 0.42rem 0.95rem; border-radius: 999px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer; }
+.filings-pager-btn:hover:not(:disabled) { border-color: var(--color-accent); color: var(--color-accent); }
+.filings-pager-btn:disabled { opacity: 0.35; cursor: default; }
+.filings-pager-info { font-size: 0.85rem; color: var(--color-text-muted); }

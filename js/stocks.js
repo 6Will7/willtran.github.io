@@ -1022,16 +1022,25 @@
     });
   }
 
+  var filingsFilter = 'ALL';
+  var filingsPage = 0;
+  var FILINGS_PER_PAGE = 12;
+
   function renderFilings(filter) {
+    if (typeof filter === 'string') { filingsFilter = filter; filingsPage = 0; }
     var rows = allFilings.filter(function (f) {
-      return filter === 'ALL' || f.form.indexOf(filter) === 0;
-    }).slice(0, 12);
+      return filingsFilter === 'ALL' || f.form.indexOf(filingsFilter) === 0;
+    });
     if (!rows.length) {
       filingsList.innerHTML = '<div class="filings-empty">No ' +
-        (filter === 'ALL' ? '' : esc(filter) + ' ') + 'filings found for this ticker.</div>';
+        (filingsFilter === 'ALL' ? '' : esc(filingsFilter) + ' ') + 'filings found for this ticker.</div>';
       return;
     }
-    filingsList.innerHTML = rows.map(function (f) {
+    var pages = Math.ceil(rows.length / FILINGS_PER_PAGE);
+    if (filingsPage >= pages) filingsPage = pages - 1;
+    if (filingsPage < 0) filingsPage = 0;
+    var start = filingsPage * FILINGS_PER_PAGE;
+    var html = rows.slice(start, start + FILINGS_PER_PAGE).map(function (f) {
       return '<div class="filing-row">' +
         '<span class="filing-badge ' + badgeClass(f.form) + '">' + esc(f.form) + '</span>' +
         '<span class="filing-meta"><strong>Filed ' + esc(fmtDate(f.filingDate)) + '</strong>' +
@@ -1041,6 +1050,21 @@
         '<a href="' + esc(f.indexUrl) + '" target="_blank" rel="noopener">Index</a>' +
         '</span></div>';
     }).join('');
+    if (pages > 1) {
+      html += '<div class="filings-pager">' +
+        '<button class="filings-pager-btn" data-page="prev"' + (filingsPage === 0 ? ' disabled' : '') + '>← Newer</button>' +
+        '<span class="filings-pager-info">Page ' + (filingsPage + 1) + ' of ' + pages + ' · ' + rows.length + ' filings</span>' +
+        '<button class="filings-pager-btn" data-page="next"' + (filingsPage >= pages - 1 ? ' disabled' : '') + '>Older →</button>' +
+        '</div>';
+    }
+    filingsList.innerHTML = html;
+    var btns = filingsList.querySelectorAll('.filings-pager-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        filingsPage += this.getAttribute('data-page') === 'next' ? 1 : -1;
+        renderFilings();
+      });
+    }
   }
 
   function loadEstimates(sym) {
