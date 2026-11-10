@@ -50,13 +50,14 @@
       tabs.forEach(function (x) { x.classList.remove('active'); });
       t.classList.add('active');
       var id = t.getAttribute('data-tab');
-      ['discover', 'feed', 'reviews', 'diary', 'watchlist'].forEach(function (k) {
+      ['discover', 'feed', 'reviews', 'diary', 'watchlist', 'stats'].forEach(function (k) {
         document.getElementById('mv-tab-' + k).hidden = (k !== id);
       });
       if (id === 'feed') renderFeed();
       if (id === 'reviews') renderReviewsTab();
       if (id === 'diary') renderDiaryTab();
       if (id === 'watchlist') renderWatchlistTab();
+      if (id === 'stats') renderStatsTab();
     });
   });
 
@@ -325,6 +326,270 @@
         });
       })
       .catch(function () { watchEl.innerHTML = '<p class="mv-empty">Could not load watchlist.</p>'; });
+  }
+
+  /* ---------- Stats ---------- */
+  var statsEl = document.getElementById('mv-stats');
+  var statsFriendsEl = document.getElementById('mv-stats-friends');
+  var statsName = undefined; // undefined = unchosen, null = everyone
+  var statsCache = null;     // { users: [...], byName: { name: [logs] } }
+
+  function stMonthKey(l) {
+    if (/^\d{4}-\d{2}/.test(l.watched_at || '')) return l.watched_at.slice(0, 7);
+    try { return new Date((l.created_at || 0) * 1000).toISOString().slice(0, 7); } catch (e) { return ''; }
+  }
+  function stAvg(logs) {
+    if (!logs.length) return 0;
+    var s = 0;
+    logs.forEach(function (l) { s += l.rating || 0; });
+    return s / logs.length;
+  }
+  function stDist(logs) {
+    var counts = {};
+    logs.forEach(function (l) {
+      var r = Math.round((l.rating || 0) * 2) / 2;
+      counts[r] = (counts[r] || 0) + 1;
+    });
+    var out = [];
+    for (var s = 10; s >= 1; s--) out.push([s / 2, counts[s / 2] || 0]);
+    return out;
+  }
+  function stMonths(logs) {
+    var counts = {}, max = '';
+    logs.forEach(function (l) {
+      var k = stMonthKey(l);
+      if (k) { counts[k] = (counts[k] || 0) + 1; if (k > max) max = k; }
+    });
+    if (!max) return [];
+    var y = parseInt(max.slice(0, 4), 10), mo = parseInt(max.slice(5, 7), 10) - 1;
+    var out = [];
+    for (var i = 11; i >= 0; i--) {
+      var d = new Date(Date.UTC(y, mo - i, 1));
+      var key = d.toISOString().slice(0, 7);
+      out.push({
+        key: key,
+        label: d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }),
+        n: counts[key] || 0
+      });
+    }
+    return out;
+  }
+  function stBusiest(logs) {
+    var counts = {}, best = null;
+    logs.forEach(function (l) {
+      var k = stMonthKey(l);
+      if (!k) return;
+      counts[k] = (counts[k] || 0) + 1;
+      if (!best || counts[k] > best.n) best = { key: k, n: counts[k] };
+    });
+    if (!best) return null;
+    var d = new Date(Date.UTC(parseInt(best.key.slice(0, 4), 10), parseInt(best.key.slice(5, 7), 10) - 1, 1));
+    best.label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+    return best;
+  }
+  function stDecades(logs) {
+    var counts = {};
+    logs.forEach(function (l) {
+      var y = parseInt(l.year, 10);
+      if (!y) return;
+      var d = Math.floor(y / 10) * 10 + 's';
+      counts[d] = (counts[d] || 0) + 1;
+    });
+    return Object.keys(counts).sort().map(function (d) { return [d, counts[d]]; });
+  }
+  function stGroupFilms(logs) {
+    var map = {};
+    logs.forEach(function (l) {
+      var g = map[l.tmdb_id];
+      if (!g) {
+        g = map[l.tmdb_id] = { tmdb_id: l.tmdb_id, title: l.title, poster: l.poster, year: l.year, n: 0, sum: 0, names: [] };
+      }
+      g.n++;
+      g.sum += l.rating || 0;
+      if (l.name && g.names.indexOf(l.name) === -1) g.names.push(l.name);
+    });
+    return Object.keys(map).map(function (k) {
+      var g = map[k];
+      g.avg = g.n ? g.sum / g.n : 0;
+      return g;
+    });
+  }
+
+  function stSummary(items) {
+    var d = document.createElement('div');
+    d.className = 'mv-stats-summary';
+    d.innerHTML = items.map(function (it) {
+      return '<div class="mv-stat"><div class="v">' + esc(it[0]) + '</div><div class="l">' + esc(it[1]) + '</div></div>';
+    }).join('');
+    return d;
+  }
+  function stBars(title, rows, labelFn) {
+    var max = 0;
+    rows.forEach(function (r) { if (r[1] > max) max = r[1]; });
+    var wrap = document.createElement('div');
+    wrap.className = 'mv-stats-block';
+    wrap.innerHTML = '<h3>' + esc(title) + '</h3>' + rows.map(function (r) {
+      var pct = max ? Math.round(r[1] / max * 100) : 0;
+      return '<div class="mv-bar-row"><span class="mv-bar-label">' + esc(labelFn(r[0])) + '</span>' +
+        '<span class="mv-bar-track"><span class="mv-bar" style="width:' + pct + '%"></span></span>' +
+        '<span class="mv-bar-n">' + r[1] + '</span></div>';
+    }).join('');
+    return wrap;
+  }
+  function stMonthsBlock(months) {
+    var max = 0;
+    months.forEach(function (m) { if (m.n > max) max = m.n; });
+    var wrap = document.createElement('div');
+    wrap.className = 'mv-stats-block';
+    wrap.innerHTML = '<h3>Films per month</h3><div class="mv-months">' + months.map(function (m) {
+      var pct = max ? Math.max(4, Math.round(m.n / max * 100)) : 4;
+      return '<div class="mv-month"><span class="mv-month-n">' + (m.n || '') + '</span>' +
+        '<span class="mv-month-bar" style="height:' + pct + '%"></span>' +
+        '<span class="mv-month-label">' + esc(m.label) + '</span></div>';
+    }).join('') + '</div>';
+    return wrap;
+  }
+  function stFilmGrid(title, films, capFn) {
+    var wrap = document.createElement('div');
+    wrap.className = 'mv-stats-block';
+    var h = document.createElement('h3');
+    h.textContent = title;
+    wrap.appendChild(h);
+    var g = document.createElement('div');
+    g.className = 'mv-grid';
+    films.forEach(function (f) {
+      var c = cardEl({ id: f.tmdb_id, title: f.title, poster: f.poster, year: f.year });
+      var cap = document.createElement('div');
+      cap.className = 'mv-stat-cap';
+      cap.textContent = capFn(f);
+      c.appendChild(cap);
+      g.appendChild(c);
+    });
+    wrap.appendChild(g);
+    return wrap;
+  }
+
+  function renderStatsTab() {
+    statsFriendsEl.innerHTML = '<div class="loader-center"><div class="spinner"></div></div>';
+    statsEl.innerHTML = '';
+    fetch(WORKER_URL + '/movies/users')
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var users = (j && j.users) || [];
+        if (!users.length) {
+          statsFriendsEl.innerHTML = '<p class="mv-empty">No diaries yet.</p>';
+          return;
+        }
+        return Promise.all(users.map(function (u) {
+          return fetch(WORKER_URL + '/movies/diary?name=' + encodeURIComponent(u.name))
+            .then(function (r) { return r.json(); })
+            .then(function (dj) { return { name: u.name, logs: (dj && dj.logs) || [] }; })
+            .catch(function () { return { name: u.name, logs: [] }; });
+        })).then(function (diaries) {
+          var byName = {};
+          diaries.forEach(function (d) { byName[d.name] = d.logs; });
+          statsCache = { users: users, byName: byName };
+          if (statsName === undefined) statsName = null;
+          drawStatsChips();
+          drawStats();
+        });
+      })
+      .catch(function () { statsFriendsEl.innerHTML = '<p class="mv-empty">Could not load stats.</p>'; });
+  }
+  function drawStatsChips() {
+    statsFriendsEl.innerHTML = '';
+    var all = [{ name: null, label: 'Everyone' }].concat(
+      statsCache.users.map(function (u) { return { name: u.name, label: u.name, logs: u.logs }; })
+    );
+    all.forEach(function (u) {
+      var b = document.createElement('button');
+      b.className = 'mv-friend' + (statsName === u.name ? ' active' : '');
+      b.innerHTML = esc(u.label) + (u.logs != null ? ' <span class="n">' + u.logs + '</span>' : '');
+      b.addEventListener('click', function () { statsName = u.name; drawStatsChips(); drawStats(); });
+      statsFriendsEl.appendChild(b);
+    });
+  }
+  function drawStats() {
+    statsEl.innerHTML = '';
+    if (!statsCache) return;
+    var byName = statsCache.byName;
+    if (statsName === null) {
+      var allLogs = [];
+      Object.keys(byName).forEach(function (n) {
+        byName[n].forEach(function (l) {
+          var c = {}; for (var k in l) c[k] = l[k]; c.name = n;
+          allLogs.push(c);
+        });
+      });
+      if (!allLogs.length) { statsEl.innerHTML = '<p class="mv-empty">No films logged yet.</p>'; return; }
+      var groups = stGroupFilms(allLogs);
+      var busy = stBusiest(allLogs);
+      statsEl.appendChild(stSummary([
+        [String(allLogs.length), 'films logged'],
+        [String(groups.length), 'different films'],
+        ['★ ' + stAvg(allLogs).toFixed(1), 'average rating'],
+        [busy ? busy.label + ' (' + busy.n + ')' : '—', 'busiest month']
+      ]));
+      var mostLogged = groups.slice().sort(function (a, b) { return b.n - a.n || b.avg - a.avg; }).slice(0, 8);
+      statsEl.appendChild(stFilmGrid('Most logged by the group', mostLogged, function (f) {
+        return '×' + f.n + ' · ★' + f.avg.toFixed(1);
+      }));
+      var bestRated = groups.filter(function (g) { return g.n >= 2; })
+        .sort(function (a, b) { return b.avg - a.avg || b.n - a.n; }).slice(0, 8);
+      if (bestRated.length) {
+        statsEl.appendChild(stFilmGrid('Highest rated (2+ logs)', bestRated, function (f) {
+          return '★' + f.avg.toFixed(1) + ' avg · ×' + f.n;
+        }));
+      }
+      statsEl.appendChild(stBars('Rating spread', stDist(allLogs), function (r) { return stars(r); }));
+      statsEl.appendChild(stMonthsBlock(stMonths(allLogs)));
+      return;
+    }
+    var logs = byName[statsName] || [];
+    if (!logs.length) {
+      statsEl.innerHTML = '<p class="mv-empty">No films logged yet.</p>';
+      return;
+    }
+    var busyP = stBusiest(logs);
+    var fiveStars = logs.filter(function (l) { return l.rating >= 5; }).length;
+    statsEl.appendChild(stSummary([
+      [String(logs.length), 'films logged'],
+      ['★ ' + stAvg(logs).toFixed(1), 'average rating'],
+      [String(fiveStars), 'five-star films'],
+      [busyP ? busyP.label + ' (' + busyP.n + ')' : '—', 'busiest month']
+    ]));
+    var top = logs.slice().sort(function (a, b) {
+      return b.rating - a.rating || String(b.watched_at).localeCompare(String(a.watched_at));
+    }).slice(0, 8);
+    statsEl.appendChild(stFilmGrid(statsName + '’s top rated', top, function (f) {
+      return stars(f.rating) + (f.watched_at ? ' · ' + f.watched_at : '');
+    }));
+    statsEl.appendChild(stBars('Rating spread', stDist(logs), function (r) { return stars(r); }));
+    statsEl.appendChild(stMonthsBlock(stMonths(logs)));
+    var decades = stDecades(logs);
+    if (decades.length > 1) {
+      statsEl.appendChild(stBars('Films by decade', decades, function (d) { return d; }));
+    }
+    // Friends loved it, this person hasn't seen it
+    var seen = {};
+    logs.forEach(function (l) { seen[l.tmdb_id] = true; });
+    var others = [];
+    Object.keys(byName).forEach(function (n) {
+      if (n === statsName) return;
+      byName[n].forEach(function (l) {
+        var c = {}; for (var k in l) c[k] = l[k]; c.name = n;
+        others.push(c);
+      });
+    });
+    var recs = stGroupFilms(others)
+      .filter(function (g) { return g.avg >= 4.5 && !seen[g.tmdb_id]; })
+      .sort(function (a, b) { return b.avg - a.avg || b.n - a.n; })
+      .slice(0, 8);
+    if (recs.length) {
+      statsEl.appendChild(stFilmGrid('Friends loved it — ' + statsName + ' hasn’t seen it', recs, function (f) {
+        return '★' + f.avg.toFixed(1) + ' · ' + f.names.join(', ');
+      }));
+    }
   }
 
   /* ---------- Movie modal ---------- */

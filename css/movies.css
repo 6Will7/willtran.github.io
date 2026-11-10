@@ -145,3 +145,24 @@
   border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); width: 200px;
 }
 .mv-import-msg { font-size: 0.92rem; font-weight: 600; margin: 0.6rem 0 0.2rem; }
+
+/* Stats tab */
+.mv-stats-summary { display: flex; gap: 0.7rem; flex-wrap: wrap; margin: 0.4rem 0 1.4rem; }
+.mv-stat {
+  border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-card-bg);
+  padding: 0.6rem 1rem; min-width: 110px;
+}
+.mv-stat .v { font-size: 1.25rem; font-weight: 700; }
+.mv-stat .l { font-size: 0.78rem; color: var(--color-text-muted); }
+.mv-stats-block { margin-bottom: 1.6rem; }
+.mv-bar-row { display: flex; align-items: center; gap: 0.6rem; margin: 0.28rem 0; }
+.mv-bar-label { width: 4.6rem; font-size: 0.8rem; color: #e8a33d; white-space: nowrap; overflow: hidden; }
+.mv-bar-track { flex: 1; background: var(--color-card-bg-alt); border-radius: 6px; height: 12px; overflow: hidden; }
+.mv-bar { display: block; height: 100%; background: var(--color-accent); border-radius: 6px; }
+.mv-bar-n { width: 2rem; font-size: 0.85rem; color: var(--color-text-muted); }
+.mv-months { display: flex; align-items: flex-end; gap: 4px; height: 110px; }
+.mv-month { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; }
+.mv-month-n { font-size: 0.7rem; color: var(--color-text-muted); }
+.mv-month-bar { width: 70%; background: var(--color-accent); border-radius: 4px 4px 0 0; }
+.mv-month-label { font-size: 0.65rem; color: var(--color-text-muted); }
+.mv-stat-cap { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 0.15rem; }
