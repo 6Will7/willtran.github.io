@@ -311,9 +311,9 @@
     });
   }
 
-  // Shortcut buttons: the three busiest stations (the downtown SF trio)
-  // plus Bay Fair.
-  var POPULAR = ['EMBR', 'MONT', 'POWL', 'BAYF'];
+  // Shortcut buttons: the three busiest stations (the downtown SF trio),
+  // Bay Fair, and 12th St / Oakland City Center.
+  var POPULAR = ['EMBR', 'MONT', 'POWL', 'BAYF', '12TH'];
   function renderPopular() {
     if (!popEl) return;
     popEl.innerHTML = '';
