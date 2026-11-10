@@ -460,6 +460,170 @@
     });
   }
 
+  /* ---------- Letterboxd import ---------- */
+  var lbxUserEl = document.getElementById('lbx-user');
+  var lbxMsgEl = document.getElementById('lbx-msg');
+  var lbxFileEl = document.getElementById('lbx-file');
+  try { lbxUserEl.value = localStorage.getItem('movies_lbx_user') || ''; } catch (e) {}
+
+  function lbxSummary(c) {
+    var parts = [];
+    if (c.added) parts.push(c.added + ' new film' + (c.added === 1 ? '' : 's') + ' imported');
+    if (c.watchAdded) parts.push(c.watchAdded + ' added to your watchlist');
+    if (c.already) parts.push(c.already + ' already here');
+    if (c.watchAlready) parts.push(c.watchAlready + ' already on your watchlist');
+    if (c.noRating) parts.push(c.noRating + ' skipped (no rating)');
+    if (c.unresolved) parts.push(c.unresolved + ' couldn’t be matched');
+    if (!parts.length) return 'Nothing new to import.';
+    return parts.join(' · ') + '.';
+  }
+  function lbxPost(path, payload) {
+    return fetch(WORKER_URL + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.json().then(function (j) { return { ok: r.ok, j: j }; });
+    });
+  }
+  function lbxBusy(btn, busy, label) {
+    btn.disabled = busy;
+    if (label) btn.textContent = label;
+  }
+
+  document.getElementById('lbx-sync').addEventListener('click', function () {
+    var me = myName();
+    if (!me) { lbxMsgEl.textContent = 'Enter your name at the top first.'; return; }
+    var user = lbxUserEl.value.trim().replace(/^@/, '');
+    if (!user) { lbxMsgEl.textContent = 'Enter your Letterboxd username.'; return; }
+    try { localStorage.setItem('movies_lbx_user', user); } catch (e) {}
+    var btn = this;
+    lbxBusy(btn, true, 'Syncing…');
+    lbxMsgEl.textContent = '';
+    lbxPost('/movies/letterboxd-sync', { name: me, username: user })
+      .then(function (res) {
+        lbxBusy(btn, false, 'Sync latest');
+        if (!res.ok || !res.j.ok) {
+          lbxMsgEl.textContent = (res.j && res.j.error) || 'Sync failed — try again.';
+          return;
+        }
+        lbxMsgEl.textContent = 'From ' + res.j.found + ' recent entries: ' + lbxSummary(res.j);
+        renderDiaryTab();
+        renderWatchlistTab();
+      })
+      .catch(function () {
+        lbxBusy(btn, false, 'Sync latest');
+        lbxMsgEl.textContent = 'Sync failed — try again.';
+      });
+  });
+
+  // Minimal CSV parser: quotes, embedded commas/newlines, CRLF, BOM.
+  function parseCSV(text) {
+    var rows = [], row = [], field = '', inQ = false, i, c;
+    text = String(text || '').replace(/^\ufeff/, '');
+    for (i = 0; i < text.length; i++) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false;
+        } else field += c;
+      } else if (c === '"') inQ = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += c;
+    }
+    row.push(field);
+    if (row.length > 1 || row[0] !== '') rows.push(row);
+    return rows;
+  }
+  function csvToRows(text, filename) {
+    var rows = parseCSV(text);
+    if (rows.length < 2) return { logs: [], watchlist: [] };
+    var head = rows[0].map(function (h) { return h.trim(); });
+    function col(r, name) {
+      var idx = head.indexOf(name);
+      return idx >= 0 ? String(r[idx] || '').trim() : '';
+    }
+    var isWatch = /watchlist/i.test(filename) ||
+      (!/diary|ratings|watched/i.test(filename) && head.indexOf('Rating') === -1);
+    var logs = [], watchlist = [];
+    rows.slice(1).forEach(function (r) {
+      var title = col(r, 'Name');
+      if (!title) return;
+      if (isWatch) {
+        watchlist.push({ title: title, year: col(r, 'Year') });
+      } else {
+        logs.push({
+          title: title,
+          year: col(r, 'Year'),
+          rating: col(r, 'Rating') ? parseFloat(col(r, 'Rating')) : null,
+          review: col(r, 'Review'),
+          watched_at: col(r, 'Watched Date') || col(r, 'Date')
+        });
+      }
+    });
+    return { logs: logs, watchlist: watchlist };
+  }
+
+  document.getElementById('lbx-import').addEventListener('click', function () {
+    var me = myName();
+    if (!me) { lbxMsgEl.textContent = 'Enter your name at the top first.'; return; }
+    var files = Array.prototype.slice.call(lbxFileEl.files || []);
+    if (!files.length) { lbxMsgEl.textContent = 'Choose at least one CSV file from your Letterboxd export.'; return; }
+    var btn = this;
+    lbxBusy(btn, true, 'Importing…');
+    lbxMsgEl.textContent = 'Reading files…';
+    var total = { added: 0, already: 0, noRating: 0, unresolved: 0, watchAdded: 0, watchAlready: 0 };
+    function addCounts(j) {
+      ['added', 'already', 'noRating', 'unresolved', 'watchAdded', 'watchAlready'].forEach(function (k) {
+        total[k] += j[k] || 0;
+      });
+    }
+    var chain = Promise.resolve();
+    files.forEach(function (f) {
+      chain = chain.then(function () {
+        return f.text().then(function (text) {
+          var parsed = csvToRows(text, f.name);
+          var jobs = [];
+          for (var i = 0; i < parsed.logs.length; i += 200) {
+            jobs.push({ logs: parsed.logs.slice(i, i + 200), watchlist: [] });
+          }
+          for (var j = 0; j < parsed.watchlist.length; j += 200) {
+            jobs.push({ logs: [], watchlist: parsed.watchlist.slice(j, j + 200) });
+          }
+          var inner = Promise.resolve();
+          jobs.forEach(function (job) {
+            inner = inner.then(function () {
+              return lbxPost('/movies/letterboxd-import', {
+                name: me, logs: job.logs, watchlist: job.watchlist
+              }).then(function (res) {
+                if (!res.ok || !res.j.ok) {
+                  throw new Error((res.j && res.j.error) || 'import failed');
+                }
+                addCounts(res.j);
+              });
+            });
+          });
+          return inner;
+        });
+      });
+    });
+    chain.then(function () {
+      lbxBusy(btn, false, 'Import CSV');
+      lbxMsgEl.textContent = lbxSummary(total);
+      renderDiaryTab();
+      renderWatchlistTab();
+    }).catch(function (err) {
+      lbxBusy(btn, false, 'Import CSV');
+      lbxMsgEl.textContent = 'Import hit a snag: ' + err.message + ' (whatever imported before that is saved).';
+      renderDiaryTab();
+    });
+  });
+
   // Deep link: /movies/?movie=<tmdb_id> opens that movie (used by site search)
   try {
     var deepMovie = new URLSearchParams(window.location.search).get('movie');

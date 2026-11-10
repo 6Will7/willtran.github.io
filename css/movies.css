@@ -130,3 +130,18 @@
   font-size: 0.75rem; background: none; border: none; cursor: pointer;
   color: var(--color-text-muted); padding: 0; text-decoration: underline;
 }
+
+/* Letterboxd import */
+.mv-import {
+  border: 1px solid var(--color-border); border-radius: 10px;
+  padding: 0.7rem 1rem; margin-bottom: 1.2rem; background: var(--color-card-bg);
+}
+.mv-import summary { font-weight: 600; cursor: pointer; }
+.mv-import-body { margin-top: 0.7rem; }
+.mv-import-note { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.4rem 0 0.7rem; }
+.mv-import-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin: 0.5rem 0; }
+.mv-import-row input[type="text"] {
+  font: inherit; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border);
+  border-radius: 8px; background: var(--color-card-bg); color: var(--color-text); width: 200px;
+}
+.mv-import-msg { font-size: 0.92rem; font-weight: 600; margin: 0.6rem 0 0.2rem; }

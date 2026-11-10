@@ -49,6 +49,24 @@
                 <button class="mv-tab" data-tab="watchlist" role="tab">Watchlist</button>
             </div>
 
+            <details class="mv-import">
+                <summary>Import from Letterboxd</summary>
+                <div class="mv-import-body">
+                    <p class="mv-import-note">Bring a Letterboxd diary in under the name above. Films already logged here are left exactly as they are — imports only add what's missing.</p>
+                    <div class="mv-import-row">
+                        <input id="lbx-user" type="text" placeholder="Letterboxd username" maxlength="30" autocomplete="off" aria-label="Letterboxd username">
+                        <button id="lbx-sync" class="btn btn-primary btn-sm">Sync latest</button>
+                    </div>
+                    <p class="mv-import-note">Sync pulls your latest ~50 diary entries (public profiles only). For your full history: on Letterboxd go to Settings → Data → “Export your data”, unzip the download, and import the CSV files here — diary.csv, ratings.csv and watchlist.csv all work, and you can pick several at once.</p>
+                    <div class="mv-import-row">
+                        <input id="lbx-file" type="file" accept=".csv" multiple aria-label="Letterboxd CSV export files">
+                        <button id="lbx-import" class="btn btn-primary btn-sm">Import CSV</button>
+                    </div>
+                    <p class="mv-import-note">Heads-up: this diary is star-based, so Letterboxd entries with no rating can't be imported.</p>
+                    <p id="lbx-msg" class="mv-import-msg" role="status"></p>
+                </div>
+            </details>
+
             <div id="mv-tab-discover" class="mv-pane">
                 <div class="mv-searchrow">
                     <input id="mv-search" type="search" placeholder="Search movies…" aria-label="Search movies">
@@ -95,6 +113,6 @@
 </footer>
 
     <script src="/js/main.js?v=a0308664" defer></script>
-    <script src="/js/movies.js?v=a2ae08f4" defer></script>
+    <script src="/js/movies.js?v=ad4f86ca" defer></script>
 </body>
 </html>
