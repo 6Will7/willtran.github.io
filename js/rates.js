@@ -16,11 +16,11 @@
 
   function chgCell(chg) {
     if (chg == null || isNaN(chg)) return '<span class="rates-chg-flat">—</span>';
-    var c = Number(chg);
-    if (Math.abs(c) < 0.0005) return '<span class="rates-chg-flat">0.000</span>';
-    var cls = c > 0 ? 'rates-chg-up' : 'rates-chg-dn';
-    var arrow = c > 0 ? ' ▲' : ' ▼';
-    return '<span class="' + cls + '">' + (c > 0 ? '+' : '') + c.toFixed(3) + arrow + '</span>';
+    var bps = Math.round(Number(chg) * 100);
+    if (bps === 0) return '<span class="rates-chg-flat">0</span>';
+    var cls = bps > 0 ? 'rates-chg-up' : 'rates-chg-dn';
+    var arrow = bps > 0 ? ' ▲' : ' ▼';
+    return '<span class="' + cls + '">' + (bps > 0 ? '+' : '') + bps + arrow + '</span>';
   }
 
   function fmtDate(iso) {
