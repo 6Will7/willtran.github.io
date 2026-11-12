@@ -92,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Markets", items: [
       { t: "Markets Overview", h: "/markets/", d: "All the market tools in one place.", k: "stocks finance tools" },
       { t: "Stocks", h: "/stocks/", d: "Live quotes, charts, SEC filings, and insider trades.", k: "quotes charts tickers watchlist prices" },
+      { t: "The Wire", h: "/wire/", d: "News, filings and earnings for your tickers, in one stream.", k: "wire news stream headlines earnings regnewswire feed" },
       { t: "Heat Map", h: "/heatmap/", d: "Sector heat map built from official ETF holdings.", k: "sectors sp500 etf treemap" },
       { t: "Rates", h: "/rates/", d: "Treasury yields and the yield curve, for any date.", k: "treasury bonds yield curve interest" },
       { t: "SEC Search", h: "/sec-search/", d: "Full-text search across SEC filings.", k: "edgar filings 10-k 10-q search" },

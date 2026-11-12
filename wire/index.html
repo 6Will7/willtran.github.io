@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Wire — company news, SEC filings and earnings for the tickers you follow, in one stream. By Will Tran.">
+    <meta property="og:title" content="The Wire | Will Tran">
+    <meta property="og:description" content="News, filings and earnings for your tickers — one stream, newest first.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/wire/">
+    <title>The Wire | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=dfa61c38">
+    <link rel="stylesheet" href="/css/main.css?v=4f174510">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/wire.css">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container wire-wrap">
+        <section class="section reveal">
+            <h2>The Wire</h2>
+            <p class="rest-sub">Company news, SEC filings and earnings for the tickers you follow — one stream, newest first.</p>
+            <p id="wire-source" class="wire-source"></p>
+
+            <div class="wire-controls">
+                <div class="wire-kinds">
+                    <button class="wire-chip active" data-kind="ALL" type="button">All</button>
+                    <button class="wire-chip" data-kind="news" type="button">News</button>
+                    <button class="wire-chip" data-kind="filing" type="button">Filings</button>
+                    <button class="wire-chip" data-kind="earnings" type="button">Earnings</button>
+                </div>
+                <select id="wire-ticker" aria-label="Filter by ticker"></select>
+                <button id="wire-refresh" class="wire-btn" type="button">Refresh</button>
+                <button id="wire-customize" class="wire-btn" type="button">Customize tickers</button>
+            </div>
+
+            <div id="wire-editor" class="wire-editor" hidden>
+                <label for="wire-symbols">Tickers (comma-separated, up to 10)</label>
+                <input id="wire-symbols" type="text" placeholder="AAPL, MSFT, NVDA" autocomplete="off">
+                <div class="wire-editor-actions">
+                    <button id="wire-save" class="btn btn-primary btn-sm" type="button">Save</button>
+                    <button id="wire-reset" class="wire-btn" type="button">Clear custom list</button>
+                </div>
+                <p class="wire-note">Saved in this browser only. Without a custom list, The Wire follows your synced <a href="/stocks/">/stocks</a> watchlist, or a starter set if you don't have one.</p>
+            </div>
+
+            <p id="wire-updated" class="wire-updated"></p>
+            <div id="wire-stream" class="wire-stream"></div>
+
+            <p class="wire-fine">News via Finnhub, filings via SEC EDGAR, earnings dates and estimates via Finnhub. For informational purposes only — verify before investing.</p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/main.js?v=9220c77c" defer></script>
+    <script src="/js/wire.js?v=c2d3265e" defer></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+/* The Wire — merged news / filings / earnings stream. */
+.wire-wrap { max-width: 860px; }
+.wire-source { font-size: 0.9rem; color: var(--color-text-muted); margin: 0.2rem 0 1rem; }
+.wire-source strong { color: var(--color-text); }
+
+.wire-controls { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.wire-kinds { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.wire-chip {
+  font: inherit; font-weight: 600; padding: 0.45rem 0.95rem; border-radius: 999px;
+  border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer;
+}
+.wire-chip.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+#wire-ticker {
+  font: inherit; padding: 0.45rem 0.6rem; border: 1px solid var(--color-border);
+  border-radius: 8px; background: var(--color-card-bg); color: var(--color-text);
+}
+.wire-btn {
+  font: inherit; padding: 0.45rem 0.9rem; border-radius: 8px;
+  border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer;
+}
+.wire-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+
+.wire-editor {
+  border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-card-bg);
+  padding: 0.9rem 1rem; margin-bottom: 1rem;
+}
+.wire-editor label { font-weight: 600; font-size: 0.92rem; display: block; margin-bottom: 0.4rem; }
+.wire-editor input {
+  width: 100%; box-sizing: border-box; font: inherit; padding: 0.5rem 0.7rem;
+  border: 1px solid var(--color-border); border-radius: 8px;
+  background: var(--color-card-bg); color: var(--color-text); text-transform: uppercase;
+}
+.wire-editor-actions { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+.wire-note { font-size: 0.85rem; color: var(--color-text-muted); margin: 0.6rem 0 0; }
+.wire-updated { font-size: 0.85rem; color: var(--color-text-muted); min-height: 1.2em; margin: 0.2rem 0 0.6rem; }
+
+.wire-day {
+  font-weight: 700; font-size: 0.85rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--color-text-muted); margin: 1.1rem 0 0.2rem;
+}
+.wire-item { display: flex; gap: 0.8rem; padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); }
+.wire-item .side { flex: 0 0 86px; display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-start; }
+.wire-tick {
+  font-weight: 700; font-size: 0.85rem; color: var(--color-accent); text-decoration: none;
+}
+.wire-tick:hover { text-decoration: underline; }
+.wire-kind {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  border-radius: 6px; padding: 0.14rem 0.45rem; background: var(--color-card-bg-alt); color: var(--color-text-muted);
+}
+.wire-kind.k-news { background: rgba(37, 99, 235, 0.13); color: #2563eb; }
+.wire-kind.k-filing { background: rgba(124, 58, 237, 0.13); color: #7c3aed; }
+.wire-kind.k-earnings { background: rgba(217, 119, 6, 0.15); color: #b45309; }
+[data-theme="dark"] .wire-kind.k-news { color: #7db4ff; }
+[data-theme="dark"] .wire-kind.k-filing { color: #c4a7ff; }
+[data-theme="dark"] .wire-kind.k-earnings { color: #fbbf24; }
+.wire-item .main { flex: 1; min-width: 0; }
+.wire-item .title { font-weight: 600; line-height: 1.35; }
+.wire-item .title a { color: var(--color-text); text-decoration: none; }
+.wire-item .title a:hover { text-decoration: underline; }
+.wire-item .meta { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.15rem; }
+.wire-item .summary { font-size: 0.9rem; color: var(--color-text-muted); margin-top: 0.3rem; line-height: 1.45; }
+.wire-item .links { display: flex; gap: 0.9rem; margin-top: 0.3rem; }
+.wire-item .links a { color: var(--color-accent); font-size: 0.88rem; text-decoration: none; }
+.wire-item .links a:hover { text-decoration: underline; }
+.wire-form {
+  font-size: 0.72rem; font-weight: 700; border-radius: 6px; padding: 0.14rem 0.45rem;
+  background: rgba(22, 163, 74, 0.14); color: #16a34a;
+}
+.wire-form.f-10k { background: rgba(37, 99, 235, 0.14); color: #2563eb; }
+.wire-form.f-8k { background: rgba(217, 119, 6, 0.16); color: #b45309; }
+[data-theme="dark"] .wire-form.f-10k { color: #FCDD09; }
+[data-theme="dark"] .wire-form { color: #4ade80; }
+[data-theme="dark"] .wire-form.f-8k { color: #fbbf24; }
+.wire-empty { color: var(--color-text-muted); padding: 1rem 0; }
+.wire-fine { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 1.4rem; }
