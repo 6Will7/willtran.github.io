@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Earnings This Week — who reports, when, and what the Street expects. Watchlist tickers highlighted. By Will Tran.">
+    <meta property="og:title" content="Earnings This Week | Will Tran">
+    <meta property="og:description" content="The week's earnings calendar — before/after close, EPS and revenue estimates vs actuals.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://willtran.org/earnings/">
+    <title>Earnings This Week | Will Tran</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=dfa61c38">
+    <link rel="stylesheet" href="/css/main.css?v=4f174510">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/earnings.css">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container earn-wrap">
+        <section class="section reveal">
+            <h2>Earnings This Week</h2>
+            <p class="rest-sub">Who reports, when, and what the Street expects. Your watchlist tickers are starred and sorted first each day.</p>
+
+            <div class="earn-controls">
+                <button id="earn-prev" class="earn-btn" type="button">&larr; Prev</button>
+                <button id="earn-this" class="earn-btn" type="button">This week</button>
+                <button id="earn-next" class="earn-btn" type="button">Next &rarr;</button>
+                <span id="earn-week" class="earn-week"></span>
+            </div>
+            <div class="earn-controls">
+                <label class="earn-check"><input type="checkbox" id="earn-notable" checked> Notable companies only (S&amp;P / Russell)</label>
+                <input id="earn-filter" type="text" placeholder="Filter by ticker..." aria-label="Filter by ticker" autocomplete="off">
+            </div>
+
+            <p id="earn-meta" class="earn-meta"></p>
+            <div id="earn-list"></div>
+
+            <p class="earn-fine">Earnings dates, timing and estimates via Finnhub. Dates can shift — companies confirm via 8-K. See also <a href="/wire/">The Wire</a> for earnings as they land in the stream.</p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+    <script src="/js/gics.js?v=a5a85f5a" defer></script>
+    <script src="/js/main.js?v=1a307fe6" defer></script>
+    <script src="/js/earnings.js?v=04036652" defer></script>
+</body>
+</html>

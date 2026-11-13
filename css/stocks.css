@@ -412,6 +412,7 @@
 [data-theme="dark"] .filing-badge.f-8k { color: #fbbf24; }
 
 .filing-meta { flex: 1; color: var(--color-text-muted); }
+.filing-topics { color: var(--color-accent); font-weight: 600; }
 .filing-meta strong { color: var(--color-text); font-weight: 600; }
 .filing-links { display: flex; gap: 0.9rem; flex-shrink: 0; }
 .filing-links a { color: var(--color-accent); font-size: 0.9rem; text-decoration: none; }

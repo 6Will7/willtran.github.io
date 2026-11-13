@@ -1044,7 +1044,8 @@
       return '<div class="filing-row">' +
         '<span class="filing-badge ' + badgeClass(f.form) + '">' + esc(f.form) + '</span>' +
         '<span class="filing-meta"><strong>Filed ' + esc(fmtDate(f.filingDate)) + '</strong>' +
-        ' · Period ended ' + esc(fmtDate(f.reportDate)) + '</span>' +
+        ' · Period ended ' + esc(fmtDate(f.reportDate)) +
+        (f.topics && f.topics.length ? ' · <span class="filing-topics">' + f.topics.map(esc).join(' · ') + '</span>' : '') + '</span>' +
         '<span class="filing-links">' +
         '<a href="' + esc(f.docUrl) + '" target="_blank" rel="noopener">Document</a>' +
         '<a href="' + esc(f.indexUrl) + '" target="_blank" rel="noopener">Index</a>' +

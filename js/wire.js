@@ -86,7 +86,8 @@
         '<div class="meta">' + esc(it.source || 'News') + ' · ' + dayLabel(it.ts) + ', ' + fmtTime(it.ts) + '</div>' +
         (it.summary ? '<div class="summary">' + esc(it.summary) + '</div>' : '');
     } else if (it.kind === 'filing') {
-      main = '<div class="title"><span class="wire-form ' + formClass(it.form) + '">' + esc(it.form) + '</span> filing</div>' +
+      main = '<div class="title"><span class="wire-form ' + formClass(it.form) + '">' + esc(it.form) + '</span> ' +
+        (it.topics && it.topics.length ? esc(it.topics.join(' · ')) : 'filing') + '</div>' +
         '<div class="meta">Filed ' + fmtDate(it.filingDate) +
         (it.reportDate ? ' · Period ended ' + fmtDate(it.reportDate) : '') + '</div>' +
         '<div class="links">' +

@@ -1,0 +1,36 @@
+/* Earnings This Week — weekly earnings calendar. */
+.earn-wrap { max-width: 860px; }
+.earn-controls { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.7rem; }
+.earn-btn {
+  font: inherit; padding: 0.45rem 0.9rem; border-radius: 8px;
+  border: 1px solid var(--color-border); background: transparent; color: var(--color-text); cursor: pointer;
+}
+.earn-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.earn-week { font-weight: 700; font-size: 1.05rem; }
+.earn-check { font-size: 0.92rem; display: inline-flex; gap: 0.4rem; align-items: center; cursor: pointer; }
+#earn-filter {
+  font: inherit; padding: 0.45rem 0.7rem; border: 1px solid var(--color-border);
+  border-radius: 8px; background: var(--color-card-bg); color: var(--color-text);
+  text-transform: uppercase; width: 180px;
+}
+.earn-meta { font-size: 0.88rem; color: var(--color-text-muted); min-height: 1.2em; margin: 0.2rem 0 0.6rem; }
+.earn-day {
+  font-weight: 700; font-size: 0.9rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--color-text-muted); margin: 1.1rem 0 0.2rem;
+}
+.earn-row { display: flex; gap: 0.8rem; align-items: baseline; padding: 0.6rem 0; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.earn-sym { font-weight: 700; color: var(--color-accent); text-decoration: none; flex: 0 0 74px; }
+.earn-sym:hover { text-decoration: underline; }
+.earn-star { color: #d97706; }
+.earn-sector { color: var(--color-text-muted); font-size: 0.88rem; flex: 1; min-width: 120px; }
+.earn-when {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  border-radius: 6px; padding: 0.16rem 0.5rem; background: rgba(217, 119, 6, 0.15); color: #b45309;
+}
+.earn-when.bmo { background: rgba(37, 99, 235, 0.13); color: #2563eb; }
+[data-theme="dark"] .earn-when { color: #fbbf24; }
+[data-theme="dark"] .earn-when.bmo { color: #7db4ff; }
+.earn-nums { font-size: 0.88rem; color: var(--color-text-muted); }
+.earn-nums strong { color: var(--color-text); }
+.earn-empty { color: var(--color-text-muted); padding: 1rem 0; }
+.earn-fine { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 1.4rem; }
