@@ -616,4 +616,49 @@
       })
       .catch(function () {});
   }
+
+  // San Francisco weather strip (Open-Meteo — free, no key, CORS-open)
+  function wxInfo(code) {
+    if (code === 0) return ['☀️', 'Clear'];
+    if (code === 1) return ['🌤️', 'Mostly clear'];
+    if (code === 2) return ['⛅', 'Partly cloudy'];
+    if (code === 3) return ['☁️', 'Overcast'];
+    if (code === 45 || code === 48) return ['🌫️', 'Fog'];
+    if (code >= 51 && code <= 57) return ['🌦️', 'Drizzle'];
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ['🌧️', 'Rain'];
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return ['❄️', 'Snow'];
+    if (code >= 95) return ['⛈️', 'Thunderstorms'];
+    return ['🌡️', ''];
+  }
+  function loadSfWeather() {
+    var box = document.getElementById('bart-weather');
+    if (!box) return;
+    var u = 'https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194' +
+      '&current=temperature_2m,weather_code,wind_speed_10m' +
+      '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
+      '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FLos_Angeles&forecast_days=3';
+    fetch(u)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.current || !j.daily) return;
+        var cur = wxInfo(j.current.weather_code);
+        var d = j.daily;
+        var html = '<span class="wx-now">' + cur[0] + ' <strong>San Francisco</strong> ' +
+          Math.round(j.current.temperature_2m) + '°F · ' + esc(cur[1]) + '</span>' +
+          '<span class="wx-detail">H ' + Math.round(d.temperature_2m_max[0]) + '° · L ' + Math.round(d.temperature_2m_min[0]) + '°' +
+          (d.precipitation_probability_max && d.precipitation_probability_max[0] != null
+            ? ' · Rain ' + d.precipitation_probability_max[0] + '%' : '') +
+          ' · Wind ' + Math.round(j.current.wind_speed_10m) + ' mph</span>';
+        for (var i = 1; i < 3 && i < d.time.length; i++) {
+          var di = wxInfo(d.weather_code[i]);
+          var dt = new Date(d.time[i] + 'T12:00:00');
+          html += '<span class="wx-day">' + dt.toLocaleDateString('en-US', { weekday: 'short' }) + ' ' + di[0] + ' ' +
+            Math.round(d.temperature_2m_max[i]) + '°/' + Math.round(d.temperature_2m_min[i]) + '°</span>';
+        }
+        box.innerHTML = html;
+        box.hidden = false;
+      })
+      .catch(function () {});
+  }
+  loadSfWeather();
 })();
