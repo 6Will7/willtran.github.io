@@ -403,6 +403,93 @@
     openLightbox(currentIndex);
   }
 
+  /* ---------- Slideshow: full-screen, shuffled, auto-advancing ---------- */
+  var ssOrder = [], ssPos = 0, ssTimer = null, ssPlaying = false, ssEls = null;
+
+  function ssBuild() {
+    if (ssEls) return ssEls;
+    var ov = document.createElement("div");
+    ov.className = "slideshow";
+    ov.hidden = true;
+    ov.innerHTML =
+      '<img class="ss-img" alt="">' +
+      '<div class="ss-bar">' +
+      '<span class="ss-caption"></span>' +
+      '<span class="ss-count"></span>' +
+      '<button class="ss-btn" data-act="prev" type="button" aria-label="Previous photo">‹</button>' +
+      '<button class="ss-btn" data-act="toggle" type="button" aria-label="Pause or play">⏸</button>' +
+      '<button class="ss-btn" data-act="next" type="button" aria-label="Next photo">›</button>' +
+      '<button class="ss-btn" data-act="close" type="button" aria-label="Close slideshow">✕</button>' +
+      "</div>";
+    document.body.appendChild(ov);
+    ssEls = {
+      ov: ov,
+      img: ov.querySelector(".ss-img"),
+      caption: ov.querySelector(".ss-caption"),
+      count: ov.querySelector(".ss-count"),
+      toggle: ov.querySelector('[data-act="toggle"]')
+    };
+    ov.addEventListener("click", function (e) {
+      var act = e.target.getAttribute && e.target.getAttribute("data-act");
+      if (act === "close") stopSlideshow();
+      else if (act === "next") { ssShow(ssPos + 1); ssRestart(); }
+      else if (act === "prev") { ssShow(ssPos - 1); ssRestart(); }
+      else if (act === "toggle") { ssPlaying ? ssPause() : ssPlay(); }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!ssEls || ssEls.ov.hidden) return;
+      if (e.key === "Escape") stopSlideshow();
+      else if (e.key === "ArrowRight") { ssShow(ssPos + 1); ssRestart(); }
+      else if (e.key === "ArrowLeft") { ssShow(ssPos - 1); ssRestart(); }
+      else if (e.key === " ") { e.preventDefault(); ssPlaying ? ssPause() : ssPlay(); }
+    });
+    return ssEls;
+  }
+  function ssShow(pos) {
+    if (!ssOrder.length) return;
+    ssPos = ((pos % ssOrder.length) + ssOrder.length) % ssOrder.length;
+    var photo = allPhotos[ssOrder[ssPos]];
+    ssEls.img.src = fullUrl(cloudName, photo.id);
+    ssEls.img.alt = photo.alt || "";
+    ssEls.caption.textContent = photo.caption || "";
+    ssEls.count.textContent = (ssPos + 1) + " / " + ssOrder.length;
+    var next = allPhotos[ssOrder[(ssPos + 1) % ssOrder.length]];
+    if (next) { var pre = new Image(); pre.src = fullUrl(cloudName, next.id); }
+  }
+  function ssPlay() {
+    ssPlaying = true;
+    ssEls.toggle.textContent = "⏸";
+    ssRestart();
+  }
+  function ssPause() {
+    ssPlaying = false;
+    ssEls.toggle.textContent = "▶";
+    if (ssTimer) { clearInterval(ssTimer); ssTimer = null; }
+  }
+  function ssRestart() {
+    if (ssTimer) clearInterval(ssTimer);
+    ssTimer = null;
+    if (ssPlaying) ssTimer = setInterval(function () { ssShow(ssPos + 1); }, 5000);
+  }
+  function startSlideshow() {
+    if (!allPhotos.length) return;
+    ssBuild();
+    ssOrder = allPhotos.map(function (_, i) { return i; });
+    for (var i = ssOrder.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = ssOrder[i]; ssOrder[i] = ssOrder[j]; ssOrder[j] = t;
+    }
+    ssEls.ov.hidden = false;
+    document.body.style.overflow = "hidden";
+    ssShow(0);
+    ssPlay();
+  }
+  function stopSlideshow() {
+    ssPause();
+    if (ssEls) ssEls.ov.hidden = true;
+    document.body.style.overflow = "";
+  }
+
   /* ---------- Rendering ---------- */
   function slugify(text) {
     return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -668,6 +755,11 @@
                 shuf.addEventListener("click", function () {
                   openLightbox(Math.floor(Math.random() * allPhotos.length));
                 });
+              }
+              var ssBtn = document.getElementById("gallery-slideshow");
+              if (ssBtn && allPhotos.length) {
+                ssBtn.disabled = false;
+                ssBtn.addEventListener("click", startSlideshow);
               }
             });
         })

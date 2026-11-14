@@ -473,3 +473,24 @@ html {
 .gallery-item-link {
   cursor: pointer;
 }
+
+/* Slideshow overlay */
+.slideshow {
+  position: fixed; inset: 0; z-index: 1200; background: #000;
+  display: flex; align-items: center; justify-content: center;
+}
+.slideshow[hidden] { display: none; }
+.slideshow .ss-img { max-width: 100vw; max-height: 100vh; object-fit: contain; }
+.slideshow .ss-bar {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.7rem 1rem; background: rgba(0, 0, 0, 0.55); color: #fff;
+}
+.slideshow .ss-caption { flex: 1; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slideshow .ss-count { font-size: 0.85rem; opacity: 0.8; }
+.slideshow .ss-btn {
+  font: inherit; font-size: 1.05rem; line-height: 1; color: #fff;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px; padding: 0.4rem 0.7rem; cursor: pointer;
+}
+.slideshow .ss-btn:hover { background: rgba(255, 255, 255, 0.28); }

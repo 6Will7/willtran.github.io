@@ -102,7 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ] },
     { name: "Site", items: [
       { t: "Home", h: "/", d: "Back to the front page.", k: "index start main" },
-      { t: "Sitemap", h: "/sitemap/", d: "Every page on the site, on one page.", k: "all pages directory index list" }
+      { t: "Sitemap", h: "/sitemap/", d: "Every page on the site, on one page.", k: "all pages directory index list" },
+      { t: "Changelog", h: "/changelog/", d: "What's new — features and changes, newest first.", k: "whats new updates history changes releases" }
     ] }
   ];
   var jumpBuilt = false, jumpSel = 0, jumpLinks = [];
@@ -156,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  /* ----- Jump content search: recipes, restaurants, logged movies -----
+  /* ----- Jump content search: recipes, restaurants, logged movies, BART stations, photo captions -----
      Loaded lazily on first menu open; results merge under the page groups.
      Content fields are user-generated, so they are HTML-escaped on render. */
   var JUMP_WORKER = "https://willtran-stocks-proxy.willtran98.workers.dev";
@@ -173,9 +174,35 @@ document.addEventListener("DOMContentLoaded", function () {
       renderJump(inp ? inp.value : "");
     }
   }
+  var JUMP_STATIONS = [
+    ['12TH', '12th St / Oakland City Center'], ['16TH', '16th St Mission'],
+    ['19TH', '19th St / Oakland'], ['24TH', '24th St Mission'],
+    ['ANTC', 'Antioch'], ['ASHB', 'Ashby'], ['BALB', 'Balboa Park'], ['BAYF', 'Bay Fair'],
+    ['BERY', 'Berryessa / North San José'], ['CAST', 'Castro Valley'], ['CIVC', 'Civic Center'],
+    ['COLM', 'Colma'], ['COLS', 'Coliseum'], ['CONC', 'Concord'], ['DALY', 'Daly City'],
+    ['DBRK', 'Downtown Berkeley'], ['DELN', 'El Cerrito del Norte'], ['PLZA', 'El Cerrito Plaza'],
+    ['DUBL', 'Dublin / Pleasanton'], ['EMBR', 'Embarcadero'], ['FRMT', 'Fremont'],
+    ['FTVL', 'Fruitvale'], ['GLEN', 'Glen Park'], ['HAYW', 'Hayward'], ['LAFY', 'Lafayette'],
+    ['LAKE', 'Lake Merritt'], ['MCAR', 'MacArthur'], ['MLBR', 'Millbrae'], ['MLPT', 'Milpitas'],
+    ['MONT', 'Montgomery St'], ['NBRK', 'North Berkeley'], ['NCON', 'North Concord / Martinez'],
+    ['OAKL', "Oakland Int'l Airport"], ['ORIN', 'Orinda'], ['PCTR', 'Pittsburg Center'],
+    ['PHIL', 'Pleasant Hill / Contra Costa Centre'], ['PITT', 'Pittsburg / Bay Point'],
+    ['POWL', 'Powell St'], ['RICH', 'Richmond'], ['ROCK', 'Rockridge'], ['SBRN', 'San Bruno'],
+    ['SFIA', "San Francisco Int'l Airport"], ['SANL', 'San Leandro'], ['SHAY', 'South Hayward'],
+    ['SSAN', 'South San Francisco'], ['UCTY', 'Union City'],
+    ['WARM', 'Warm Springs / South Fremont'], ['WCRK', 'Walnut Creek'],
+    ['WDUB', 'West Dublin / Pleasanton'], ['WOAK', 'West Oakland']
+  ];
   function ensureJumpContent() {
     if (jumpContent) return;
-    jumpContent = { recipes: [], restaurants: [], movies: [] };
+    jumpContent = { recipes: [], restaurants: [], movies: [], stations: [], photos: [] };
+    JUMP_STATIONS.forEach(function (s) {
+      jumpContent.stations.push({
+        t: s[1], d: "BART station",
+        h: "/bart/?station=" + s[0],
+        hay: (s[1] + " " + s[0] + " bart station train departures").toLowerCase()
+      });
+    });
     Promise.all([
       fetch("/data/recipes.json").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
       fetch(JUMP_WORKER + "/recipes/edits").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
@@ -242,6 +269,36 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         jumpRerenderIfOpen();
       }).catch(function () {});
+    Promise.all([
+      fetch("/DATA/gallery.json").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+      fetch(JUMP_WORKER + "/gallery/uploads").then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+    ]).then(function (res) {
+      var data = res[0];
+      if (!data) return;
+      var edits = {};
+      ((res[1] && res[1].edits) || []).forEach(function (e) { if (e && e.photo_id) edits[e.photo_id] = e; });
+      function addPhoto(id, caption, alt, catTitle) {
+        var e = edits[id];
+        if (e && e.deleted) return;
+        var cap = (e && e.caption != null) ? e.caption : (caption || "");
+        var title = (e && e.category) ? e.category : (catTitle || "Gallery");
+        var label = cap || alt || "";
+        if (!label) return;
+        jumpContent.photos.push({
+          t: label,
+          d: "Photo · " + title,
+          h: "/gallery.html?photo=" + encodeURIComponent(id),
+          hay: (label + " " + (alt || "") + " photo gallery picture").toLowerCase()
+        });
+      }
+      (data.categories || []).forEach(function (c) {
+        (c.photos || []).forEach(function (p) { addPhoto(p.id, p.caption, p.alt, c.title); });
+      });
+      ((res[1] && res[1].uploads) || []).forEach(function (up) {
+        if (up.public_id) addPhoto(up.public_id, up.caption, up.caption, up.category);
+      });
+      jumpRerenderIfOpen();
+    });
   }
 
   function renderJump(filter) {
@@ -270,7 +327,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     if (words.length && jumpContent) {
       [["Recipes", jumpContent.recipes], ["Restaurants", jumpContent.restaurants],
-       ["Movies", jumpContent.movies]].forEach(function (pair) {
+       ["Movies", jumpContent.movies], ["BART Stations", jumpContent.stations],
+       ["Photos", jumpContent.photos]].forEach(function (pair) {
         var items = pair[1].filter(function (it) {
           return words.every(function (w) { return it.hay.indexOf(w) >= 0; });
         }).slice(0, 5);

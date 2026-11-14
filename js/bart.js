@@ -534,6 +534,16 @@
     var last = localStorage.getItem('bart_last');
     if (last) selectStation(last);
   } catch (e) {}
+  // Deep link (e.g. from the ⌘K menu): /bart/?station=EMBR wins over the remembered station
+  try {
+    var qs = new URLSearchParams(location.search).get('station');
+    if (qs) {
+      var qu = qs.toUpperCase();
+      for (var qi = 0; qi < STATIONS.length; qi++) {
+        if (STATIONS[qi][0] === qu) { selectStation(qu); break; }
+      }
+    }
+  } catch (e) {}
 
   // ---- Nearest-station finder (address → closest BART / Muni / VTA) ----
   function havMi(la1, lo1, la2, lo2) {

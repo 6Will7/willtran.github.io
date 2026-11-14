@@ -1,0 +1,10 @@
+/* Changelog — dated feature history. */
+.log-wrap { max-width: 800px; }
+.log-month { margin: 1.6rem 0 0.4rem; font-size: 1.15rem; }
+.log-entry { display: flex; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--color-border); }
+.log-entry p { margin: 0; line-height: 1.5; }
+.log-date {
+  flex: 0 0 58px; font-weight: 700; font-size: 0.85rem; color: var(--color-accent);
+  padding-top: 0.15rem;
+}
+.log-fine { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1.4rem; }
