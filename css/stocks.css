@@ -438,6 +438,19 @@
 .insider-badge.buy { background: rgba(22, 163, 74, 0.18); color: #16a34a; }
 .insider-badge.sell { background: rgba(220, 38, 38, 0.16); color: #dc2626; }
 
+/* Institutional holders (13F) */
+.stocks-holders { margin-top: 1.2rem; overflow-x: auto; }
+.holders-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 600px; }
+.holders-table th, .holders-table td { padding: 0.35rem 0.15rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; text-align: left; }
+.holders-table th.num, .holders-table td.num { text-align: right; }
+.holders-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
+.holders-summary { margin-top: 0.45rem; font-size: 0.85rem; color: var(--color-text-muted); }
+.holders-exits, .holders-note { margin-top: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted); }
+.hchip { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: var(--color-border); color: var(--color-text-muted); }
+.hchip.up { background: rgba(22, 163, 74, 0.18); color: #16a34a; }
+.hchip.down { background: rgba(220, 38, 38, 0.16); color: #dc2626; }
+.hchip.new { background: rgba(37, 99, 235, 0.16); color: #2563eb; }
+
 /* SEC financials (as-reported quarterly) */
 .stocks-financials { margin-top: 1.2rem; overflow-x: auto; }
 .fin-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.88rem; margin-top: 0.5rem; min-width: 760px; font-variant-numeric: tabular-nums; }

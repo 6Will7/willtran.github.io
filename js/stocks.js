@@ -87,6 +87,7 @@
       loadFinancials(sym);
       loadNews(sym);
       loadInsider(sym);
+      loadHolders(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -1305,6 +1306,88 @@
       box.innerHTML = blockHead('Insider trades', sub) + html;
       box.hidden = false;
     }).catch(function () { /* premium-gated or no data — block stays hidden */ });
+  }
+
+  /* ---------- institutional holders (SEC Form 13F) ---------- */
+
+  var f13Promise = null;
+  function loadF13() {
+    if (!f13Promise) {
+      f13Promise = new Promise(function (resolve) {
+        var s = document.createElement('script');
+        s.src = '/js/13f-data.js?v=20261117';
+        s.onload = function () { resolve(window.F13 || null); };
+        s.onerror = function () { resolve(null); };
+        document.head.appendChild(s);
+      });
+    }
+    return f13Promise;
+  }
+
+  function loadHolders(sym) {
+    var box = $('q-holders');
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = '';
+    // Static data built quarterly from the SEC's 13F data sets
+    // (tools/build-13f.py); the block stays hidden for uncovered tickers.
+    loadF13().then(function (F13) {
+      var meta = window.F13_META;
+      if (currentSymbol !== sym || !F13 || !meta || !F13[sym]) return;
+      var d = F13[sym];
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      function fmtPeriod(iso) {
+        var p = iso.split('-');
+        return months[Number(p[1]) - 1] + ' ' + Number(p[2]) + ', ' + p[0];
+      }
+      function fmtMoney(v) {
+        if (v >= 1e9) return '$' + (v / 1e9).toFixed(2) + 'B';
+        if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+        if (v >= 1e3) return '$' + (v / 1e3).toFixed(0) + 'K';
+        return '$' + v;
+      }
+      function fmtShort(n) {
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+        if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+        return '' + n;
+      }
+      var sub = d.n.toLocaleString('en-US') + ' funds · ' + fmtMoney(d.v) +
+        ' total · as of ' + fmtPeriod(meta.period);
+      var summary = '';
+      if (d.p > 0) {
+        var net = (d.t - d.p) / d.p * 100;
+        summary = 'Shares held ' + (net >= 0 ? '+' : '') + net.toFixed(1) +
+          '% vs ' + fmtPeriod(meta.prev) + ' · ' + d.nn + ' new positions · ' +
+          d.nx + ' exits';
+      }
+      var html = blockHead('Institutional holders (13F)', sub);
+      if (summary) html += '<div class="holders-summary">' + esc(summary) + '</div>';
+      html += '<table class="holders-table"><thead><tr>' +
+        '<th>Fund</th><th class="num">Shares</th><th class="num">Value</th>' +
+        '<th class="num">vs prev qtr</th></tr></thead><tbody>';
+      d.h.forEach(function (r) {
+        var chip;
+        if (r[3] === 'NEW') chip = '<span class="hchip new">New</span>';
+        else if (r[3] > 0) chip = '<span class="hchip up">+' + r[3].toFixed(1) + '%</span>';
+        else if (r[3] < 0) chip = '<span class="hchip down">' + r[3].toFixed(1) + '%</span>';
+        else chip = '<span class="hchip">0.0%</span>';
+        html += '<tr><td>' + esc(r[0]) + '</td>' +
+          '<td class="num">' + r[1].toLocaleString('en-US') + '</td>' +
+          '<td class="num">' + fmtMoney(r[2]) + '</td>' +
+          '<td class="num">' + chip + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      if (d.x && d.x.length) {
+        html += '<div class="holders-exits">Exited in ' + fmtPeriod(meta.period) + ': ' +
+          d.x.map(function (r) { return esc(r[0]) + ' (' + fmtShort(r[1]) + ' sh)'; }).join(' · ') +
+          '</div>';
+      }
+      html += '<div class="holders-note">Source: SEC Form 13F filings (managers over $100M in equities). ' +
+        'Long positions only — no shorts. Filings are due 45 days after quarter-end, ' +
+        'so holdings may have changed since ' + fmtPeriod(meta.period) + '.</div>';
+      box.innerHTML = html;
+      box.hidden = false;
+    });
   }
 
   function loadFinancials(sym) {
