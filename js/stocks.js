@@ -1315,7 +1315,7 @@
     if (!f13Promise) {
       f13Promise = new Promise(function (resolve) {
         var s = document.createElement('script');
-        s.src = '/js/13f-data.js?v=20261117b';
+        s.src = '/js/13f-data.js?v=20261119';
         s.onload = function () { resolve(window.F13 || null); };
         s.onerror = function () { resolve(null); };
         document.head.appendChild(s);
