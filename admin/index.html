@@ -105,6 +105,12 @@
                         <h3>Recipe manager</h3>
                         <p>Edit recipes, add new ones, reorganize, or hide them.</p>
                     </a>
+                    <div class="portal-card">
+                        <h3>Rejected submissions</h3>
+                        <p>Permanently delete rejected guestbook, suggestion &amp; restaurant entries older than 90 days. Approved and pending entries are never touched. The portal also sweeps these automatically every time it loads.</p>
+                        <p><button id="purge-btn" class="btn btn-primary btn-sm">Purge rejected (90+ days)</button></p>
+                        <p id="purge-msg" role="status" aria-live="polite"></p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -126,11 +132,13 @@
       var msgEl = document.getElementById('portal-msg');
       var lockEl = document.getElementById('portal-lock');
       var linksEl = document.getElementById('portal-links');
+      var portalTok = '';
 
       // Token keys used by the hidden pages — unlocking here pre-fills them all
       var TOKEN_KEYS = ['gallery_admin', 'rest_admin', 'gb_admin', 'recipe_admin', 'movies_admin', 'sugg_admin'];
 
       function showLinks(tok) {
+        portalTok = tok;
         try {
           TOKEN_KEYS.forEach(function (k) { sessionStorage.setItem(k, tok); });
           sessionStorage.setItem('portal_unlocked', '1');
@@ -194,6 +202,38 @@
       }
       unlockBtn.addEventListener('click', unlock);
       tokEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+
+      var purgeBtn = document.getElementById('purge-btn');
+      var purgeMsg = document.getElementById('purge-msg');
+      if (purgeBtn) {
+        purgeBtn.addEventListener('click', function () {
+          if (!portalTok) { purgeMsg.textContent = 'Unlock the portal first.'; return; }
+          if (!confirm('Permanently delete rejected guestbook, suggestion and restaurant entries older than 90 days? Approved and pending entries are not touched.')) return;
+          purgeMsg.textContent = 'Purging…';
+          purgeBtn.disabled = true;
+          fetch(WORKER_URL + '/admin/purge-rejected', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: portalTok })
+          }).then(function (r) { return r.json(); })
+            .then(function (j) {
+              purgeBtn.disabled = false;
+              if (j && j.ok) {
+                var p = j.purged || {};
+                var total = (p.guestbook | 0) + (p.suggestions | 0) + (p.restaurants | 0);
+                purgeMsg.textContent = total === 0
+                  ? 'Nothing to purge — no rejected entries older than 90 days.'
+                  : 'Deleted ' + total + ' rejected entries (guestbook ' + (p.guestbook | 0) + ', suggestions ' + (p.suggestions | 0) + ', restaurants ' + (p.restaurants | 0) + ').';
+              } else {
+                purgeMsg.textContent = (j && j.error) || 'Purge failed.';
+              }
+            })
+            .catch(function () {
+              purgeBtn.disabled = false;
+              purgeMsg.textContent = 'Could not reach the server — check your connection.';
+            });
+        });
+      }
     })();
     </script>
 </body>
