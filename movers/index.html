@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movers &amp; World Indices | Will Tran</title>
+    <meta name="description" content="Today's biggest gainers, losers and most active stocks, plus world indices — S&P 500, Dow, Nasdaq, FTSE, Nikkei and more.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=dfa61c38">
+    <link rel="stylesheet" href="/css/main.css?v=e1ca0369">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/movers.css?v=e996e69f">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>Movers &amp; World Indices</h2>
+            <p class="rest-sub">What moved today, and how the world's major indices are doing. Prices via Yahoo Finance, cached 15 minutes.</p>
+
+            <h3 class="mv-subhead">World indices</h3>
+            <div id="mv-indices" class="mv-indices">
+                <div class="loader-center"><div class="spinner spinner-sm" role="status" aria-label="Loading indices"></div><span>Loading indices…</span></div>
+            </div>
+
+            <h3 class="mv-subhead">Today's movers</h3>
+            <div class="stocks-tabs mv-tabs" role="tablist" aria-label="Movers list">
+                <button class="stocks-tab mv-tab active" type="button" data-list="gainers" role="tab">Gainers</button>
+                <button class="stocks-tab mv-tab" type="button" data-list="losers" role="tab">Losers</button>
+                <button class="stocks-tab mv-tab" type="button" data-list="active" role="tab">Most active</button>
+            </div>
+            <div id="mv-list" class="mv-list">
+                <div class="loader-center"><div class="spinner spinner-sm" role="status" aria-label="Loading movers"></div><span>Loading movers…</span></div>
+            </div>
+            <p id="mv-asof" class="mv-asof"></p>
+            <p id="mv-msg" class="mv-empty" role="status"></p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/changelog/">Changelog</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+
+    <script src="/js/main.js?v=5bb7e082" defer></script>
+    <script src="/js/movers.js?v=2857b1e0" defer></script>
+</body>
+</html>

@@ -14,9 +14,9 @@
   <title>Stocks | Will Tran</title>
 
     <link rel="stylesheet" href="/css/variables.css?v=dfa61c38">
-    <link rel="stylesheet" href="/css/main.css?v=4f174510">
+    <link rel="stylesheet" href="/css/main.css?v=e1ca0369">
     <link rel="stylesheet" href="/css/components.css">
-    <link rel="stylesheet" href="/css/stocks.css?v=7c2b0bb8">
+    <link rel="stylesheet" href="/css/stocks.css?v=81efbc4b">
     <link rel="stylesheet" href="/css/loading.css">
 </head>
 <body>
@@ -172,6 +172,8 @@
 
                 <div id="q-stats" class="stocks-stats"></div>
 
+                <div id="q-overview" class="stocks-overview" hidden></div>
+
                 <div id="q-estimates" class="stocks-estimates" hidden></div>
 
                 <div id="q-financials" class="stocks-financials" hidden></div>
@@ -195,7 +197,11 @@
 
                 <div id="q-holders" class="stocks-holders" hidden></div>
 
-                <p class="stocks-disclaimer">Market data is provided for informational purposes only and may not be entirely accurate or up to date. Please verify with your broker or another source before making investment decisions. Data sourced through Finnhub API.</p>
+                <div id="q-dividends" class="stocks-dividends" hidden></div>
+
+                <div id="q-history" class="stocks-history" hidden></div>
+
+                <p class="stocks-disclaimer">Market data is provided for informational purposes only and may not be entirely accurate or up to date. Please verify with your broker or another source before making investment decisions. Data sourced through Finnhub and Yahoo Finance.</p>
             </div>
         </section>
     </main>
@@ -209,9 +215,9 @@
 </footer>
 
 
-    <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=5bb7e082"></script>
     <script src="/js/gics.js?v=a5a85f5a"></script>
     <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="/js/stocks.js?v=42ae5f88"></script>
+    <script src="/js/stocks.js?v=5e9dfccb"></script>
 </body>
 </html>

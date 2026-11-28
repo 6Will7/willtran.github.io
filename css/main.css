@@ -282,6 +282,23 @@ nav a.active {
   border-top: 1px solid var(--color-border);
 }
 
+/* Command bar: terminal-style prompt. Reuses the jump overlay/panel/list;
+   only the prompt row and mono type are its own. */
+.cmd-panel { border-top: 3px solid var(--color-accent); }
+.cmd-searchrow { gap: 0.6rem; }
+.cmd-prompt {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700; font-size: 1.15rem; color: var(--color-accent);
+  padding-left: 0.2rem;
+}
+#cmd-input {
+  flex: 1; font: inherit; font-size: 1.05rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 0; outline: 0; background: transparent;
+  color: var(--color-text);
+}
+.cmd-item .jump-item-t { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem; }
+
 @media (max-width: 640px) {
   .jump-overlay { padding: 0; }
   .jump-panel { max-width: none; min-height: 100%; border-radius: 0; border: 0; }

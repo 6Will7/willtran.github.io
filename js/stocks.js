@@ -71,15 +71,18 @@
     Promise.all([
       api('quote'),
       api('profile').catch(function () { return {}; }),
-      api('metric').catch(function () { return {}; })
+      api('metric').catch(function () { return {}; }),
+      api('recommendation').catch(function () { return null; })
     ]).then(function (res) {
       var q = res[0] || {};
       if (!q.c) { showError('No quote data for "' + sym + '". Check the ticker and try again.'); return; }
       var profile = res[1] || {};
       var metric = (res[2] || {}).metric || {};
+      var rec = res[3];
       prevClose = q.pc;
       renderHead(sym, q, profile);
       renderStats(q, profile, metric);
+      renderOverview(profile, metric, rec);
       card.hidden = false;
       loadChart(chartRange);
       loadFilings(sym);
@@ -88,6 +91,8 @@
       loadNews(sym);
       loadInsider(sym);
       loadHolders(sym);
+      loadDividends(sym);
+      loadHistory(sym);
     }).catch(function (e) {
       showError('Could not load ' + sym + ' — ' + e.message);
     });
@@ -142,6 +147,190 @@
       html += stat('GICS sub-industry', g ? g.u : '—');
     }
     $('q-stats').innerHTML = html;
+  }
+
+  /* ---------- one-screen overview: ratios, returns, analysts ----------
+     All values come from Finnhub profile2 + metric(all) + recommendation,
+     already fetched in search(). Finnhub metric values are in percent
+     units (grossMarginTTM 48.79 means 48.79%), so no x100 anywhere.
+     No prose description or CEO: Finnhub's profile has neither, and
+     Yahoo's quoteSummary (the free source for both) returns 401. */
+  function recSummary(rec) {
+    if (!rec || !rec.length) return null;
+    var r = rec[0];
+    var sb = r.strongBuy || 0, b = r.buy || 0, h = r.hold || 0, s = r.sell || 0, ss = r.strongSell || 0;
+    var total = sb + b + h + s + ss;
+    if (!total) return null;
+    var score = (sb * 5 + b * 4 + h * 3 + s * 2 + ss) / total;
+    var label = score >= 4.5 ? 'Strong Buy' : score >= 3.5 ? 'Buy' :
+                score >= 2.5 ? 'Hold' : score >= 1.5 ? 'Sell' : 'Strong Sell';
+    return { label: label, score: score, total: total, period: r.period,
+      counts: { sb: sb, b: b, h: h, s: s, ss: ss } };
+  }
+  function pct1(v) {
+    return (v == null || isNaN(v)) ? '—' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%';
+  }
+  function renderOverview(profile, m, rec) {
+    var box = $('q-overview');
+    if (!box) return;
+    var facts = [];
+    if (profile.weburl) facts.push('<a href="' + esc(profile.weburl) + '" target="_blank" rel="noopener">Company site ↗</a>');
+    if (profile.exchange) facts.push(esc(profile.exchange));
+    if (profile.country) facts.push(esc(profile.country));
+    if (profile.ipo) facts.push('IPO ' + esc(profile.ipo));
+    if (profile.shareOutstanding) facts.push(fmtBig(profile.shareOutstanding) + ' shares out');
+    var ratios =
+      stat('P/S (TTM)', fmtNum(m.psTTM)) +
+      stat('P/B', fmtNum(m.pb)) +
+      stat('EV/EBITDA', fmtNum(m.evEbitdaTTM)) +
+      stat('Forward P/E', fmtNum(m.forwardPE)) +
+      stat('PEG', fmtNum(m.pegTTM)) +
+      stat('Gross margin', m.grossMarginTTM != null ? m.grossMarginTTM.toFixed(1) + '%' : '—') +
+      stat('Net margin', m.netProfitMarginTTM != null ? m.netProfitMarginTTM.toFixed(1) + '%' : '—') +
+      stat('ROE (TTM)', m.roeTTM != null ? m.roeTTM.toFixed(1) + '%' : '—') +
+      stat('Revenue growth YoY', pct1(m.revenueGrowthTTMYoy)) +
+      stat('EPS growth YoY', pct1(m.epsGrowthTTMYoy)) +
+      stat('Payout ratio', m.payoutRatioTTM != null ? m.payoutRatioTTM.toFixed(0) + '%' : '—') +
+      stat('Div / share (TTM)', m.dividendPerShareTTM != null ? '$' + Number(m.dividendPerShareTTM).toFixed(2) : '—');
+    var rets = [['YTD', m.yearToDatePriceReturnDaily], ['52w', m['52WeekPriceReturnDaily']],
+      ['26w', m['26WeekPriceReturnDaily']], ['13w', m['13WeekPriceReturnDaily']],
+      ['5d', m['5DayPriceReturnDaily']]];
+    var chips = rets.map(function (r) {
+      if (r[1] == null || isNaN(r[1])) return '';
+      return '<span class="hchip ' + (r[1] >= 0 ? 'up' : 'down') + '">' + r[0] + ' ' + pct1(r[1]) + '</span>';
+    }).join(' ');
+    var rs = recSummary(rec);
+    var analyst = '';
+    if (rs) {
+      analyst = '<div class="ov-analyst"><strong>' + rs.label + '</strong> ' +
+        '<span class="rec-score-num">' + rs.score.toFixed(2) + ' / 5 · ' + rs.total + ' analysts' +
+        (rs.period ? ' · ' + String(rs.period).slice(0, 7) : '') + '</span>' +
+        ' <span class="ov-rec-counts">' + rs.counts.sb + ' strong buy · ' + rs.counts.b + ' buy · ' +
+        rs.counts.h + ' hold · ' + rs.counts.s + ' sell · ' + rs.counts.ss + ' strong sell</span></div>';
+    }
+    box.innerHTML = blockHead('Overview', 'key ratios · returns · analysts') +
+      (facts.length ? '<div class="ov-facts">' + facts.join(' · ') + '</div>' : '') +
+      '<div class="stocks-stats ov-ratios">' + ratios + '</div>' +
+      (chips ? '<div class="ov-returns">' + chips + '</div>' : '') + analyst;
+    box.hidden = false;
+  }
+
+  /* ---------- dividends + historical prices (Yahoo via worker) ----------
+     Finnhub's dividend endpoint is premium-only, so both come from Yahoo
+     chart data through the worker. Blocks stay hidden if the worker
+     predates the routes or the ticker pays nothing. */
+  function loadDividends(sym) {
+    var box = $('q-dividends');
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = '';
+    fetch(WORKER_URL + '/market/dividends?symbol=' + encodeURIComponent(sym))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (currentSymbol !== sym || !d || !d.dividends || !d.dividends.length) return;
+        var divs = d.dividends.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+        var yearAgo = Date.now() - 365 * 864e5;
+        var lastYear = divs.filter(function (x) {
+          return new Date(x.date + 'T00:00:00').getTime() >= yearAgo;
+        });
+        var annual = lastYear.reduce(function (s, x) { return s + x.amount; }, 0);
+        var yieldTxt = (d.price && annual) ? (annual / d.price * 100).toFixed(2) + '%' : '—';
+        var gaps = [];
+        for (var i = 0; i < Math.min(divs.length - 1, 8); i++) {
+          gaps.push((new Date(divs[i].date) - new Date(divs[i + 1].date)) / 864e5);
+        }
+        gaps.sort(function (a, b) { return a - b; });
+        var med = gaps.length ? gaps[Math.floor(gaps.length / 2)] : null;
+        var freq = med == null ? '—' : med < 40 ? 'Monthly' : med < 100 ? 'Quarterly' :
+          med < 200 ? 'Semi-annual' : 'Annual';
+        var rows = divs.slice(0, 12).map(function (x) {
+          return '<tr><td>' + esc(fmtDate(x.date)) + '</td><td class="num">$' +
+            Number(x.amount).toFixed(3) + '</td></tr>';
+        }).join('');
+        box.innerHTML = blockHead('Dividends', 'past 5 years · via Yahoo Finance') +
+          '<div class="stocks-stats ov-ratios">' +
+          stat('Paid in last 12 mo', annual ? '$' + annual.toFixed(2) : '—') +
+          stat('Yield on last price', yieldTxt) +
+          stat('Frequency', freq) +
+          stat('Payments (5y)', String(d.dividends.length)) + '</div>' +
+          '<div class="earn-table-wrap"><table class="earn-table"><thead><tr>' +
+          '<th>Ex-date</th><th class="num">Amount</th>' +
+          '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+        box.hidden = false;
+      }).catch(function () { /* no dividend data — block stays hidden */ });
+  }
+
+  var histRange = '1y', histRows = [], histShown = 30;
+  function loadHistory(sym, range) {
+    var box = $('q-history');
+    if (!box) return;
+    if (range) histRange = range;
+    box.hidden = true;
+    box.innerHTML = '';
+    fetch(WORKER_URL + '/market/history?symbol=' + encodeURIComponent(sym) + '&range=' + histRange)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (currentSymbol !== sym || !d || !d.rows || !d.rows.length) return;
+        histRows = d.rows;
+        histShown = 30;
+        renderHistory();
+      }).catch(function () { /* no history route — block stays hidden */ });
+  }
+  function renderHistory() {
+    var box = $('q-history');
+    if (!box || !histRows.length) return;
+    var tabs = ['1mo', '3mo', '6mo', '1y', '2y', '5y'].map(function (r) {
+      return '<button type="button" class="stocks-tab hist-tab' + (r === histRange ? ' active' : '') +
+        '" data-range="' + r + '">' + r + '</button>';
+    }).join('');
+    // Chronological rows; day change is vs the previous trading day's close.
+    var shown = histRows.slice().reverse().slice(0, histShown).map(function (r) {
+      var idx = histRows.indexOf(r);
+      var prev = idx > 0 ? histRows[idx - 1][4] : null;
+      var chg = (prev && r[4]) ? (r[4] / prev - 1) * 100 : null;
+      var cls = chg == null ? '' : (chg >= 0 ? 'up' : 'down');
+      var chgTxt = chg == null ? '—' : (chg >= 0 ? '+' : '−') + Math.abs(chg).toFixed(2) + '%';
+      return '<tr><td>' + esc(fmtDate(r[0])) + '</td>' +
+        '<td class="num">$' + fmtNum(r[1]) + '</td><td class="num">$' + fmtNum(r[2]) + '</td>' +
+        '<td class="num">$' + fmtNum(r[3]) + '</td><td class="num"><strong>$' + fmtNum(r[4]) + '</strong></td>' +
+        '<td class="num ' + cls + '">' + chgTxt + '</td>' +
+        '<td class="num">' + fmtNum(r[5], 0) + '</td></tr>';
+    }).join('');
+    box.innerHTML = blockHead('Historical prices', 'daily OHLC · via Yahoo Finance') +
+      '<div class="hist-controls"><div class="stocks-tabs">' + tabs + '</div>' +
+      '<button type="button" class="stocks-tab" id="hist-csv">Download CSV</button></div>' +
+      '<div class="earn-table-wrap"><table class="earn-table"><thead><tr>' +
+      '<th>Date</th><th class="num">Open</th><th class="num">High</th><th class="num">Low</th>' +
+      '<th class="num">Close</th><th class="num">Change</th><th class="num">Volume</th>' +
+      '</tr></thead><tbody>' + shown + '</tbody></table></div>' +
+      (histRows.length > histShown
+        ? '<button type="button" class="stocks-tab hist-more">Show more (' +
+          (histRows.length - histShown) + ' older rows)</button>' : '');
+    box.hidden = false;
+    var tabBtns = box.querySelectorAll('.hist-tab');
+    for (var i = 0; i < tabBtns.length; i++) {
+      tabBtns[i].addEventListener('click', function () {
+        loadHistory(currentSymbol, this.getAttribute('data-range'));
+      });
+    }
+    var more = box.querySelector('.hist-more');
+    if (more) more.addEventListener('click', function () {
+      histShown += 60;
+      renderHistory();
+    });
+    var csvBtn = $('hist-csv');
+    if (csvBtn) csvBtn.addEventListener('click', function () {
+      var csv = 'Date,Open,High,Low,Close,Volume\n' + histRows.map(function (r) {
+        return r[0] + ',' + r[1] + ',' + r[2] + ',' + r[3] + ',' + r[4] + ',' + r[5];
+      }).join('\n');
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = currentSymbol + '-history-' + histRange + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    });
   }
 
   /* ---------- chart (TradingView Lightweight Charts) ---------- */
@@ -1594,10 +1783,35 @@
   searchInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') search(searchInput.value);
   });
-  // Deep link: /stocks/?symbol=NVDA loads that ticker on arrival
+  // Deep link: /stocks/?symbol=NVDA loads that ticker on arrival.
+  // ?view=overview|dividends|history|financials|filings|holders|earnings|
+  // news|chart|quote (from the command bar) scrolls to that block once it
+  // has rendered — blocks load async, so poll until it appears.
+  var VIEW_TARGETS = {
+    overview: '#q-overview', dividends: '#q-dividends', history: '#q-history',
+    financials: '#q-financials', filings: '.stocks-filings', holders: '#q-holders',
+    earnings: '#q-estimates', news: '#q-news', chart: '#stocks-chart', quote: '#stocks-card'
+  };
+  function scrollToView(view) {
+    var sel = VIEW_TARGETS[view];
+    if (!sel) return;
+    var tries = 0;
+    var tick = setInterval(function () {
+      tries++;
+      var el = document.querySelector(sel);
+      if (el && !el.hidden && el.offsetParent !== null) {
+        clearInterval(tick);
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (tries > 20) {
+        clearInterval(tick);
+      }
+    }, 400);
+  }
   try {
-    var qsym = new URLSearchParams(location.search).get('symbol');
-    if (qsym) { searchInput.value = qsym; search(qsym); }
+    var qp = new URLSearchParams(location.search);
+    var qsym = qp.get('symbol');
+    var qview = qp.get('view');
+    if (qsym) { searchInput.value = qsym; search(qsym); if (qview) scrollToView(qview); }
   } catch (e) {}
 
   /* ---------- watchlist with cross-device sync ----------

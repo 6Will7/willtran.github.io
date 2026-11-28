@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Screener | Will Tran</title>
+    <meta name="description" content="Filter 3,002 US stocks by valuation, growth, profitability, yield and price position. Fundamentals via Finnhub, prices via Yahoo Finance.">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/css/variables.css?v=dfa61c38">
+    <link rel="stylesheet" href="/css/main.css?v=e1ca0369">
+    <link rel="stylesheet" href="/css/components.css">
+    <link rel="stylesheet" href="/css/loading.css">
+    <link rel="stylesheet" href="/css/movers.css?v=e996e69f">
+    <link rel="stylesheet" href="/css/screener.css?v=a3079f1d">
+</head>
+<body>
+    <header>
+  <div class="nav-container">
+    <div class="brand-group">
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode" title="Toggle Theme">
+        <span class="toggle-icon">◐</span>
+      </button>
+      <a href="/" class="logo-link">William Tran<span class="logo-dot">.</span></a>
+      <button type="button" id="jump-open" class="jump-open" aria-haspopup="dialog" aria-label="Open the site menu"><span class="jump-burger" aria-hidden="true">☰</span> Menu <span class="jump-key" aria-hidden="true">⌘K</span></button>
+    </div>
+    <nav>
+      <ul>
+        <li class="nav-quicklink"><a href="/gallery.html">Gallery</a></li>
+        <li class="nav-quicklink"><a href="/stocks/">Stocks</a></li>
+        <li class="nav-quicklink"><a href="/bart/">BART</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main class="container">
+        <section class="section reveal">
+            <h2>Stock Screener</h2>
+            <p class="rest-sub">Filter the 3,002-ticker universe by valuation, growth, profitability and yield. Fundamentals refresh quarterly; prices are from the last build. Click a column to sort.</p>
+
+            <div id="scr-filters" class="scr-filters" hidden>
+                <input id="scr-q" type="text" placeholder="Ticker or company name…" autocomplete="off" spellcheck="false" aria-label="Search ticker or name">
+                <select id="scr-sector" aria-label="Sector"><option value="">All sectors</option></select>
+                <select id="scr-industry" aria-label="Industry"><option value="">All industries</option></select>
+                <select id="scr-mcap" aria-label="Minimum market cap">
+                    <option value="">Any size</option>
+                    <option value="1000">Over $1B</option>
+                    <option value="10000">Over $10B</option>
+                    <option value="100000">Over $100B</option>
+                    <option value="500000">Over $500B</option>
+                </select>
+                <select id="scr-pe" aria-label="Maximum P/E">
+                    <option value="">Any P/E</option>
+                    <option value="10">P/E under 10</option>
+                    <option value="15">P/E under 15</option>
+                    <option value="20">P/E under 20</option>
+                    <option value="30">P/E under 30</option>
+                </select>
+                <select id="scr-ps" aria-label="Maximum P/S">
+                    <option value="">Any P/S</option>
+                    <option value="1">P/S under 1</option>
+                    <option value="2">P/S under 2</option>
+                    <option value="5">P/S under 5</option>
+                    <option value="10">P/S under 10</option>
+                </select>
+                <select id="scr-div" aria-label="Minimum dividend yield">
+                    <option value="">Any yield</option>
+                    <option value="1">Yield over 1%</option>
+                    <option value="2">Yield over 2%</option>
+                    <option value="3">Yield over 3%</option>
+                    <option value="5">Yield over 5%</option>
+                </select>
+                <select id="scr-beta" aria-label="Maximum beta">
+                    <option value="">Any beta</option>
+                    <option value="0.8">Beta under 0.8</option>
+                    <option value="1">Beta under 1.0</option>
+                    <option value="1.5">Beta under 1.5</option>
+                </select>
+                <select id="scr-pos" aria-label="52-week position">
+                    <option value="">Any 52w position</option>
+                    <option value="low">Near 52w low (&lt;25%)</option>
+                    <option value="mid">Mid-range (25–75%)</option>
+                    <option value="high">Near 52w high (&gt;75%)</option>
+                </select>
+                <select id="scr-chg" aria-label="Day change">
+                    <option value="">Any day change</option>
+                    <option value="up2">Up over 2% today</option>
+                    <option value="dn2">Down over 2% today</option>
+                </select>
+                <button id="scr-reset" type="button" class="stocks-tab">Reset</button>
+            </div>
+
+            <p id="scr-meta" class="mv-asof"></p>
+            <div id="scr-results" class="mv-list" hidden>
+                <div class="mv-table-wrap"><table class="mv-table scr-table"><thead><tr>
+                    <th data-sort="0">Ticker</th>
+                    <th data-sort="1">Company</th>
+                    <th data-sort="4" class="num">Mkt cap</th>
+                    <th data-sort="5" class="num">P/E</th>
+                    <th data-sort="6" class="num">P/S</th>
+                    <th data-sort="8" class="num">Div %</th>
+                    <th data-sort="9" class="num">Beta</th>
+                    <th data-sort="14" class="num">Price</th>
+                    <th data-sort="15" class="num">Day %</th>
+                    <th data-sort="16" class="num">52w pos</th>
+                </tr></thead><tbody id="scr-tbody"></tbody></table></div>
+                <p id="scr-count" class="mv-asof"></p>
+                <button id="scr-more" type="button" class="stocks-tab hist-more" hidden>Show more</button>
+            </div>
+            <p id="scr-msg" class="mv-empty" role="status">
+                <span class="loader-center"><span class="spinner spinner-sm" role="status" aria-label="Loading screener data"></span><span>Loading screener data…</span></span>
+            </p>
+        </section>
+    </main>
+    <footer>
+  <div class="container">
+    <p class="footer-links"><a href="/sitemap/">Sitemap</a> · <a href="/changelog/">Changelog</a> · <a href="/guestbook/">Guestbook</a> · <a href="/privacy/">Privacy &amp; Terms</a></p>
+    <p>&copy; <span id="current-year">2026</span> Will Tran. All rights reserved.</p>
+  </div>
+</footer>
+
+
+    <script src="/js/main.js?v=5bb7e082" defer></script>
+    <script src="/js/screener-data.js?v=b9331692" defer></script>
+    <script src="/js/screener.js?v=9c4b27ba" defer></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* Movers & world indices page */
+.mv-subhead { font-size: 1.05rem; margin: 1.4rem 0 0.6rem; }
+.mv-indices {
+  display: grid; gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.mv-index {
+  border: 1px solid var(--color-border); border-radius: 10px;
+  padding: 0.6rem 0.75rem; background: var(--color-card-bg);
+  display: flex; flex-direction: column; gap: 0.15rem;
+}
+.mv-index-name { font-size: 0.82rem; color: var(--color-text-muted); }
+.mv-index-price { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mv-index-chg { font-size: 0.9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mv-index-chg.up, .mv-table td.up { color: #16a34a; }
+.mv-index-chg.down, .mv-table td.down { color: #dc2626; }
+.mv-tabs { margin: 0.4rem 0 0.8rem; }
+.mv-list { overflow-x: auto; }
+.mv-table-wrap { overflow-x: auto; margin: 0 -0.15rem; padding: 0 0.15rem; }
+.mv-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 640px; }
+.mv-table th, .mv-table td { text-align: right; padding: 0.35rem 0.15rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; }
+.mv-table th:first-child, .mv-table td:first-child,
+.mv-table th:nth-child(2), .mv-table td:nth-child(2) { text-align: left; }
+.mv-table thead th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); font-weight: 600; }
+.mv-table .up { color: #16a34a; font-weight: 600; }
+.mv-table .down { color: #dc2626; font-weight: 600; }
+[data-theme="dark"] .mv-table .up { color: #4ade80; }
+[data-theme="dark"] .mv-table .down { color: #DA121A; }
+.mv-table td a { color: var(--color-text); text-decoration: none; }
+.mv-table td a:hover { color: var(--color-accent); text-decoration: underline; }
+.mv-asof { font-size: 0.82rem; color: var(--color-text-muted); margin-top: 0.7rem; }
+.mv-empty { color: var(--color-text-muted); font-size: 0.95rem; }

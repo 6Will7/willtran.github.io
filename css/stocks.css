@@ -439,6 +439,18 @@
 .insider-badge.sell { background: rgba(220, 38, 38, 0.16); color: #dc2626; }
 
 /* Institutional holders (13F) */
+/* One-screen overview + dividends + history (command-bar views) */
+.stocks-overview { margin-top: 1.2rem; }
+.ov-facts { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.4rem 0 0.7rem; }
+.ov-facts a { color: var(--color-accent); }
+.ov-ratios { margin-top: 0.6rem; }
+.ov-returns { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+.ov-analyst { margin-top: 0.8rem; font-size: 0.92rem; }
+.ov-rec-counts { color: var(--color-text-muted); font-size: 0.85rem; }
+.stocks-dividends, .stocks-history { margin-top: 1.2rem; overflow-x: auto; }
+.hist-controls { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin: 0.5rem 0; }
+.hist-more { margin-top: 0.6rem; }
+
 .stocks-holders { margin-top: 1.2rem; overflow-x: auto; }
 .holders-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 0.5rem; min-width: 600px; }
 .holders-table th, .holders-table td { padding: 0.35rem 0.15rem; border-bottom: 1px solid var(--color-border); font-variant-numeric: tabular-nums; text-align: left; }

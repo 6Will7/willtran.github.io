@@ -69,7 +69,248 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   /* ----- Markets dropdown (works for build-inlined and runtime-fetched header) ----- */
-  function initNavDropdown() { initJumpMenu(); }
+  function initNavDropdown() { initJumpMenu(); initCommandBar(); }
+
+  /* ----- Command bar: backtick opens a terminal-style prompt -----
+     Own vocabulary, plain words — deliberately not the two-letter
+     mnemonics other terminals use. `aapl overview` jumps to a ticker
+     view; `movers` or `screener` go straight to a page; `help` lists
+     every command. */
+  var CMD_TICKER = [
+    { c: 'overview', d: 'One-screen snapshot: ratios, returns, analysts' },
+    { c: 'chart', d: 'Price chart' },
+    { c: 'financials', d: 'Quarterly financials' },
+    { c: 'filings', d: 'SEC filings' },
+    { c: 'holders', d: 'Institutional holders (13F)' },
+    { c: 'earnings', d: 'Earnings surprises and next report' },
+    { c: 'news', d: 'Latest news' },
+    { c: 'dividends', d: 'Dividend history' },
+    { c: 'history', d: 'Daily prices table and download' },
+    { c: 'compare', d: 'Compare against other tickers' },
+    { c: 'quote', d: 'Current quote' }
+  ];
+  var CMD_BARE = [
+    { c: 'movers', d: "Today's gainers, losers, most active", h: '/movers/' },
+    { c: 'indices', d: 'World indices', h: '/movers/?view=indices' },
+    { c: 'screener', d: 'Filter stocks by valuation, growth, yield', h: '/screener/' },
+    { c: 'heatmap', d: 'S&P 500 sector heat map', h: '/heatmap/' },
+    { c: 'wire', d: 'News, filings and earnings stream', h: '/wire/' },
+    { c: 'earnings', d: 'Who reports this week', h: '/earnings/' },
+    { c: 'rates', d: 'Treasury yields and curve', h: '/rates/' },
+    { c: 'correlation', d: 'How closely do two stocks move?', h: '/correlation/' },
+    { c: 'calculator', d: 'Natural-language calculator', h: '/calculator/' },
+    { c: 'bart', d: 'BART departures', h: '/bart/' },
+    { c: 'gallery', d: 'Photos', h: '/gallery.html' },
+    { c: 'movies', d: 'Movies and friends diaries', h: '/movies/' },
+    { c: 'changelog', d: "What's new on the site", h: '/changelog/' },
+    { c: 'sitemap', d: 'Every page on the site', h: '/sitemap/' },
+    { c: 'help', d: 'List all commands' }
+  ];
+  var cmdBuilt = false, cmdSel = 0, cmdItems = [], cmdGicsLoading = false;
+
+  function ensureGics(cb) {
+    if (typeof GICS !== 'undefined') { cb(); return; }
+    if (cmdGicsLoading) {
+      var t = setInterval(function () {
+        if (typeof GICS !== 'undefined') { clearInterval(t); cb(); }
+      }, 200);
+      return;
+    }
+    cmdGicsLoading = true;
+    var s = document.createElement('script');
+    s.src = '/js/gics.js?v=20260929b';
+    s.onload = function () { cb(); };
+    s.onerror = function () { cb(); };
+    document.head.appendChild(s);
+  }
+
+  function initCommandBar() {
+    if (cmdBuilt) return;
+    cmdBuilt = true;
+    var overlay = document.createElement('div');
+    overlay.className = 'jump-overlay cmd-overlay';
+    overlay.id = 'cmd-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Command bar');
+    overlay.innerHTML =
+      '<div class="jump-panel cmd-panel">' +
+        '<div class="jump-searchrow cmd-searchrow">' +
+          '<span class="cmd-prompt" aria-hidden="true">&gt;</span>' +
+          '<input id="cmd-input" type="text" placeholder="aapl overview · movers · screener · help" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command">' +
+          '<button type="button" id="cmd-close" class="jump-close" aria-label="Close command bar">✕</button>' +
+        '</div>' +
+        '<div id="cmd-list" class="jump-list cmd-list"></div>' +
+        '<p class="jump-hint">↑ ↓ to move · Enter to run · Esc to close · type <b>help</b> for all commands</p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    var input = overlay.querySelector('#cmd-input');
+    input.addEventListener('input', function () { renderCmd(input.value); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveCmd(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveCmd(-1); }
+      else if (e.key === 'Enter') { e.preventDefault(); runCmd(input.value); }
+      else if (e.key === 'Escape') { closeCmd(); }
+    });
+    overlay.querySelector('#cmd-close').addEventListener('click', closeCmd);
+    overlay.addEventListener('mousedown', function (e) { if (e.target === overlay) closeCmd(); });
+    document.addEventListener('keydown', function (e) {
+      var t = e.target;
+      var typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
+        t.tagName === 'SELECT' || t.isContentEditable);
+      if (e.key === '`' && !e.metaKey && !e.ctrlKey && !e.altKey && !typing) {
+        e.preventDefault();
+        if (overlay.classList.contains('open')) closeCmd(); else openCmd();
+      } else if (e.key === 'Escape' && overlay.classList.contains('open')) {
+        closeCmd();
+      }
+    });
+  }
+
+  function cmdIsTicker(tok) {
+    return /^[A-Z0-9.\-]{1,6}$/.test(tok);
+  }
+
+  // Build the suggestion list for the current input. Each item: {t, d, href}
+  // (href null = informational line, Enter does nothing).
+  function cmdSuggestions(q) {
+    var toks = (q || '').trim().split(/\s+/).filter(Boolean);
+    var items = [];
+    if (!toks.length) {
+      CMD_TICKER.slice(0, 5).forEach(function (c) {
+        items.push({ t: 'AAPL ' + c.c, d: c.d, href: '/stocks/?symbol=AAPL&view=' + c.c });
+      });
+      CMD_BARE.slice(0, 5).forEach(function (b) {
+        items.push({ t: b.c, d: b.d, href: b.h });
+      });
+      return items;
+    }
+    var first = toks[0].toLowerCase();
+    if (first === 'help') {
+      CMD_TICKER.forEach(function (c) {
+        items.push({ t: 'TICKER ' + c.c, d: c.d, href: null });
+      });
+      CMD_BARE.forEach(function (b) {
+        items.push({ t: b.c, d: b.d, href: b.h || null });
+      });
+      return items;
+    }
+    if (first === 'compare') {
+      var rest = toks.slice(1).map(function (x) { return x.toUpperCase(); })
+        .filter(cmdIsTicker);
+      if (rest.length) {
+        items.push({ t: 'compare ' + rest.join(' '), d: 'Chart these tickers on one return scale',
+          href: '/compare/?symbols=' + rest.join(',') });
+      } else {
+        items.push({ t: 'compare …', d: 'Add tickers: compare aapl msft nvda', href: null });
+      }
+      return items;
+    }
+    if (toks.length >= 2 && cmdIsTicker(toks[0].toUpperCase())) {
+      var sym = toks[0].toUpperCase();
+      var want = toks[1].toLowerCase();
+      CMD_TICKER.filter(function (c) { return c.c.indexOf(want) === 0; })
+        .forEach(function (c) {
+          var href = c.c === 'compare'
+            ? '/compare/?symbols=' + sym
+            : '/stocks/?symbol=' + sym + '&view=' + c.c;
+          items.push({ t: sym + ' ' + c.c, d: c.d, href: href });
+        });
+      if (!items.length) items.push({ t: sym + ' ' + want, d: 'No such view — try overview, chart, holders…', href: null });
+      return items;
+    }
+    // Single token: bare commands by prefix, then tickers by prefix.
+    CMD_BARE.filter(function (b) { return b.c.indexOf(first) === 0; })
+      .forEach(function (b) { items.push({ t: b.c, d: b.d, href: b.h || null }); });
+    if (cmdIsTicker(toks[0].toUpperCase()) && typeof GICS !== 'undefined') {
+      var pref = toks[0].toUpperCase();
+      Object.keys(GICS).filter(function (k) { return k.indexOf(pref) === 0; })
+        .slice(0, 6).forEach(function (k) {
+          items.push({ t: k, d: (GICS[k].s || '') + (GICS[k].i ? ' · ' + GICS[k].i : '') +
+            ' — open quote', href: '/stocks/?symbol=' + k });
+        });
+    }
+    return items;
+  }
+
+  function renderCmd(q) {
+    var list = document.getElementById('cmd-list');
+    if (!list) return;
+    cmdItems = cmdSuggestions(q);
+    var html = '';
+    if (!cmdItems.length) {
+      html = '<p class="jump-none">No matches — try <b>help</b>.</p>';
+    } else {
+      cmdItems.forEach(function (it) {
+        html += '<a class="jump-item cmd-item" href="' + (it.href || '#') + '">' +
+          '<span class="jump-item-t">' + jumpEsc(it.t) + '</span>' +
+          '<span class="jump-item-d">' + jumpEsc(it.d) + '</span></a>';
+      });
+    }
+    list.innerHTML = html;
+    cmdSel = 0;
+    markCmdSel();
+    var links = list.querySelectorAll('.jump-item');
+    links.forEach(function (a, i) {
+      a.addEventListener('mouseenter', function () { cmdSel = i; markCmdSel(); });
+      a.addEventListener('click', function (e) {
+        var it = cmdItems[i];
+        if (!it || !it.href) { e.preventDefault(); return; }
+        // let the href navigate; nothing else to do
+      });
+    });
+    if (q && q.trim() && typeof GICS === 'undefined') {
+      ensureGics(function () {
+        var ov = document.getElementById('cmd-overlay');
+        if (ov && ov.classList.contains('open')) {
+          var inp = document.getElementById('cmd-input');
+          renderCmd(inp ? inp.value : '');
+        }
+      });
+    }
+  }
+
+  function markCmdSel() {
+    var links = document.querySelectorAll('#cmd-list .jump-item');
+    links.forEach(function (a, i) { a.classList.toggle('sel', i === cmdSel); });
+    var a = links[cmdSel];
+    if (a && a.scrollIntoView) a.scrollIntoView({ block: 'nearest' });
+  }
+  function moveCmd(d) {
+    if (!cmdItems.length) return;
+    cmdSel = (cmdSel + d + cmdItems.length) % cmdItems.length;
+    markCmdSel();
+  }
+
+  function runCmd(q) {
+    var toks = (q || '').trim().split(/\s+/).filter(Boolean);
+    if (!toks.length) return;
+    if (toks[0].toLowerCase() === 'help') { renderCmd('help'); return; }
+    renderCmd(q);
+    var it = cmdItems[cmdSel];
+    if (it && it.href) { window.location.href = it.href; return; }
+    // Raw parse fallback: a lone ticker goes to its quote.
+    if (toks.length === 1 && cmdIsTicker(toks[0].toUpperCase())) {
+      window.location.href = '/stocks/?symbol=' + toks[0].toUpperCase();
+    }
+  }
+
+  function openCmd() {
+    initCommandBar();
+    var overlay = document.getElementById('cmd-overlay');
+    if (!overlay) return;
+    renderCmd('');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    var input = document.getElementById('cmd-input');
+    if (input) { input.value = ''; setTimeout(function () { input.focus(); }, 30); }
+  }
+  function closeCmd() {
+    var overlay = document.getElementById('cmd-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
 
   /* ----- Jump-to menu: one searchable, grouped all-pages overlay ----- */
   var JUMP_GROUPS = [
@@ -92,6 +333,9 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Markets", items: [
       { t: "Markets Overview", h: "/markets/", d: "All the market tools in one place.", k: "stocks finance tools" },
       { t: "Stocks", h: "/stocks/", d: "Live quotes, charts, SEC filings, and insider trades.", k: "quotes charts tickers watchlist prices" },
+      { t: "Movers", h: "/movers/", d: "Today's gainers, losers, most active, plus world indices.", k: "gainers losers most active market movers indices" },
+      { t: "Screener", h: "/screener/", d: "Filter the 3,002-ticker universe by valuation, growth and yield.", k: "screen filter stocks value growth dividend pe" },
+      { t: "Compare", h: "/compare/", d: "Chart several tickers on one normalized return scale.", k: "compare chart tickers returns normalized" },
       { t: "The Wire", h: "/wire/", d: "News, filings and earnings for your tickers, in one stream.", k: "wire news stream headlines earnings regnewswire feed" },
       { t: "Earnings Week", h: "/earnings/", d: "Who reports this week, and what the Street expects.", k: "earnings calendar reports eps estimates week" },
       { t: "Heat Map", h: "/heatmap/", d: "Sector heat map built from official ETF holdings.", k: "sectors sp500 etf treemap" },
@@ -130,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
           '<button type="button" id="jump-close" class="jump-close" aria-label="Close menu">✕</button>' +
         '</div>' +
         '<div id="jump-list" class="jump-list"></div>' +
-        '<p class="jump-hint">↑ ↓ to move · Enter to go · Esc to close</p>' +
+        '<p class="jump-hint">↑ ↓ to move · Enter to go · Esc to close · backtick ` opens the command bar</p>' +
       '</div>';
     document.body.appendChild(overlay);
 

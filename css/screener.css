@@ -1,0 +1,24 @@
+/* Screener page */
+.scr-filters {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin: 1rem 0 0.5rem;
+}
+.scr-filters input, .scr-filters select {
+  font: inherit; font-size: 0.92rem;
+  padding: 0.5rem 0.6rem; border: 1px solid var(--color-border);
+  border-radius: 8px; background: var(--color-card-bg); color: var(--color-text);
+}
+.scr-filters input { flex: 1 1 220px; }
+.scr-table th[data-sort] { cursor: pointer; user-select: none; }
+.scr-table th[data-sort]:hover { color: var(--color-accent); }
+.scr-table td a { color: var(--color-text); text-decoration: none; }
+.scr-table td a:hover { color: var(--color-accent); text-decoration: underline; }
+.scr-pos { display: inline-flex; align-items: center; gap: 0.4rem; }
+.scr-pos-track {
+  display: inline-block; width: 48px; height: 6px; border-radius: 3px;
+  background: var(--color-border); position: relative; vertical-align: middle;
+}
+.scr-pos-track i {
+  position: absolute; top: -2px; width: 2px; height: 10px;
+  background: var(--color-accent);
+}

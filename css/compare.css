@@ -1,0 +1,19 @@
+/* Compare page */
+.cmp-form { display: flex; gap: 0.6rem; margin: 1rem 0 0.6rem; flex-wrap: wrap; }
+.cmp-form input {
+  flex: 1; min-width: 220px; font: inherit; font-size: 1rem;
+  padding: 0.6rem 0.8rem; border: 1px solid var(--color-border);
+  border-radius: 10px; background: var(--color-card-bg); color: var(--color-text);
+}
+.cmp-presets { margin-bottom: 1rem; }
+.cmp-tabs { margin: 0.2rem 0 1rem; }
+.cmp-chart-wrap { margin-top: 0.5rem; }
+#cmp-chart { width: 100%; height: 340px; }
+.cmp-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0.7rem 0; font-size: 0.92rem; }
+.cmp-leg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 0.35rem; vertical-align: -1px; }
+.cmp-leg .up { color: #16a34a; }
+.cmp-leg .down { color: #dc2626; }
+.cmp-table { min-width: 480px; }
+.cmp-table td a { color: var(--color-text); text-decoration: none; }
+.cmp-table td a:hover { color: var(--color-accent); text-decoration: underline; }
+.cmp-note { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1rem; }
